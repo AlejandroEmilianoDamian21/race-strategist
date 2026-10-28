@@ -32,3 +32,28 @@ export function lapAtPointer(clientX: number, barLeft: number, barWidth: number,
   const share = Math.min(1, Math.max(0, (clientX - barLeft) / barWidth))
   return share * total
 }
+
+const LABEL_GAP = 4
+const HANDLE_MAX = 20
+const HANDLE_MIN = 8
+
+export function labelsThatFit(centers: number[], widths: number[]): boolean[] {
+  let edge = Number.NEGATIVE_INFINITY
+  return centers.map((center, index) => {
+    const half = (widths[index] ?? 0) / 2
+    if (center - half < edge + LABEL_GAP) return false
+    edge = center + half
+    return true
+  })
+}
+
+export function handleWidths(centers: number[]): number[] {
+  return centers.map((center, index) => {
+    const before = index > 0 ? center - (centers[index - 1] ?? center) : Number.POSITIVE_INFINITY
+    const after =
+      index < centers.length - 1
+        ? (centers[index + 1] ?? center) - center
+        : Number.POSITIVE_INFINITY
+    return Math.max(HANDLE_MIN, Math.min(HANDLE_MAX, before, after))
+  })
+}
