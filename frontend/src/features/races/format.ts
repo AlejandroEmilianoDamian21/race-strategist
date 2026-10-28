@@ -25,11 +25,11 @@ export function formatSignedSeconds(value: number, digits = 1): string {
   return `${sign}${Math.abs(value).toFixed(digits)}s`
 }
 
-export type RainLevel = 'dry' | 'light' | 'moderate' | 'heavy'
+export type RainLevel = 'dry' | 'drizzle' | 'moderate' | 'heavy'
 
 export function rainLevel(intensity: number): RainLevel {
   if (intensity <= 0) return 'dry'
-  if (intensity <= 0.2) return 'light'
-  if (intensity <= 0.5) return 'moderate'
+  if (intensity < 0.15) return 'drizzle'
+  if (intensity < 0.55) return 'moderate'
   return 'heavy'
 }

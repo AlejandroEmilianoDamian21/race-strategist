@@ -1,7 +1,8 @@
 import type { CSSProperties } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { RaceOverviewTeam } from '@/shared/api/types'
-import { Card, CardTitle } from '@/shared/ui/card'
+import { Card, CardHead, CardTitle } from '@/shared/ui/card'
+import { CarIcon } from '@/shared/ui/icons'
 import { teamColor } from './team-colors'
 
 interface DriverGridProps {
@@ -12,11 +13,17 @@ interface DriverGridProps {
 
 export function DriverGrid({ teams, selectedId, onSelect }: DriverGridProps) {
   const { t } = useTranslation()
+  const drivers = teams.reduce((total, team) => total + team.drivers.length, 0)
 
   return (
-    <Card className="min-[1100px]:col-span-3">
-      <CardTitle className="mb-4">{t('raceInfo.drivers.title')}</CardTitle>
-      <div className="grid gap-3 min-[720px]:grid-cols-2 min-[1100px]:grid-cols-4">
+    <Card>
+      <CardHead>
+        <CardTitle>{t('raceInfo.drivers.title')}</CardTitle>
+        <span className="text-caption text-ink-faint">
+          {t('raceInfo.drivers.caption', { drivers, teams: teams.length })}
+        </span>
+      </CardHead>
+      <div className="grid grid-cols-5 gap-3 max-[1100px]:grid-cols-3 max-[720px]:grid-cols-2">
         {teams.map((team) => (
           <div
             key={team.id}
@@ -26,13 +33,14 @@ export function DriverGrid({ teams, selectedId, onSelect }: DriverGridProps) {
             className="rounded-sm border-t-[3px] border-t-(--team) bg-surface-2 p-3"
           >
             <div className="mb-2 flex items-baseline justify-between gap-2">
-              <span className="font-display text-[15px] font-bold uppercase tracking-[0.5px]">
+              <span className="font-display text-[15px] font-bold uppercase leading-[inherit] tracking-[0.5px]">
                 {team.name}
               </span>
               <span
                 title={t('raceInfo.drivers.carPerformance')}
-                className="font-mono text-caption tabular-nums text-ink-muted"
+                className="inline-flex items-center gap-1 font-mono text-caption leading-[inherit] text-ink-muted"
               >
+                <CarIcon className="size-3.5" />
                 {team.carPerformance}
               </span>
             </div>
@@ -42,15 +50,18 @@ export function DriverGrid({ teams, selectedId, onSelect }: DriverGridProps) {
                 type="button"
                 aria-pressed={driver.id === selectedId}
                 onClick={() => onSelect(driver.id)}
-                className="flex w-full cursor-pointer items-baseline gap-2 rounded-sm border border-transparent px-2 py-1 text-left text-data hover:bg-surface-3 focus-visible:outline-none focus-visible:shadow-focus aria-pressed:border-accent aria-pressed:bg-surface-3"
+                className="-mx-1 grid w-[calc(100%+8px)] cursor-pointer grid-cols-[24px_minmax(0,1fr)_auto] items-baseline gap-2 rounded-sm border border-transparent bg-transparent px-1 py-px text-left text-body hover:bg-surface-3 aria-pressed:border-ink aria-pressed:bg-bg"
               >
-                <span className="w-6 font-mono text-caption tabular-nums text-ink-faint">
+                <span className="font-mono text-caption leading-[inherit] tabular-nums text-ink-faint">
                   {driver.number}
                 </span>
-                <span className="flex-1">{driver.name}</span>
+                <span className="truncate">{driver.name}</span>
                 <span
-                  title={t('raceInfo.drivers.pace')}
-                  className="font-mono text-caption tabular-nums text-ink-muted"
+                  title={t('raceInfo.drivers.paceTitle', {
+                    pace: driver.pace,
+                    consistency: driver.consistency,
+                  })}
+                  className="font-mono text-caption leading-[inherit] text-ink-faint"
                 >
                   {driver.pace}
                 </span>

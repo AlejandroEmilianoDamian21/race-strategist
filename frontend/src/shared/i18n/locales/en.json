@@ -111,8 +111,8 @@
     "WET": "Wet"
   },
   "raceInfo": {
-    "title": "Circuit, weather and grid",
-    "empty": "Pick a race to see the circuit, the weather and who is racing.",
+    "title": "The race",
+    "headCaption": "Round {{round}} · {{date}} · {{temperature}}°C",
     "loading": "Loading race information…",
     "circuit": {
       "eyebrow": "Circuit · {{country}} · {{type}}",
@@ -122,29 +122,52 @@
       "baseLap": "Base lap",
       "tyreWear": "Tyre wear",
       "tyreWearNote": "1.0 is neutral",
+      "pitCost": "Pit stop cost",
+      "pitCostNote": "{{pitStopLoss}}s pit lane + {{tyreChangeTime}}s change",
       "overtaking": "Overtaking difficulty",
       "overtakingNote": "0 easy · 1 impossible",
       "safetyCar": "Safety car probability",
-      "safetyCarNote": "Not part of the simulation"
+      "safetyCarNote": "Not part of the simulation",
+      "reading": {
+        "title": "Strategy reading",
+        "highWear": "High wear (×{{value}}): softs wear out fast, consider stopping more or using hards.",
+        "lowWear": "Low wear (×{{value}}): tyres hold up, one stop is usually enough.",
+        "hardOvertaking": "Overtaking is almost impossible ({{value}}): track position matters more than fresh tyres.",
+        "rain": "Rain probability of {{value}}: check the forecast by segment before choosing compounds.",
+        "safetyCar": "Safety car very likely ({{value}}).",
+        "balanced": "Balanced circuit: wear and pit loss close to average."
+      }
     },
     "tyres": {
       "title": "Tyres",
+      "count_one": "{{count}} compound",
+      "count_other": "{{count}} compounds",
       "degradation": "Degradation here",
       "optimalRain": "Optimal rain",
-      "note": "Pace vs. base lap (negative = faster). Degradation is multiplied by this circuit’s tyre wear."
+      "optimalRange": "Optimal rain {{min}}–{{max}}",
+      "mark": "Rain {{value}} in this race",
+      "noteRich": "Pace vs. <code>baseLapTime</code> (negative = faster). Degradation × <code>tyreWear</code> {{wear}} of this circuit. The ▏ marks are this race's rain intensities; dimmed compounds fit no segment."
     },
     "weather": {
-      "title": "Weather by stage",
-      "intensity": "Intensity {{value}}",
+      "title": "Weather during the race",
+      "caption": "Rain probability {{percent}}",
+      "segments": "Race segments · ideal by rain band",
+      "band": "Weather by segment",
+      "segmentLabel": "{{from}}–{{to}}: {{level}} ({{value}}), {{temperature}}°C.{{ideal}}",
+      "idealLabel": " Ideal: {{compounds}}",
       "dry": "Dry",
-      "light": "Light rain",
+      "drizzle": "Drizzle",
       "moderate": "Moderate rain",
-      "heavy": "Heavy rain"
+      "heavy": "Heavy rain",
+      "dryShort": "dry",
+      "detail": "{{temperature}}°C · intensity {{value}}",
+      "idealDetail": " · ideal {{compounds}}"
     },
     "drivers": {
       "title": "Grid",
+      "caption": "{{drivers}} drivers · {{teams}} teams · tap one to simulate with them",
       "carPerformance": "Car performance",
-      "pace": "Pace",
+      "paceTitle": "Pace {{pace}} · consistency {{consistency}}",
       "lapShort": "L"
     }
   },
@@ -180,8 +203,8 @@
     },
     "warning": {
       "rain": {
-        "dry": "a dry track",
-        "light": "light rain",
+        "dry": "dry",
+        "drizzle": "drizzle",
         "moderate": "moderate rain",
         "heavy": "heavy rain"
       },

@@ -16,12 +16,22 @@ describe('DriverGrid', () => {
     expect(groups[1]).toHaveStyle({ '--team': 'var(--color-ink-faint)' })
   })
 
-  it('shows number, name and pace on each driver', () => {
+  it('shows the car performance with a car icon next to the team name', () => {
+    render(<DriverGrid teams={OVERVIEW.teams} selectedId={null} onSelect={vi.fn()} />)
+
+    const perf = within(screen.getAllByRole('group')[0]).getByTitle('Rendimiento del auto')
+    expect(perf).toHaveTextContent('0.95')
+    expect(perf.querySelector('svg path')?.getAttribute('d')).toMatch(/^M3 13h14/)
+  })
+
+  it('shows number, name and pace on each driver with consistency in the tooltip', () => {
     render(<DriverGrid teams={OVERVIEW.teams} selectedId={null} onSelect={vi.fn()} />)
 
     const leclerc = screen.getByRole('button', { name: /Charles Leclerc/ })
     expect(within(leclerc).getByText('16')).toBeVisible()
-    expect(within(leclerc).getByText('0.97')).toBeVisible()
+    expect(within(leclerc).getByText('Charles Leclerc')).toBeVisible()
+    const pace = within(leclerc).getByText('0.97')
+    expect(pace).toHaveAttribute('title', 'Ritmo 0.97 · consistencia 0.9')
   })
 
   it('flags the selected driver and reports clicks', async () => {
@@ -32,7 +42,18 @@ describe('DriverGrid', () => {
       'aria-pressed',
       'true',
     )
+    expect(screen.getByRole('button', { name: /Charles Leclerc/ })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    )
     await userEvent.setup().click(screen.getByRole('button', { name: /Charles Leclerc/ }))
     expect(onSelect).toHaveBeenCalledWith('leclerc')
+  })
+
+  it('styles the selected driver with the page background and an ink border', () => {
+    render(<DriverGrid teams={OVERVIEW.teams} selectedId="hamilton" onSelect={vi.fn()} />)
+
+    const selected = screen.getByRole('button', { name: /Lewis Hamilton/ })
+    expect(selected).toHaveClass('aria-pressed:bg-bg', 'aria-pressed:border-ink')
   })
 })
