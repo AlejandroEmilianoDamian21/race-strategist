@@ -1,10 +1,26 @@
 import type { TFunction } from 'i18next'
 import type { StrategyViolation } from '@/shared/api/types'
 
-function optionsFor(violation: StrategyViolation): Record<string, unknown> {
+function finite(value: unknown): number | undefined {
+  if (value === null || value === undefined || value === '') return undefined
+  const number = Number(value)
+  return Number.isFinite(number) ? number : undefined
+}
+
+function lapsDifference(params: Record<string, unknown>): number | undefined {
+  const difference = finite(params.difference)
+  if (difference !== undefined) return difference
+  const expected = finite(params.expected)
+  const actual = finite(params.actual)
+  if (expected === undefined || actual === undefined) return undefined
+  return expected - actual
+}
+
+function optionsFor(violation: StrategyViolation): Record<string, unknown> | null {
   const { code, params } = violation
   if (code === 'LAPS_MISMATCH') {
-    const difference = Number(params.difference)
+    const difference = lapsDifference(params)
+    if (difference === undefined) return null
     return {
       ...params,
       context: difference < 0 ? 'extra' : 'missing',
@@ -18,8 +34,10 @@ function optionsFor(violation: StrategyViolation): Record<string, unknown> {
 }
 
 export function translateViolation(t: TFunction, violation: StrategyViolation): string {
+  const options = optionsFor(violation)
+  if (options === null) return violation.message
   return t(`violations.${violation.code}`, {
-    ...optionsFor(violation),
+    ...options,
     defaultValue: violation.message,
   })
 }

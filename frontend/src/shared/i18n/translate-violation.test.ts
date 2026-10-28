@@ -93,3 +93,29 @@ describe('translateViolation', () => {
     expect(translateViolation(i18n.t, unknown)).toBe('raw')
   })
 })
+
+describe('translateViolation LAPS_MISMATCH fallbacks', () => {
+  it('derives the difference from expected and actual when it is missing', () => {
+    const violation: StrategyViolation = {
+      code: 'LAPS_MISMATCH',
+      field: 'stints',
+      params: { expected: 53, actual: 51 },
+      message: 'raw backend message',
+    }
+    const text = translateViolation(i18n.t, violation)
+
+    expect(text).not.toContain('NaN')
+    expect(text).toBe('Los stints suman 51 vueltas y la carrera tiene 53. Faltan 2 vueltas.')
+  })
+
+  it('uses the backend message when no numbers are available', () => {
+    const violation: StrategyViolation = {
+      code: 'LAPS_MISMATCH',
+      field: 'stints',
+      params: {},
+      message: 'raw backend message',
+    }
+
+    expect(translateViolation(i18n.t, violation)).toBe('raw backend message')
+  })
+})

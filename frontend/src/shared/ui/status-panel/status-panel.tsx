@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import type { AppError } from '@/shared/api/app-error'
 import type { StrategyViolation } from '@/shared/api/types'
+import { toPercent } from '@/shared/lib/to-percent'
 import { BoltIcon, FlagIcon } from '@/shared/ui/icons'
 import { ProgressBar } from '@/shared/ui/progress-bar'
 import { Card } from '@/shared/ui/card'
@@ -51,7 +52,7 @@ export function StatusPanel(props: StatusPanelProps) {
               {label}
             </p>
             <span className="font-mono text-caption tabular-nums text-ink-faint">
-              {Math.round((props.lap / props.totalLaps) * 100)}%
+              {Math.round(toPercent(props.lap, props.totalLaps))}%
             </span>
           </div>
           <ProgressBar

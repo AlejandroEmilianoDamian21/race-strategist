@@ -105,6 +105,14 @@ describe('StatusPanel', () => {
     expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '34')
   })
 
+  it('sim-loading with zero total laps shows 0% and no NaN', () => {
+    const { container } = render(<StatusPanel variant="sim-loading" lap={0} totalLaps={0} />)
+
+    expect(container).not.toHaveTextContent('NaN')
+    expect(screen.getByText('0%')).toBeVisible()
+    expect(container.querySelector('[role="progressbar"] > div')).toHaveStyle({ width: '0%' })
+  })
+
   it('renders in English', async () => {
     const { default: i18n } = await import('@/shared/i18n')
     await i18n.changeLanguage('en')

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AppError } from './app-error'
 import { request } from './http-client'
 
@@ -47,6 +47,102 @@ describe('request', () => {
     expect(init?.body).toBe(JSON.stringify({ raceId: 'r1' }))
     expect(new Headers(init?.headers).get('Content-Type')).toBe('application/json')
     expect(init?.signal).toBeInstanceOf(AbortSignal)
+  })
+
+  it('passes a combined signal to fetch that follows the external signal', async () => {
+    const fetchMock = stubFetch(async () => jsonResponse(200, { ok: true }))
+    const controller = new AbortController()
+
+    await request('/api/races', { signal: controller.signal })
+
+    const passed = fetchMock.mock.calls[0]?.[1]?.signal
+    expect(passed).toBeInstanceOf(AbortSignal)
+    expect(passed?.aborted).toBe(false)
+    controller.abort()
+    expect(passed?.aborted).toBe(true)
+  })
+
+  it('does not report an external abort as a timeout', async () => {
+    const controller = new AbortController()
+    stubFetch(
+      (_input, init) =>
+        new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener('abort', () => reject(init.signal?.reason))
+        }),
+    )
+
+    const pending = request('/api/races', { signal: controller.signal })
+    controller.abort()
+
+    const error = await pending.then(
+      () => undefined,
+      (caught: unknown) => caught,
+    )
+    expect(error).toBeDefined()
+    expect(error instanceof AppError && error.kind === 'timeout').toBe(false)
+    expect((error as DOMException).name).toBe('AbortError')
+  })
+
+  it('still maps a timeout to timeout when an external signal is given', async () => {
+    const controller = new AbortController()
+    stubFetch(async () => {
+      throw new DOMException('signal timed out', 'TimeoutError')
+    })
+
+    const error = await failure(request('/api/races', { signal: controller.signal }))
+    expect(error.kind).toBe('timeout')
+  })
+
+  it('times out for real when no external signal aborts', async () => {
+    stubFetch(
+      (_input, init) =>
+        new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener('abort', () => reject(init.signal?.reason))
+        }),
+    )
+
+    const error = await failure(
+      request('/api/races', { timeoutMs: 10, signal: new AbortController().signal }),
+    )
+    expect(error.kind).toBe('timeout')
+  })
+
+  describe('when AbortSignal.any is not available', () => {
+    const originalAny = AbortSignal.any
+
+    beforeEach(() => {
+      Reflect.deleteProperty(AbortSignal, 'any')
+    })
+
+    afterEach(() => {
+      AbortSignal.any = originalAny
+    })
+
+    it('still follows the external signal', async () => {
+      const fetchMock = stubFetch(async () => jsonResponse(200, { ok: true }))
+      const controller = new AbortController()
+
+      await request('/api/races', { signal: controller.signal })
+
+      const passed = fetchMock.mock.calls[0]?.[1]?.signal
+      expect(passed?.aborted).toBe(false)
+      controller.abort()
+      expect(passed?.aborted).toBe(true)
+    })
+
+    it('still times out with an external signal', async () => {
+      stubFetch(
+        (_input, init) =>
+          new Promise<Response>((_resolve, reject) => {
+            init?.signal?.addEventListener('abort', () => reject(init.signal?.reason))
+          }),
+      )
+
+      const error = await failure(
+        request('/api/races', { timeoutMs: 10, signal: new AbortController().signal }),
+      )
+      expect(error.kind).toBe('timeout')
+    })
   })
 
   it('throws a network AppError when fetch rejects', async () => {

@@ -65,3 +65,23 @@ describe('formatElapsed', () => {
     expect(formatElapsed(65)).toBe('1:05')
   })
 })
+
+describe('useWakeState attempts', () => {
+  it('restarts the elapsed time when the attempt changes while active', () => {
+    const { result, rerender } = renderHook(({ attempt }) => useWakeState(true, attempt), {
+      initialProps: { attempt: 0 },
+    })
+    act(() => {
+      vi.advanceTimersByTime(90000)
+    })
+    expect(result.current.state).toBe('timed-out')
+
+    rerender({ attempt: 1 })
+    expect(result.current).toEqual({ state: 'idle', elapsedSeconds: 0 })
+
+    act(() => {
+      vi.advanceTimersByTime(3000)
+    })
+    expect(result.current.state).toBe('waking')
+  })
+})

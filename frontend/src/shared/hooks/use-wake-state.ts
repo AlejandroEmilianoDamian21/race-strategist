@@ -17,27 +17,30 @@ function classify(elapsedSeconds: number): WakeState {
   return 'idle'
 }
 
-export function useWakeState(isPending: boolean): {
+export function useWakeState(
+  isActive: boolean,
+  attempt = 0,
+): {
   state: WakeState
   elapsedSeconds: number
 } {
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
-  const [wasPending, setWasPending] = useState(isPending)
+  const [tracked, setTracked] = useState({ isActive, attempt })
 
-  if (wasPending !== isPending) {
-    setWasPending(isPending)
+  if (tracked.isActive !== isActive || tracked.attempt !== attempt) {
+    setTracked({ isActive, attempt })
     setElapsedSeconds(0)
   }
 
   useEffect(() => {
-    if (!isPending) return
+    if (!isActive) return
     const startedAt = Date.now()
     const interval = setInterval(() => {
       setElapsedSeconds(Math.floor((Date.now() - startedAt) / 1000))
     }, 1000)
     return () => clearInterval(interval)
-  }, [isPending])
+  }, [isActive, attempt])
 
-  if (!isPending) return { state: 'idle', elapsedSeconds: 0 }
+  if (!isActive) return { state: 'idle', elapsedSeconds: 0 }
   return { state: classify(elapsedSeconds), elapsedSeconds }
 }

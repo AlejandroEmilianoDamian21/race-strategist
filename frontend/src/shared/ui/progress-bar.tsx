@@ -1,4 +1,5 @@
 import { cn } from '@/shared/lib/cn'
+import { toPercent } from '@/shared/lib/to-percent'
 
 interface ProgressBarProps {
   value: number
@@ -9,7 +10,7 @@ interface ProgressBarProps {
 }
 
 export function ProgressBar({ value, max, label, tone = 'warning', className }: ProgressBarProps) {
-  const percent = Math.min(100, Math.max(0, (value / max) * 100))
+  const percent = toPercent(value, max)
 
   return (
     <div

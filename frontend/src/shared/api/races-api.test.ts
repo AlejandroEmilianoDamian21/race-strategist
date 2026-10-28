@@ -45,4 +45,20 @@ describe('races api', () => {
     expect(fetchMock.mock.calls[0]?.[1]?.method).toBe('POST')
     expect(fetchMock.mock.calls[0]?.[1]?.body).toBe(JSON.stringify(body))
   })
+
+  it('forwards the abort signal to fetch', async () => {
+    const fetchMock = stubFetch({ races: [], race: {}, totalTime: 1 })
+    const controller = new AbortController()
+    const body = { raceId: 'r1', driverId: 'd1', stints: [{ compound: 'SOFT', laps: 10 }] }
+
+    await getRaces(controller.signal)
+    await getRaceOverview('r1', controller.signal)
+    await simulate(body, controller.signal)
+
+    const signals = fetchMock.mock.calls.map((call) => call[1]?.signal)
+    expect(signals).toHaveLength(3)
+    expect(signals.every((signal) => signal?.aborted === false)).toBe(true)
+    controller.abort()
+    expect(signals.every((signal) => signal?.aborted === true)).toBe(true)
+  })
 })
