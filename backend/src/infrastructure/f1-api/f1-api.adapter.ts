@@ -88,12 +88,12 @@ export class F1ApiAdapter extends F1DataPort implements OnModuleInit {
     }));
   }
 
-  getWeather(raceId: string): Promise<WeatherForecast> {
+  async getWeather(raceId: string): Promise<WeatherForecast> {
     const path = `/api/races/${encodeURIComponent(raceId)}/weather`;
     return this.loadRaceScoped(path, raceId, (raw) => toWeather(raw, path));
   }
 
-  getSimulationParameters(raceId: string): Promise<SimulationParameters> {
+  async getSimulationParameters(raceId: string): Promise<SimulationParameters> {
     const path = `/api/races/${encodeURIComponent(raceId)}/simulation-parameters`;
     return this.loadRaceScoped(path, raceId, (raw) =>
       toSimulationParameters(raw, path),

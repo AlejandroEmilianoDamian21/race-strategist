@@ -335,6 +335,33 @@ describe('F1ApiAdapter', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
+  it('rejects a non-object race detail payload with invalid-response', async () => {
+    const adapter = buildAdapter(
+      routedFetch({ '/api/races/race-01': { body: envelope(0) } }),
+    );
+
+    await expect(adapter.getRaceDetail('race-01')).rejects.toMatchObject({
+      reason: 'invalid-response',
+    });
+  });
+
+  it.each([
+    ['getRaceDetail', (a: F1ApiAdapter) => a.getRaceDetail('\uD800')],
+    ['getWeather', (a: F1ApiAdapter) => a.getWeather('\uD800')],
+    [
+      'getSimulationParameters',
+      (a: F1ApiAdapter) => a.getSimulationParameters('\uD800'),
+    ],
+  ])('%s rejects instead of throwing synchronously', async (_, call) => {
+    const adapter = buildAdapter(routedFetch({}));
+
+    let result: Promise<unknown> | undefined;
+    expect(() => {
+      result = call(adapter);
+    }).not.toThrow();
+    await expect(result).rejects.toBeInstanceOf(URIError);
+  });
+
   it('does not throw nor wait for the warm-up ping when the API is down', async () => {
     const fetchMock = vi.fn().mockRejectedValue(new TypeError('fetch failed'));
     const adapter = buildAdapter(fetchMock);

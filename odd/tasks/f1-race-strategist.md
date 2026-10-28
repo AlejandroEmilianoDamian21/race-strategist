@@ -45,7 +45,7 @@ Full-stack web app (NestJS backend + React/Vite frontend) where a user picks an 
 
 - T1 review (reliability lens): approved; follow-ups for T5: label result with ctx.race.id/ctx.driver.id (ids unchecked), forecast-gap fallback documented as assumption.
 - T2 implemented (delegated writer, writer trigger: 13 files) on feature/f1-api-adapter. TDD: RED = 4 new spec files failing on missing modules; GREEN = 60/60. typecheck/lint/build ok; no comments; smoke: server started before warm-up, log `F1 API warm-up succeeded`. Commit approved by user; PR #2 merged to develop.
-- T2 review (reliability): approved with advisories. Fixed on fix/f1-adapter-error-mapping (inline, 2 files): list endpoints leaked F1ApiHttpError (non-5xx) through the port; race-scoped payloads were cached before validation. TDD: RED 2 failing (429 leak, malformed payload cached), plus 2 coverage tests; GREEN 64/64; checks ok. Commit approved by user; PR fix/f1-adapter-error-mapping → develop.
+- T2 review (reliability): approved with advisories. Fixed on fix/f1-adapter-error-mapping (inline, 2 files): list endpoints leaked F1ApiHttpError (non-5xx) through the port; race-scoped payloads were cached before validation. TDD: RED 2 failing (429 leak, malformed payload cached), plus 2 coverage tests; GREEN 64/64; checks ok. Commit 9abf384, PR #3. Fix review approved with 2 suggestions, applied as 2nd commit (approved by user): async restored on race-scoped methods (sync URIError), non-object detail payload test. RED 2 failing, GREEN 68/68.
 
 ## Next step
 T3 ListRaces use case + GET /api/races (branch from develop after T2 merge).
