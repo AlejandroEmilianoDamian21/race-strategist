@@ -107,5 +107,8 @@ describe('App', () => {
       'aria-pressed',
       'false',
     )
+    expect(fetchMock.mock.calls.map(([input]) => String(input))).toContainEqual(
+      expect.stringContaining('/api/races/monaco-gp/overview'),
+    )
   })
 })

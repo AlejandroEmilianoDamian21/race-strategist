@@ -27,7 +27,7 @@ export function TyreCompounds({ tyres, tyreWear }: TyreCompoundsProps) {
             <div className="flex justify-between gap-2 text-caption text-ink-muted">
               <span>{t('raceInfo.tyres.degradation')}</span>
               <span className="font-mono tabular-nums text-ink">
-                {`+${(tyre.degradation * tyreWear).toFixed(3)}s/v`}
+                {`${formatSignedSeconds(tyre.degradation * tyreWear, 3)}/v`}
               </span>
             </div>
             <div className="flex justify-between gap-2 text-caption text-ink-muted">

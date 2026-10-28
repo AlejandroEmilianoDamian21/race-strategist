@@ -18,4 +18,25 @@ describe('WeatherTimeline', () => {
     expect(tiles[1]).toHaveTextContent('Lluvia moderada')
     expect(tiles[1]).toHaveTextContent('0.35')
   })
+
+  it.each([
+    [0, 'Seco'],
+    [0.05, 'Lluvia ligera'],
+    [0.2, 'Lluvia ligera'],
+    [0.21, 'Lluvia moderada'],
+    [0.5, 'Lluvia moderada'],
+    [0.51, 'Lluvia intensa'],
+    [0.9, 'Lluvia intensa'],
+  ])('labels a rain intensity of %s as "%s"', (rainIntensity, label) => {
+    render(
+      <WeatherTimeline
+        weather={{
+          summary: 'Test',
+          forecast: [{ fromLap: 1, toLap: 10, temperature: 20, rainIntensity }],
+        }}
+      />,
+    )
+
+    expect(screen.getByRole('listitem')).toHaveTextContent(label)
+  })
 })

@@ -17,4 +17,20 @@ describe('TyreCompounds', () => {
     expect(within(items[1]).getByText('+0.5s')).toBeVisible()
     expect(within(items[2]).getByText('Lluvia')).toBeVisible()
   })
+
+  it('renders zero and negative scaled degradation with the matching sign', () => {
+    const [soft] = OVERVIEW.tyres
+    render(
+      <TyreCompounds
+        tyres={[
+          { ...soft, compound: 'SOFT', degradation: 0 },
+          { ...soft, compound: 'MEDIUM', degradation: -0.1 },
+        ]}
+        tyreWear={0.9}
+      />,
+    )
+
+    expect(screen.getByText('±0.000s/v')).toBeVisible()
+    expect(screen.getByText('−0.090s/v')).toBeVisible()
+  })
 })
