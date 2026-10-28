@@ -24,7 +24,12 @@ function App({ client }: AppProps) {
         <div className="flex flex-col gap-12">
           <RacesStep selectedId={raceId} onSelect={selectRace} />
           <RaceInfoStep raceId={raceId} driverId={driverId} onSelectDriver={selectDriver} />
-          <StrategyStep raceId={raceId} driverId={driverId} onSimulate={setLastRequest} />
+          <StrategyStep
+            raceId={raceId}
+            driverId={driverId}
+            onSelectDriver={selectDriver}
+            onSimulate={setLastRequest}
+          />
         </div>
       </AppShell>
     </QueryClientProvider>

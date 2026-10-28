@@ -1,90 +1,124 @@
 import { useTranslation } from 'react-i18next'
-import { useRaceOverview } from '@/features/races/use-race-overview'
+import { AppError } from '@/shared/api/app-error'
+import { raceOverviewKey, useRaceOverview } from '@/features/races/use-race-overview'
 import type { RaceOverview, SimulateRequest } from '@/shared/api/types'
+import { useQueryStatus } from '@/shared/hooks/use-query-status'
 import { Card } from '@/shared/ui/card'
-import { Button } from '@/shared/ui/button'
-import { PlusIcon } from '@/shared/ui/icons'
 import { SectionHead } from '@/shared/ui/section-head'
+import { Skeleton } from '@/shared/ui/skeleton'
+import { StatusPanel } from '@/shared/ui/status-panel/status-panel'
+import { DriverSelect } from './driver-select'
+import { stintEnds } from './pit-lap'
 import { SimulateBar } from './simulate-bar'
+import { errorScopes } from './stint-scope'
 import { StintBar } from './stint-bar'
 import { StintRow } from './stint-row'
-import { StrategyChips } from './strategy-chips'
-import { StrategyFeedback } from './strategy-feedback'
+import { StrategyFacts } from './strategy-facts'
+import { StrategyIssues } from './strategy-issues'
 import { useStrategy } from './use-strategy'
 
 interface StrategyStepProps {
   raceId: string | null
   driverId: string | null
+  onSelectDriver: (driverId: string) => void
   onSimulate: (request: SimulateRequest) => void
+  simulationProgress?: number | null
 }
 
-export function StrategyStep({ raceId, driverId, onSimulate }: StrategyStepProps) {
+export function StrategyStep({
+  raceId,
+  driverId,
+  onSelectDriver,
+  onSimulate,
+  simulationProgress = null,
+}: StrategyStepProps) {
   const { t } = useTranslation()
-  const overview = useRaceOverview(raceId).data
+  const { status, retry } = useQueryStatus(useRaceOverview(raceId), raceOverviewKey(raceId))
 
   return (
-    <section
-      id="step-strategy"
-      aria-labelledby="step-strategy-title"
-      className="scroll-mt-24 max-[719px]:pb-24"
-    >
+    <section id="step-strategy" aria-labelledby="step-strategy-title" className="scroll-mt-24">
       <SectionHead
         step={3}
         title={t('strategy.title')}
         titleId="step-strategy-title"
-        right={
-          overview === undefined ? undefined : (
-            <span className="text-caption text-ink-muted">{t('strategy.hint')}</span>
-          )
-        }
+        right={<span className="text-caption text-ink-faint">{t('strategy.hint')}</span>}
       />
-      {overview === undefined ? (
-        <p className="rounded-md border border-dashed border-line-strong p-4 text-body text-ink-muted min-[720px]:p-6">
-          {raceId === null ? t('strategy.empty') : t('strategy.waiting')}
-        </p>
+      {raceId === null ? (
+        <StatusPanel variant="empty-strategy" />
+      ) : status.kind === 'success' ? (
+        <StrategyBuilder
+          overview={status.data}
+          driverId={driverId}
+          onSelectDriver={onSelectDriver}
+          onSimulate={onSimulate}
+          simulationProgress={simulationProgress}
+        />
+      ) : status.kind === 'error' || status.kind === 'timed-out' ? (
+        <StatusPanel
+          variant="api-error"
+          error={status.kind === 'error' ? status.error : timeoutError(raceId)}
+          onRetry={retry}
+        />
       ) : (
-        <StrategyBuilder overview={overview} driverId={driverId} onSimulate={onSimulate} />
+        <BuilderSkeleton />
       )}
     </section>
+  )
+}
+
+function timeoutError(raceId: string) {
+  return new AppError('timeout', {
+    method: 'GET',
+    path: `/api/races/${encodeURIComponent(raceId)}/overview`,
+  })
+}
+
+function BuilderSkeleton() {
+  const { t } = useTranslation()
+
+  return (
+    <Card role="status" aria-busy="true" aria-label={t('strategy.loading')}>
+      <Skeleton className="h-9 w-[280px] max-w-full" />
+      <Skeleton className="mt-4 h-[130px] w-full" />
+      <Skeleton className="mt-6 h-14 w-full" />
+      <Skeleton className="mt-2 h-14 w-full" />
+    </Card>
   )
 }
 
 interface StrategyBuilderProps {
   overview: RaceOverview
   driverId: string | null
+  onSelectDriver: (driverId: string) => void
   onSimulate: (request: SimulateRequest) => void
+  simulationProgress: number | null
 }
 
 function findDriver(overview: RaceOverview, driverId: string | null) {
   for (const team of overview.teams) {
     const driver = team.drivers.find((candidate) => candidate.id === driverId)
     if (driver !== undefined) {
-      return {
-        name: driver.name,
-        teamName: team.name,
-        carPerformance: team.carPerformance,
-        pace: driver.pace,
-      }
+      return { teamName: team.name, carPerformance: team.carPerformance, pace: driver.pace }
     }
   }
   return null
 }
 
-function StrategyBuilder({ overview, driverId, onSimulate }: StrategyBuilderProps) {
-  const { t } = useTranslation()
-  const { stints, validation, setCompound, setLaps, addStint, removeStint } = useStrategy(overview)
+function StrategyBuilder({
+  overview,
+  driverId,
+  onSelectDriver,
+  onSimulate,
+  simulationProgress,
+}: StrategyBuilderProps) {
+  const { stints, validation, setCompound, setLaps, addStop, removeStint, movePit } =
+    useStrategy(overview)
   const { errors, warnings } = validation
   const driver = findDriver(overview, driverId)
-  const invalidStints = new Set(
-    errors.flatMap((error) => {
-      const match = /^stints\[(\d+)\]/.exec(error.field ?? '')
-      return match === null ? [] : [Number(match[1])]
-    }),
-  )
-  const totalLaps = stints.reduce(
-    (sum, stint) => sum + (Number.isFinite(stint.laps) ? stint.laps : 0),
-    0,
-  )
+  const scopes = errorScopes(errors, stints.length)
+  const warningStints = new Set(warnings.map((warning) => warning.stintIndex))
+  const ends = stintEnds(stints)
+  const raceLaps = overview.race.laps
 
   function simulate() {
     if (errors.length > 0 || driver === null || driverId === null) return
@@ -92,44 +126,57 @@ function StrategyBuilder({ overview, driverId, onSimulate }: StrategyBuilderProp
   }
 
   return (
-    <div className="grid gap-4">
-      <Card className="grid gap-4">
-        <StintBar
-          stints={stints}
-          raceLaps={overview.race.laps}
-          forecast={overview.weather.forecast}
-          invalidStints={invalidStints}
-        />
-        <StrategyFeedback errors={errors} warnings={warnings} />
-        <StrategyChips
-          totalLaps={totalLaps}
-          raceLaps={overview.race.laps}
+    <Card>
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
+        <DriverSelect teams={overview.teams} driverId={driverId} onSelect={onSelectDriver} />
+        <StrategyFacts
           pitStopLoss={overview.parameters.pitStopLoss}
           tyreChangeTime={overview.parameters.tyreChangeTime}
           minimumPitStops={overview.parameters.minimumPitStops}
           driver={driver}
         />
-        <ul aria-label={t('strategy.stints.title')} className="m-0 grid list-none gap-2 p-0">
-          {stints.map((stint, index) => (
-            <StintRow
-              key={index}
-              index={index}
-              stint={stint}
-              errors={errors.filter((error) => error.field?.startsWith(`stints[${index}]`))}
-              canRemove={stints.length > 1}
-              onCompoundChange={setCompound}
-              onLapsChange={setLaps}
-              onRemove={removeStint}
-            />
-          ))}
-        </ul>
-        <div>
-          <Button variant="secondary" icon={<PlusIcon />} onClick={addStint}>
-            {t('strategy.stints.add')}
-          </Button>
-        </div>
-      </Card>
-      <SimulateBar errorCount={errors.length} hasDriver={driver !== null} onSimulate={simulate} />
-    </div>
+      </div>
+      <StintBar
+        stints={stints}
+        raceLaps={raceLaps}
+        forecast={overview.weather.forecast}
+        tyres={overview.tyres}
+        errorStints={scopes.segments}
+        warningStints={warningStints}
+        onMovePit={movePit}
+      />
+      <StrategyIssues
+        errors={errors}
+        warnings={warnings}
+        stops={stints.length - 1}
+        raceLaps={raceLaps}
+      />
+      <ul className="m-0 mt-6 grid list-none gap-2 p-0">
+        {stints.map((stint, index) => (
+          <StintRow
+            key={index}
+            index={index}
+            stint={stint}
+            end={ends[index] ?? 0}
+            raceLaps={raceLaps}
+            isLast={index === stints.length - 1}
+            invalid={scopes.rows.has(index)}
+            canRemove={stints.length > 1}
+            onCompoundChange={setCompound}
+            onLapsChange={setLaps}
+            onPitChange={movePit}
+            onRemove={removeStint}
+          />
+        ))}
+      </ul>
+      <SimulateBar
+        errorCount={errors.length}
+        hasDriver={driver !== null}
+        raceLaps={raceLaps}
+        progress={simulationProgress}
+        onAddStop={addStop}
+        onSimulate={simulate}
+      />
+    </Card>
   )
 }

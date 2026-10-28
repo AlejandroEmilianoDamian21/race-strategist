@@ -180,6 +180,17 @@ describe('StatusPanel', () => {
     expect(screen.getByRole('heading', { name: 'Elegí una carrera' })).toBeVisible()
   })
 
+  it('empty-strategy asks to pick a race first and explains what the builder needs', () => {
+    render(<StatusPanel variant="empty-strategy" />)
+
+    expect(screen.getByRole('heading', { name: 'Primero elegí una carrera' })).toBeVisible()
+    expect(
+      screen.getByText(
+        'El constructor necesita las vueltas, el clima y los parámetros de esa carrera.',
+      ),
+    ).toBeVisible()
+  })
+
   it('empty-result shows its title', () => {
     render(<StatusPanel variant="empty-result" />)
 
