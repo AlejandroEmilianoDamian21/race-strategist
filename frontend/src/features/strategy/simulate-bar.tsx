@@ -8,6 +8,7 @@ interface SimulateBarProps {
   hasDriver: boolean
   raceLaps: number
   progress: number | null
+  canAddStop: boolean
   onAddStop: () => void
   onSimulate: () => void
 }
@@ -17,6 +18,7 @@ export function SimulateBar({
   hasDriver,
   raceLaps,
   progress,
+  canAddStop,
   onAddStop,
   onSimulate,
 }: SimulateBarProps) {
@@ -34,9 +36,20 @@ export function SimulateBar({
 
   return (
     <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6">
-      <Button variant="secondary" icon={<PlusIcon />} onClick={onAddStop}>
-        {t('strategy.actions.add')}
-      </Button>
+      {canAddStop ? (
+        <Button variant="secondary" icon={<PlusIcon />} onClick={onAddStop}>
+          {t('strategy.actions.add')}
+        </Button>
+      ) : (
+        <Button
+          variant="secondary"
+          icon={<PlusIcon />}
+          disabled
+          hint={t('strategy.actions.addMax')}
+        >
+          {t('strategy.actions.add')}
+        </Button>
+      )}
       <div className="flex flex-wrap items-center gap-4 max-[720px]:[&_button]:hidden [&>div]:flex-row-reverse">
         {progress !== null ? (
           <Button

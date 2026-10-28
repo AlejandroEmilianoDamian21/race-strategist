@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
+import { useState } from 'react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import type { Stint } from '@/shared/api/types'
@@ -42,7 +43,74 @@ function renderRow({
   return handlers
 }
 
+function EditableRow({
+  initial,
+  onLapsChange,
+}: {
+  initial: number
+  onLapsChange: (laps: number) => void
+}) {
+  const [stint, setStint] = useState<Stint>({ compound: 'MEDIUM', laps: initial })
+  return (
+    <ul>
+      <StintRow
+        index={0}
+        stint={stint}
+        end={stint.laps}
+        raceLaps={70}
+        isLast={false}
+        invalid={false}
+        canRemove
+        onCompoundChange={vi.fn()}
+        onLapsChange={(_, laps) => {
+          onLapsChange(laps)
+          setStint({ ...stint, laps })
+        }}
+        onPitChange={vi.fn()}
+        onRemove={vi.fn()}
+      />
+    </ul>
+  )
+}
+
 describe('StintRow', () => {
+  it('keeps the laps field empty while editing and types a single digit without a leading zero', async () => {
+    const onLapsChange = vi.fn()
+    render(<EditableRow initial={24} onLapsChange={onLapsChange} />)
+    const user = userEvent.setup()
+    const input = screen.getByRole('spinbutton', { name: 'Vueltas del stint 1' })
+
+    await user.clear(input)
+    expect(input).toHaveValue(null)
+    await user.type(input, '3')
+
+    expect(input).toHaveValue(3)
+    expect((input as HTMLInputElement).value).toBe('3')
+    expect(onLapsChange).toHaveBeenLastCalledWith(3)
+  })
+
+  it('strips leading zeros typed into the laps field', async () => {
+    render(<EditableRow initial={24} onLapsChange={vi.fn()} />)
+    const user = userEvent.setup()
+    const input = screen.getByRole('spinbutton', { name: 'Vueltas del stint 1' })
+
+    await user.clear(input)
+    await user.type(input, '007')
+
+    expect((input as HTMLInputElement).value).toBe('7')
+  })
+
+  it('shows the stint laps again when the field loses focus empty', async () => {
+    render(<EditableRow initial={24} onLapsChange={vi.fn()} />)
+    const user = userEvent.setup()
+    const input = screen.getByRole('spinbutton', { name: 'Vueltas del stint 1' })
+
+    await user.clear(input)
+    await user.tab()
+
+    expect((input as HTMLInputElement).value).toBe('0')
+  })
+
   it('exposes the stint index and its fields so a backend violation can focus them', () => {
     renderRow()
 

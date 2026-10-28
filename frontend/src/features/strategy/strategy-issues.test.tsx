@@ -103,6 +103,23 @@ describe('StrategyIssues', () => {
     expect(items[1]).toHaveTextContent('Stint 3 no tiene compuesto.')
   })
 
+  it('asks for a whole number of laps when the count has decimals', async () => {
+    const decimal: StrategyViolation = {
+      code: 'STINT_TOO_SHORT',
+      field: 'stints[0].laps',
+      params: { stint: 1, laps: 20.5 },
+      message: 'raw',
+    }
+    renderIssues({ errors: [decimal] })
+
+    expect(screen.getByRole('listitem')).toHaveTextContent(
+      'Stint 1 necesita un número entero de vueltas.',
+    )
+    await i18n.changeLanguage('en')
+    expect(screen.getByRole('listitem')).toHaveTextContent('Stint 1 needs a whole number of laps.')
+    await i18n.changeLanguage('es')
+  })
+
   it('asks for the minimum pit stops quoting the API field', () => {
     renderIssues({
       errors: [

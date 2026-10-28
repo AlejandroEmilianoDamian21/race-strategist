@@ -10,6 +10,10 @@ function rainAt(forecast: WeatherSegment[], lap: number): number {
   return (segment ?? forecast.at(-1))?.rainIntensity ?? 0
 }
 
+export function canSplitStint(stints: Stint[]): boolean {
+  return stints.some((stint) => lapsOf(stint) >= 2)
+}
+
 export function splitLongestStint(
   stints: Stint[],
   forecast: WeatherSegment[],
