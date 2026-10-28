@@ -94,6 +94,14 @@ export function PlusIcon(props: IconProps) {
   )
 }
 
+export function CloseIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M5 5l10 10M15 5 5 15" />
+    </BaseIcon>
+  )
+}
+
 export function ServerIcon(props: IconProps) {
   return (
     <BaseIcon {...props}>

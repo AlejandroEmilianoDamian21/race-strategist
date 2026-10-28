@@ -149,5 +149,52 @@
       "pace": "Pace",
       "lapShort": "L"
     }
+  },
+  "strategy": {
+    "title": "Build your strategy",
+    "hint": "Edit the rows below",
+    "empty": "Pick a race to build your strategy.",
+    "waiting": "Waiting for the race data…",
+    "bar": {
+      "label": "Strategy stints",
+      "stintName": "Stint {{number}} · {{compound}}"
+    },
+    "stints": {
+      "title": "Stints",
+      "stint": "Stint {{number}}",
+      "compound": "Tyre compound for stint {{number}}",
+      "laps": "Laps for stint {{number}}",
+      "remove": "Remove stint {{number}}",
+      "add": "Add stint"
+    },
+    "chips": {
+      "laps": "Laps {{total}} / {{expected}}",
+      "pit": "Pit {{pitStopLoss}} + {{tyreChangeTime}}",
+      "minStops_one": "Minimum {{count}} pit stop",
+      "minStops_other": "Minimum {{count}} pit stops",
+      "noDriver": "Pick a driver",
+      "driver": "{{name}} · {{team}}",
+      "performance": "Car {{car}} · Pace {{pace}}"
+    },
+    "feedback": {
+      "errors": "Errors",
+      "warnings": "Warnings"
+    },
+    "warning": {
+      "rain": {
+        "dry": "a dry track",
+        "light": "light rain",
+        "moderate": "moderate rain",
+        "heavy": "heavy rain"
+      },
+      "message": "Stint {{stint}} · {{compound}} runs {{lap}}{{from}}–{{lap}}{{to}} in {{rain}} ({{intensity}}). You lose ≈{{loss}}s per lap.",
+      "ideal": "Ideal: {{compound}}."
+    },
+    "simulate": {
+      "action": "Simulate",
+      "fixErrors_one": "Fix {{count}} error to simulate",
+      "fixErrors_other": "Fix {{count}} errors to simulate",
+      "pickDriver": "Pick a driver to simulate"
+    }
   }
 }
