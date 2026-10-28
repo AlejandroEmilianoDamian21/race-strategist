@@ -23,7 +23,11 @@ export function StrategyStep({ raceId, driverId, onSimulate }: StrategyStepProps
   const overview = useRaceOverview(raceId).data
 
   return (
-    <section aria-labelledby="step-strategy-title" className="scroll-mt-24 max-[719px]:pb-24">
+    <section
+      id="step-strategy"
+      aria-labelledby="step-strategy-title"
+      className="scroll-mt-24 max-[719px]:pb-24"
+    >
       <SectionHead
         step={3}
         title={t('strategy.title')}

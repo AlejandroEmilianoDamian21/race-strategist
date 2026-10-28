@@ -18,7 +18,7 @@ export function RacesStep({ selectedId, onSelect }: RacesStepProps) {
   const count = status.kind === 'success' ? status.data.length : 0
 
   return (
-    <section aria-labelledby="step-race-title" className="scroll-mt-24">
+    <section id="step-race" aria-labelledby="step-race-title" className="scroll-mt-24">
       <SectionHead
         step={1}
         title={t('races.title')}

@@ -16,6 +16,7 @@
     "label": "Pasos",
     "eyebrow": "Paso {{number}} · {{name}}",
     "compact": "Paso {{current}} de {{total}} · {{name}}",
+    "compactRich": "Paso <b>{{current}}</b> de {{total}} · <b>{{name}}</b>",
     "steps": {
       "race": "Carrera",
       "info": "Info",

@@ -1,10 +1,15 @@
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/cn'
-import { CheckIcon } from '@/shared/ui/icons'
-import { STEP_KEYS } from './steps'
+import { STEP_KEYS, stepSectionId, type StepKey } from './steps'
 
 interface StepperProps {
   activeStep: number
+}
+
+function goToStep(key: StepKey) {
+  document
+    .getElementById(stepSectionId(key))
+    ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
 export function Stepper({ activeStep }: StepperProps) {
@@ -29,23 +34,25 @@ export function Stepper({ activeStep }: StepperProps) {
               key={key}
               aria-current={active ? 'step' : undefined}
               className={cn(
-                'flex-1 min-w-0 border-t-[3px] pt-3 pb-2 px-3',
-                'font-display text-[14px] font-bold uppercase tracking-wider',
+                'flex-1 min-w-0 border-t-[3px]',
                 active && 'border-accent text-ink',
                 done && 'border-ink-muted text-ink-muted',
                 !active && !done && 'border-surface-3 text-ink-faint',
               )}
             >
-              <span className="mr-2 font-mono text-caption">{String(number).padStart(2, '0')}</span>
-              <span data-step-label className={cn(!active && 'max-[1099px]:sr-only')}>
-                {t(`stepper.steps.${key}`)}
-              </span>
-              {done && (
-                <>
-                  <CheckIcon className="ml-2 inline size-3.5 align-[-1px]" />
-                  <span className="sr-only">{t('stepper.done')}</span>
-                </>
-              )}
+              <button
+                type="button"
+                onClick={() => goToStep(key)}
+                className="block w-full cursor-pointer px-3 pt-3 pb-2 text-left font-display text-[14px] font-bold uppercase tracking-[1px] text-inherit focus-visible:outline-none focus-visible:shadow-focus"
+              >
+                <span className="mr-2 font-mono text-caption">
+                  {String(number).padStart(2, '0')}
+                </span>
+                <span data-step-label className={cn(!active && 'max-[1099px]:sr-only')}>
+                  {t(`stepper.steps.${key}`)}
+                </span>
+                {done && <span className="sr-only"> {t('stepper.done')}</span>}
+              </button>
             </li>
           )
         })}
@@ -56,9 +63,15 @@ export function Stepper({ activeStep }: StepperProps) {
         aria-valuemin={1}
         aria-valuemax={total}
         aria-valuenow={activeStep}
-        className="min-[720px]:hidden pb-3 font-display text-label font-bold uppercase tracking-wider text-ink-muted"
+        className="min-[720px]:hidden pb-3 font-display text-label font-bold uppercase tracking-[1px] text-ink-muted"
       >
-        <span aria-hidden="true">{compact}</span>
+        <span aria-hidden="true">
+          <Trans
+            i18nKey="stepper.compactRich"
+            values={{ current: activeStep, total, name: activeName }}
+            components={{ b: <b className="text-ink" /> }}
+          />
+        </span>
         <div className="mt-2 h-[3px] bg-surface-3">
           <div className="h-full bg-accent" style={{ width: `${(activeStep / total) * 100}%` }} />
         </div>
