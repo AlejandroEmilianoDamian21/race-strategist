@@ -152,6 +152,7 @@ describe('request', () => {
 
     const error = await failure(request('/api/races'))
     expect(error.kind).toBe('network')
+    expect(error).toMatchObject({ method: 'GET', path: '/api/races' })
   })
 
   it('throws a timeout AppError when the signal times out', async () => {
@@ -161,6 +162,7 @@ describe('request', () => {
 
     const error = await failure(request('/api/races'))
     expect(error.kind).toBe('timeout')
+    expect(error).toMatchObject({ method: 'GET', path: '/api/races' })
   })
 
   it('maps upstream failures keeping status, code and reason', async () => {
@@ -177,6 +179,10 @@ describe('request', () => {
     expect(error).toMatchObject({
       kind: 'upstream',
       status: 502,
+      statusCode: 502,
+      method: 'GET',
+      path: '/api/races',
+      backendMessage: 'down',
       code: 'UPSTREAM_UNAVAILABLE',
       details: { reason: 'server-error' },
     })
@@ -231,12 +237,14 @@ describe('request', () => {
     const error = await failure(request('/api/races'))
     expect(error.kind).toBe('unknown')
     expect(error.status).toBe(502)
+    expect(error).toMatchObject({ method: 'GET', path: '/api/races' })
   })
 
   it('treats a non-JSON success body as unknown', async () => {
     stubFetch(async () => new Response('not json', { status: 200 }))
 
-    const error = await failure(request('/api/races'))
+    const error = await failure(request('/api/simulate', { method: 'POST', body: {} }))
     expect(error.kind).toBe('unknown')
+    expect(error).toMatchObject({ method: 'POST', path: '/api/simulate' })
   })
 })

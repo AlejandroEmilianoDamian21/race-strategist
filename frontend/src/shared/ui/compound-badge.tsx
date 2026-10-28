@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import type { TyreCompound } from '@/shared/api/types'
 import { cn } from '@/shared/lib/cn'
-import { COMPOUND_LETTER } from './compound-letter'
+import { compoundLetter, compoundNameKey } from '@/shared/domain/compounds'
 
 const COMPOUND_COLOR: Record<TyreCompound, string> = {
   SOFT: 'border-tyre-soft text-tyre-soft',
@@ -19,7 +19,7 @@ interface CompoundBadgeProps {
 
 export function CompoundBadge({ compound, showName = false, className }: CompoundBadgeProps) {
   const { t } = useTranslation()
-  const name = t(`compounds.${compound}`)
+  const name = t(compoundNameKey(compound))
 
   const circle = (
     <span
@@ -33,7 +33,7 @@ export function CompoundBadge({ compound, showName = false, className }: Compoun
         !showName && className,
       )}
     >
-      {COMPOUND_LETTER[compound]}
+      {compoundLetter(compound)}
     </span>
   )
 

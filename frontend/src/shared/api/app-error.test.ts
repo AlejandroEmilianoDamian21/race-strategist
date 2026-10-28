@@ -19,6 +19,21 @@ describe('toAppError', () => {
     })
   })
 
+  it('keeps the request context and backend message', () => {
+    const error = toAppError(
+      500,
+      { statusCode: 500, code: 'INTERNAL_ERROR', message: 'boom' },
+      { method: 'GET', path: '/api/races' },
+    )
+
+    expect(error).toMatchObject({
+      statusCode: 500,
+      method: 'GET',
+      path: '/api/races',
+      backendMessage: 'boom',
+    })
+  })
+
   it('maps any 404 to not-found', () => {
     expect(toAppError(404, { statusCode: 404, code: 'RACE_NOT_FOUND', message: 'x' }).kind).toBe(
       'not-found',

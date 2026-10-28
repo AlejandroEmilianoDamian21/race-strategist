@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import type { AppError, AppErrorKind } from '@/shared/api/app-error'
 import { Button } from '@/shared/ui/button'
+import { technicalLine } from '@/shared/api/technical-line'
 import { ErrorIcon, RetryIcon } from '@/shared/ui/icons'
 import { StatusFrame } from './status-frame'
 
@@ -30,7 +31,7 @@ export function ApiErrorPanel({ error, onRetry }: ApiErrorPanelProps) {
   const reasonKey = error.kind === 'upstream' ? upstreamReason(error) : undefined
   const reasonPath = `status.apiError.upstreamReason.${reasonKey}`
   const reasonText = reasonKey && i18n.exists(reasonPath) ? t(reasonPath) : undefined
-  const technical = [error.status, error.code].filter((part) => part !== undefined).join(' · ')
+  const technical = technicalLine(error)
 
   return (
     <StatusFrame

@@ -1,4 +1,4 @@
-import { AppError, toAppError } from './app-error'
+import { AppError, toAppError, type RequestContext } from './app-error'
 
 export const DEFAULT_TIMEOUT_MS = 90_000
 
@@ -25,9 +25,13 @@ function isTimeoutError(error: unknown): boolean {
   )
 }
 
-function toTransportError(error: unknown, external: AbortSignal | undefined): unknown {
+function toTransportError(
+  error: unknown,
+  external: AbortSignal | undefined,
+  context: RequestContext,
+): unknown {
   if (external?.aborted && !isTimeoutError(error)) return error
-  return new AppError(isTimeoutError(error) ? 'timeout' : 'network', { cause: error })
+  return new AppError(isTimeoutError(error) ? 'timeout' : 'network', { ...context, cause: error })
 }
 
 function anySignal(signals: AbortSignal[]): AbortSignal {
@@ -54,6 +58,7 @@ function withTimeout(external: AbortSignal | undefined, timeoutMs: number): Abor
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { method = 'GET', body, timeoutMs = DEFAULT_TIMEOUT_MS, signal } = options
 
+  const context: RequestContext = { method, path }
   let response: Response
   try {
     response = await fetch(`${baseUrl}${path}`, {
@@ -63,11 +68,11 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
       signal: withTimeout(signal, timeoutMs),
     })
   } catch (error) {
-    throw toTransportError(error, signal)
+    throw toTransportError(error, signal, context)
   }
 
   const payload = await readJson(response)
-  if (!response.ok) throw toAppError(response.status, payload)
-  if (payload === undefined) throw new AppError('unknown', { status: response.status })
+  if (!response.ok) throw toAppError(response.status, payload, context)
+  if (payload === undefined) throw new AppError('unknown', { ...context, status: response.status })
   return payload as T
 }

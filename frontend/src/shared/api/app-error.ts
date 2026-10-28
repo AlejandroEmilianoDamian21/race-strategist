@@ -3,8 +3,16 @@ import type { StrategyViolation } from './types'
 export type AppErrorKind =
   'network' | 'timeout' | 'upstream' | 'not-found' | 'invalid-strategy' | 'validation' | 'unknown'
 
+export interface RequestContext {
+  method: string
+  path: string
+}
+
 export interface AppErrorOptions {
+  method?: string
+  path?: string
   status?: number
+  backendMessage?: string
   code?: string
   violations?: StrategyViolation[]
   details?: unknown
@@ -13,7 +21,11 @@ export interface AppErrorOptions {
 
 export class AppError extends Error {
   readonly kind: AppErrorKind
+  readonly method?: string
+  readonly path?: string
   readonly status?: number
+  readonly statusCode?: number
+  readonly backendMessage?: string
   readonly code?: string
   readonly violations?: StrategyViolation[]
   readonly details?: unknown
@@ -22,7 +34,11 @@ export class AppError extends Error {
     super(kind, { cause: options.cause })
     this.name = 'AppError'
     this.kind = kind
+    this.method = options.method
+    this.path = options.path
     this.status = options.status
+    this.statusCode = options.status
+    this.backendMessage = options.backendMessage
     this.code = options.code
     this.violations = options.violations
     this.details = options.details
@@ -35,6 +51,7 @@ export function isAppError(value: unknown): value is AppError {
 
 interface ErrorBody {
   code?: string
+  message?: string
   details?: unknown
 }
 
@@ -43,6 +60,7 @@ function readBody(body: unknown): ErrorBody {
   const record = body as Record<string, unknown>
   return {
     code: typeof record.code === 'string' ? record.code : undefined,
+    message: typeof record.message === 'string' ? record.message : undefined,
     details: record.details,
   }
 }
@@ -55,12 +73,19 @@ function kindFor(status: number, code: string | undefined): AppErrorKind {
   return 'unknown'
 }
 
-export function toAppError(status: number, body: unknown): AppError {
-  const { code, details } = readBody(body)
+export function toAppError(status: number, body: unknown, context?: RequestContext): AppError {
+  const { code, message, details } = readBody(body)
   const kind = kindFor(status, code)
   const violations =
     kind === 'invalid-strategy' && Array.isArray(details)
       ? (details as StrategyViolation[])
       : undefined
-  return new AppError(kind, { status, code, details, violations })
+  return new AppError(kind, {
+    ...context,
+    status,
+    code,
+    backendMessage: message,
+    details,
+    violations,
+  })
 }

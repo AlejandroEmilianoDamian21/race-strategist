@@ -31,7 +31,10 @@ describe('StatusPanel', () => {
         variant="api-error"
         error={
           new AppError('upstream', {
+            method: 'GET',
+            path: '/api/races',
             status: 502,
+            backendMessage: 'Upstream is down',
             code: 'UPSTREAM_UNAVAILABLE',
             details: { reason: 'timeout', resource: '/api/races' },
           })
@@ -41,7 +44,9 @@ describe('StatusPanel', () => {
     )
 
     expect(screen.getByText(/tardó demasiado en responder/)).toBeVisible()
-    expect(screen.getByText('502 · UPSTREAM_UNAVAILABLE')).toBeVisible()
+    expect(
+      screen.getByText('GET /api/races → 502 · UPSTREAM_UNAVAILABLE · Upstream is down'),
+    ).toBeVisible()
   })
 
   it('api-error for not-found offers to go back instead of retrying', () => {
