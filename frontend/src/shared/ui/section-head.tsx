@@ -16,7 +16,7 @@ export function SectionHead({ step, title, titleId, right }: SectionHeadProps) {
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div>
-        <p className="font-display text-eyebrow font-bold uppercase tracking-[1.5px] text-ink-muted">
+        <p className="eyebrow text-ink-muted">
           <Trans
             i18nKey="stepper.eyebrowRich"
             values={{ number: String(step).padStart(2, '0'), name: t(`stepper.steps.${key}`) }}
@@ -25,7 +25,7 @@ export function SectionHead({ step, title, titleId, right }: SectionHeadProps) {
         </p>
         <h2
           id={titleId}
-          className="mt-1 font-display text-heading-1 font-extrabold uppercase tracking-[0.5px] max-[720px]:text-[26px] max-[720px]:leading-[30px]"
+          className="mt-1 heading-1 max-[720px]:text-[26px] max-[720px]:leading-[30px]"
         >
           {title}
         </h2>

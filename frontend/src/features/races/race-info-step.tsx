@@ -97,7 +97,7 @@ function RaceInfoSkeleton() {
         <Card>
           <Skeleton className="h-3 w-1/3" />
           <Skeleton className="mt-3 h-6 w-2/3" />
-          <Skeleton className="mt-4 h-[72px] w-full" />
+          <Skeleton className="mt-4 h-18 w-full" />
           <Skeleton className="mt-4 h-24 w-full" />
           <Skeleton className="mt-4 h-16 w-full" />
         </Card>

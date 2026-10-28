@@ -28,10 +28,5 @@ export function CardHead({ className, ...rest }: HTMLAttributes<HTMLDivElement>)
 }
 
 export function CardTitle({ className, ...rest }: HTMLAttributes<HTMLHeadingElement>) {
-  return (
-    <h3
-      {...rest}
-      className={cn('font-display text-heading-2 font-bold uppercase tracking-[0.5px]', className)}
-    />
-  )
+  return <h3 {...rest} className={cn('heading-2', className)} />
 }

@@ -10,13 +10,6 @@ export interface StrategyViolation {
   message: string
 }
 
-export interface ErrorResponse {
-  statusCode: number
-  code: string
-  message: string
-  details?: unknown
-}
-
 export interface RaceListItem {
   id: string
   name: string

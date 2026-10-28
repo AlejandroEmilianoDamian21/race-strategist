@@ -34,7 +34,12 @@ export function QueryStateGate<TData>({
         />
       )
     case 'waking':
-      return <StatusPanel variant="wake" elapsedSeconds={status.elapsedSeconds} />
+      return (
+        <>
+          <StatusPanel variant="wake" elapsedSeconds={status.elapsedSeconds} />
+          <div className="mt-4">{loading}</div>
+        </>
+      )
     case 'loading':
       return loading
     case 'success':

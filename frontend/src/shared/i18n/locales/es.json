@@ -1,8 +1,7 @@
 {
   "app": {
     "title": "Race Strategist",
-    "footer": "Datos de la API del desafío (tech-challenge101.onrender.com). Los valores son inventados para el ejercicio y no representan el rendimiento real de pilotos ni equipos.",
-    "tagline": "Armá tu estrategia de neumáticos"
+    "footer": "Datos de la API del desafío (tech-challenge101.onrender.com). Los valores son inventados para el ejercicio y no representan el rendimiento real de pilotos ni equipos."
   },
   "language": {
     "label": "Idioma"
@@ -99,8 +98,7 @@
     "season_one": "Temporada {{year}} · {{count}} carrera",
     "season_other": "Temporada {{year}} · {{count}} carreras",
     "lapsShort": "{{count}} v",
-    "rain": "{{percent}} lluvia",
-    "selected": "Seleccionada"
+    "rain": "{{percent}} lluvia"
   },
   "circuitTypes": {
     "permanent": "Permanente",

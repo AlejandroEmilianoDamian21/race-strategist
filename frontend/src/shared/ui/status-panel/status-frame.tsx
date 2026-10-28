@@ -39,9 +39,7 @@ export function StatusFrame({ tone, role, icon, title, children }: StatusFramePr
         {icon}
       </div>
       <div className="min-w-0">
-        <h3 className="font-display text-heading-2 font-bold uppercase tracking-[0.5px]">
-          {title}
-        </h3>
+        <h3 className="heading-2">{title}</h3>
         {children}
       </div>
     </div>

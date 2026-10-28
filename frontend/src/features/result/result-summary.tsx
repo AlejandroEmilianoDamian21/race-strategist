@@ -19,7 +19,7 @@ interface ResultSummaryProps {
   overview: RaceOverview
 }
 
-const EYEBROW = 'font-display text-eyebrow font-bold uppercase tracking-[1.5px] text-ink-muted'
+const EYEBROW = 'eyebrow text-ink-muted'
 
 export function ResultSummary({ result, previous, overview }: ResultSummaryProps) {
   const { t } = useTranslation()
@@ -80,7 +80,7 @@ export function ResultSummary({ result, previous, overview }: ResultSummaryProps
       <p className="mt-2 text-[17px] leading-6 text-ink-muted">{sentence}</p>
       <p className={`${EYEBROW} mt-6`}>{t('result.summary.total')}</p>
       <div className="flex flex-wrap items-baseline gap-4">
-        <div className="mt-2 font-mono text-time-hero font-bold tracking-[-1px] tabular-nums max-[720px]:text-[44px] max-[720px]:leading-12">
+        <div className="mt-2 time-hero max-[720px]:text-[44px] max-[720px]:leading-12">
           {formatTotalTime(result.totalTime)}
         </div>
         {summary.delta !== null && (

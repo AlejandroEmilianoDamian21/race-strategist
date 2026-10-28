@@ -92,6 +92,7 @@ describe('RacesStep retry behavior', () => {
 
     await advance(3000)
     expect(wakeHeading()).toBeVisible()
+    expect(screen.getByRole('status', { name: 'Cargando carreras…' })).toBeVisible()
 
     pending[1].resolve(racesResponse(2))
     await advance(0)
