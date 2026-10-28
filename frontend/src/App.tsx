@@ -31,7 +31,7 @@ function Screen() {
   const { t } = useTranslation()
   const { raceId, driverId, selectRace, selectDriver } = useRaceSelection()
   const overview = useRaceOverview(raceId).data
-  const { view, run, retry } = useSimulation(raceId)
+  const { view, run, retry } = useSimulation(raceId, driverId)
   const [draft, setDraft] = useState<BuilderDraft | null>(null)
   const raceLaps = overview?.race.laps ?? 0
   const lap = useSimulationProgress(view.kind === 'loading', raceLaps)

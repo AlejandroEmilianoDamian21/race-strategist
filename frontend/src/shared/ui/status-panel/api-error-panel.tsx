@@ -48,6 +48,7 @@ interface ApiErrorPanelProps {
 const BODY_KEYS: Partial<Record<AppErrorKind, string>> = {
   network: 'network',
   'not-found': 'notFound',
+  validation: 'validation',
 }
 
 function upstreamReason(error: AppError): string | undefined {
@@ -60,18 +61,25 @@ function upstreamReason(error: AppError): string | undefined {
 export function ApiErrorPanel({ error, onRetry, onBack }: ApiErrorPanelProps) {
   const { t, i18n } = useTranslation()
   const notFound = error.kind === 'not-found'
+  const validation = error.kind === 'validation' && onBack !== undefined
   const bodyKey = BODY_KEYS[error.kind] ?? 'default'
   const reasonKey = error.kind === 'upstream' ? upstreamReason(error) : undefined
   const reasonPath = `status.apiError.upstreamReason.${reasonKey}`
   const reasonText = reasonKey && i18n.exists(reasonPath) ? t(reasonPath) : undefined
   const body = t(`status.apiError.body.${bodyKey}`)
+  const titleKey = notFound ? 'notFound' : validation ? 'validation' : 'default'
+  const actionLabel = notFound
+    ? t('common.backToCalendar')
+    : validation
+      ? t('common.backToStrategy')
+      : t('common.retry')
 
   return (
     <ApiErrorFrame
-      title={notFound ? t('status.apiError.title.notFound') : t('status.apiError.title.default')}
+      title={t(`status.apiError.title.${titleKey}`)}
       body={reasonText ? `${body} ${reasonText}` : body}
-      actionLabel={notFound ? t('common.backToCalendar') : t('common.retry')}
-      onAction={notFound && onBack ? onBack : onRetry}
+      actionLabel={actionLabel}
+      onAction={(notFound || validation) && onBack ? onBack : onRetry}
       technical={technicalLine(error)}
     />
   )
