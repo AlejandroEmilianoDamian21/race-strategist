@@ -199,7 +199,8 @@
       "gapTitle": "Faltan {{count}}",
       "gapShort": "{{count}} v",
       "sub": "{{from}}–{{to}} · {{laps}} v",
-      "handle": "Mover parada {{number}} (vuelta {{lap}})"
+      "handle": "Mover parada {{number}}",
+      "handleValue": "Vuelta {{lap}}"
     },
     "issues": {
       "stintShort": "<b>Stint {{stint}}</b> necesita al menos 1 vuelta.",

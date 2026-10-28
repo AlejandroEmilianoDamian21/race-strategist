@@ -199,7 +199,8 @@
       "gapTitle": "{{count}} missing",
       "gapShort": "{{count}} L",
       "sub": "{{from}}–{{to}} · {{laps}} L",
-      "handle": "Move pit stop {{number}} (lap {{lap}})"
+      "handle": "Move pit stop {{number}}",
+      "handleValue": "Lap {{lap}}"
     },
     "issues": {
       "stintShort": "<b>Stint {{stint}}</b> needs at least 1 lap.",
