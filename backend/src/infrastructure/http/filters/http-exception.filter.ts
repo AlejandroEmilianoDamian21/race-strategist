@@ -13,6 +13,8 @@ import { InvalidStrategyError } from '../../../domain/errors/invalid-strategy.er
 import { RaceNotFoundError } from '../../../domain/errors/race-not-found.error.js';
 import type { ErrorResponse } from '../error-response.js';
 
+const UNEXPECTED_MESSAGE = 'An unexpected error occurred.';
+
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(HttpExceptionFilter.name);
@@ -57,7 +59,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     return {
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       code: 'INTERNAL_ERROR',
-      message: 'An unexpected error occurred.',
+      message: UNEXPECTED_MESSAGE,
     };
   }
 
@@ -77,11 +79,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
         details: messages,
       };
     }
-    return {
-      statusCode,
-      code: statusCode === 404 ? 'NOT_FOUND' : `HTTP_${statusCode}`,
-      message: exception.message,
-    };
+    const code = statusCode === 404 ? 'NOT_FOUND' : `HTTP_${statusCode}`;
+    if (statusCode >= 500) {
+      this.logUnexpected(exception);
+      return { statusCode, code, message: UNEXPECTED_MESSAGE };
+    }
+    return { statusCode, code, message: exception.message };
   }
 
   private notFound(code: string, message: string): ErrorResponse {

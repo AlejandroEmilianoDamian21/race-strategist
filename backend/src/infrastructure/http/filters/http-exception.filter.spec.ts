@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Logger,
   NotFoundException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import { DataSourceUnavailableError } from '../../../application/errors/data-source-unavailable.error.js';
 import { DriverNotFoundError } from '../../../domain/errors/driver-not-found.error.js';
@@ -23,8 +24,17 @@ function createHost() {
 describe('HttpExceptionFilter', () => {
   let filter: HttpExceptionFilter;
 
+  let logError: ReturnType<typeof vi.spyOn>;
+
   beforeEach(() => {
     filter = new HttpExceptionFilter();
+    logError = vi
+      .spyOn(Logger.prototype, 'error')
+      .mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    logError.mockRestore();
   });
 
   it('maps InvalidStrategyError to 400 with the violations as details', () => {
@@ -144,9 +154,6 @@ describe('HttpExceptionFilter', () => {
 
   it('maps unknown errors to 500 without leaking internals and logs them', () => {
     const { host, status, json } = createHost();
-    const logError = vi
-      .spyOn(Logger.prototype, 'error')
-      .mockImplementation(() => undefined);
     const error = new Error('db password is hunter2');
 
     filter.catch(error, host);
@@ -158,6 +165,34 @@ describe('HttpExceptionFilter', () => {
       message: 'An unexpected error occurred.',
     });
     expect(logError).toHaveBeenCalledWith(error.message, error.stack);
-    logError.mockRestore();
+  });
+
+  it('maps a thrown non-error value to 500 and logs it', () => {
+    const { host, status, json } = createHost();
+
+    filter.catch('boom', host);
+
+    expect(status).toHaveBeenCalledWith(500);
+    expect(json).toHaveBeenCalledWith({
+      statusCode: 500,
+      code: 'INTERNAL_ERROR',
+      message: 'An unexpected error occurred.',
+    });
+    expect(logError).toHaveBeenCalledWith('Non-error thrown: boom');
+  });
+
+  it('logs a 5xx HttpException and hides its message', () => {
+    const { host, status, json } = createHost();
+    const error = new ServiceUnavailableException('redis at 10.0.0.3 down');
+
+    filter.catch(error, host);
+
+    expect(status).toHaveBeenCalledWith(503);
+    expect(json).toHaveBeenCalledWith({
+      statusCode: 503,
+      code: 'HTTP_503',
+      message: 'An unexpected error occurred.',
+    });
+    expect(logError).toHaveBeenCalledWith(error.message, error.stack);
   });
 });
