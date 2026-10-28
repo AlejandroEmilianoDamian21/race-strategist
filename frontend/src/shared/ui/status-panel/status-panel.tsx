@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { AppError } from '@/shared/api/app-error'
 import type { StrategyViolation } from '@/shared/api/types'
@@ -5,6 +6,7 @@ import { toPercent } from '@/shared/lib/to-percent'
 import { BoltIcon, FlagIcon, WrenchIcon } from '@/shared/ui/icons'
 import { ProgressBar } from '@/shared/ui/progress-bar'
 import { Card } from '@/shared/ui/card'
+import { Skeleton } from '@/shared/ui/skeleton'
 import { ApiEmptyPanel, ApiErrorPanel } from './api-error-panel'
 import { InvalidPanel } from './invalid-panel'
 import { StatusFrame } from './status-frame'
@@ -16,9 +18,9 @@ export type StatusPanelProps =
   | { variant: 'api-empty'; technical: string; onRetry: () => void }
   | { variant: 'empty-race' }
   | { variant: 'empty-strategy' }
-  | { variant: 'invalid'; violations: StrategyViolation[]; onBack: () => void }
-  | { variant: 'empty-result' }
-  | { variant: 'sim-loading'; lap: number; totalLaps: number }
+  | { variant: 'invalid'; violations: StrategyViolation[]; technical?: string; onBack: () => void }
+  | { variant: 'empty-result'; bar?: ReactNode }
+  | { variant: 'sim-loading'; lap: number; totalLaps: number; bar?: ReactNode }
 
 export function StatusPanel(props: StatusPanelProps) {
   const { t } = useTranslation()
@@ -31,7 +33,13 @@ export function StatusPanel(props: StatusPanelProps) {
     case 'api-empty':
       return <ApiEmptyPanel technical={props.technical} onRetry={props.onRetry} />
     case 'invalid':
-      return <InvalidPanel violations={props.violations} onBack={props.onBack} />
+      return (
+        <InvalidPanel
+          violations={props.violations}
+          technical={props.technical}
+          onBack={props.onBack}
+        />
+      )
     case 'empty-race':
       return (
         <StatusFrame tone="empty" icon={<FlagIcon />} title={t('status.emptyRace.title')}>
@@ -48,6 +56,7 @@ export function StatusPanel(props: StatusPanelProps) {
       return (
         <StatusFrame tone="empty" icon={<BoltIcon />} title={t('status.emptyResult.title')}>
           <p className="mt-1 text-body text-ink-muted">{t('status.emptyResult.body')}</p>
+          {props.bar !== undefined && <div className="mt-4 opacity-35">{props.bar}</div>}
         </StatusFrame>
       )
     case 'sim-loading': {
@@ -72,6 +81,18 @@ export function StatusPanel(props: StatusPanelProps) {
             max={props.totalLaps}
             label={t('status.simLoading.progressLabel')}
           />
+          <div className="mt-6 grid gap-6 min-[861px]:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+            <div>
+              <Skeleton className="h-[26px] w-[70%]" />
+              <Skeleton className="mt-5 h-14 w-[55%]" />
+            </div>
+            <div>
+              <Skeleton className="h-11" />
+              <Skeleton className="mt-2 h-11" />
+            </div>
+          </div>
+          {props.bar !== undefined && <div className="mt-6 opacity-50">{props.bar}</div>}
+          <Skeleton className="mt-6 h-[140px]" />
         </Card>
       )
     }

@@ -18,7 +18,7 @@ interface StrategyFactsProps {
 
 const BOLD = { b: <b className="font-mono text-ink" /> }
 
-function Fact({ children }: { children: ReactNode }) {
+export function Fact({ children }: { children: ReactNode }) {
   return (
     <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-sm bg-surface-2 px-3 py-1 text-[13px] font-normal leading-[22px] text-ink-muted max-[720px]:whitespace-normal [&_svg]:size-3.5">
       {children}

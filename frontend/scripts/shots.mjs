@@ -68,6 +68,10 @@ async function shootFlow(browser) {
     await page.locator('#step-strategy-title').waitFor()
     await settle(page)
     await page.screenshot({ path: join(outDir, `app-flow-${name}.png`), fullPage: true })
+    await page.getByRole('button', { name: 'Simular', exact: true }).click()
+    await page.locator('#step-result h3', { hasText: 'Paradas en boxes' }).waitFor()
+    await settle(page)
+    await page.screenshot({ path: join(outDir, `app-result-${name}.png`), fullPage: true })
     await context.close()
   }
 }

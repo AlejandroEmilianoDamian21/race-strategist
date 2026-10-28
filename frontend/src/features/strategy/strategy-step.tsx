@@ -1,7 +1,8 @@
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AppError } from '@/shared/api/app-error'
 import { raceOverviewKey, useRaceOverview } from '@/features/races/use-race-overview'
-import type { RaceOverview, SimulateRequest } from '@/shared/api/types'
+import type { RaceOverview, SimulateRequest, Stint } from '@/shared/api/types'
 import { useQueryStatus } from '@/shared/hooks/use-query-status'
 import { Card } from '@/shared/ui/card'
 import { SectionHead } from '@/shared/ui/section-head'
@@ -22,6 +23,7 @@ interface StrategyStepProps {
   driverId: string | null
   onSelectDriver: (driverId: string) => void
   onSimulate: (request: SimulateRequest) => void
+  onStintsChange?: (raceId: string, stints: Stint[]) => void
   simulationProgress?: number | null
 }
 
@@ -30,6 +32,7 @@ export function StrategyStep({
   driverId,
   onSelectDriver,
   onSimulate,
+  onStintsChange,
   simulationProgress = null,
 }: StrategyStepProps) {
   const { t } = useTranslation()
@@ -51,6 +54,7 @@ export function StrategyStep({
           driverId={driverId}
           onSelectDriver={onSelectDriver}
           onSimulate={onSimulate}
+          onStintsChange={onStintsChange}
           simulationProgress={simulationProgress}
         />
       ) : status.kind === 'error' || status.kind === 'timed-out' ? (
@@ -91,6 +95,7 @@ interface StrategyBuilderProps {
   driverId: string | null
   onSelectDriver: (driverId: string) => void
   onSimulate: (request: SimulateRequest) => void
+  onStintsChange?: (raceId: string, stints: Stint[]) => void
   simulationProgress: number | null
 }
 
@@ -109,6 +114,7 @@ function StrategyBuilder({
   driverId,
   onSelectDriver,
   onSimulate,
+  onStintsChange,
   simulationProgress,
 }: StrategyBuilderProps) {
   const { stints, validation, setCompound, setLaps, addStop, removeStint, movePit } =
@@ -119,6 +125,11 @@ function StrategyBuilder({
   const warningStints = new Set(warnings.map((warning) => warning.stintIndex))
   const ends = stintEnds(stints)
   const raceLaps = overview.race.laps
+  const raceId = overview.race.id
+
+  useEffect(() => {
+    onStintsChange?.(raceId, stints)
+  }, [onStintsChange, raceId, stints])
 
   function simulate() {
     if (errors.length > 0 || driver === null || driverId === null) return

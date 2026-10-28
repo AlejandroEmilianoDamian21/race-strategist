@@ -60,6 +60,7 @@ export function StintRow({
 
   return (
     <li
+      data-stint={index}
       data-invalid={invalid ? 'true' : undefined}
       className={cn(
         'grid items-center gap-4 rounded-sm border bg-surface-2 px-4 py-3',
@@ -79,6 +80,7 @@ export function StintRow({
         </span>
         <div
           role="radiogroup"
+          data-field="compound"
           aria-label={t('strategy.rows.group', { number })}
           className="flex gap-1"
         >
@@ -115,6 +117,7 @@ export function StintRow({
         <input
           id={lapsId}
           type="number"
+          data-field="laps"
           min={1}
           max={raceLaps}
           aria-label={t('strategy.rows.lapsOf', { number })}

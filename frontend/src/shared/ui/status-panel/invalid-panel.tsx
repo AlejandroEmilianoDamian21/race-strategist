@@ -7,10 +7,11 @@ import { StatusFrame } from './status-frame'
 
 interface InvalidPanelProps {
   violations: StrategyViolation[]
+  technical?: string
   onBack: () => void
 }
 
-export function InvalidPanel({ violations, onBack }: InvalidPanelProps) {
+export function InvalidPanel({ violations, technical, onBack }: InvalidPanelProps) {
   const { t } = useTranslation()
 
   return (
@@ -22,9 +23,11 @@ export function InvalidPanel({ violations, onBack }: InvalidPanelProps) {
         {violations.map((violation, index) => (
           <li
             key={`${violation.code}-${violation.field ?? ''}-${index}`}
-            className="grid gap-1 border-b border-line py-3 text-[14px] min-[720px]:grid-cols-[160px_1fr] min-[720px]:gap-3"
+            className="grid gap-1 border-b border-line py-3 text-[14px] min-[720px]:grid-cols-[96px_1fr] min-[720px]:gap-3"
           >
-            <code className="font-mono text-caption font-bold text-danger">{violation.field}</code>
+            <code className="font-mono text-[0.88em] font-bold uppercase text-ink">
+              {violation.field}
+            </code>
             <span>{translateViolation(t, violation)}</span>
           </li>
         ))}
@@ -34,6 +37,9 @@ export function InvalidPanel({ violations, onBack }: InvalidPanelProps) {
           {t('common.backToStrategy')}
         </Button>
       </div>
+      {technical && (
+        <p className="mt-3 font-mono text-caption leading-[inherit] text-ink-faint">{technical}</p>
+      )}
     </StatusFrame>
   )
 }
