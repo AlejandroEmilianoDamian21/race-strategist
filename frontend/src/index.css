@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "./shared/design/tokens.css";
+@import "./shared/design/tokens.css" layer(components);
 
 @theme inline {
   --color-bg: var(--bg);
@@ -94,21 +94,23 @@
   }
 }
 
-.num {
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
-}
+@layer components {
+  .num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
 
-.skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--surface-2) 0%,
-    var(--surface-3) 50%,
-    var(--surface-2) 100%
-  );
-  background-size: 200% 100%;
-  animation: skeleton-shimmer 1.4s linear infinite;
-  border-radius: var(--radius-sm);
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--surface-2) 0%,
+      var(--surface-3) 50%,
+      var(--surface-2) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.4s linear infinite;
+    border-radius: var(--radius-sm);
+  }
 }
 
 @keyframes skeleton-shimmer {

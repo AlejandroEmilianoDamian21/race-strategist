@@ -12,13 +12,22 @@ const viewports = [
   { name: 'mobile', width: 390, height: 844 },
 ]
 
+try {
+  await fetch(url)
+} catch {
+  console.error(`Dev server not reachable at ${url}. Start it with npm run dev.`)
+  process.exit(1)
+}
+
 mkdirSync(outDir, { recursive: true })
 const browser = await chromium.launch()
 try {
   for (const { name, width, height } of viewports) {
     const context = await browser.newContext({ viewport: { width, height } })
     const page = await context.newPage()
-    await page.goto(url, { waitUntil: 'networkidle' })
+    await page.goto(url, { waitUntil: 'load' })
+    await page.evaluate(() => document.fonts.ready)
+    await page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => undefined)
     await page.screenshot({ path: join(outDir, `app-${name}.png`), fullPage: true })
     await context.close()
   }
