@@ -32,9 +32,7 @@ export function WeatherTimeline({ weather, tyres, laps, rainProbability }: Weath
         {`“${weather.summary}”`}
       </blockquote>
       <div className="mt-4 mb-2 flex justify-between">
-        <span className="font-display text-eyebrow font-bold uppercase tracking-[1.5px] text-ink-muted">
-          {t('raceInfo.weather.segments')}
-        </span>
+        <span className="eyebrow text-ink-muted">{t('raceInfo.weather.segments')}</span>
       </div>
       <WeatherBand forecast={weather.forecast} tyres={tyres} />
       <LapAxis total={laps} />

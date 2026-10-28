@@ -34,7 +34,7 @@ export function CircuitCard({ circuit, parameters, rainProbability }: CircuitCar
 
   return (
     <Card>
-      <p className="font-display text-eyebrow font-bold uppercase tracking-[1.5px] text-ink-muted">
+      <p className="eyebrow text-ink-muted">
         {t('raceInfo.circuit.eyebrow', { country: circuit.country, type })}
       </p>
       <CardTitle className="mt-1">{circuit.name}</CardTitle>

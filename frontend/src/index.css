@@ -43,26 +43,12 @@
 }
 
 @theme {
-  --text-display-xl: 56px;
-  --text-display-xl--line-height: 56px;
-  --text-heading-1: 32px;
-  --text-heading-1--line-height: 36px;
-  --text-heading-2: 22px;
-  --text-heading-2--line-height: 26px;
-  --text-eyebrow: 13px;
-  --text-eyebrow--line-height: 16px;
-  --text-body-lg: 18px;
-  --text-body-lg--line-height: 26px;
   --text-body: 15px;
   --text-body--line-height: 22px;
   --text-label: 13px;
   --text-label--line-height: 18px;
   --text-caption: 12px;
   --text-caption--line-height: 16px;
-  --text-time-hero: 64px;
-  --text-time-hero--line-height: 64px;
-  --text-time-md: 20px;
-  --text-time-md--line-height: 24px;
   --text-data: 14px;
   --text-data--line-height: 20px;
 }
@@ -95,9 +81,12 @@
 }
 
 @layer components {
+  .num,
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+  }
   .num {
     font-family: var(--font-mono);
-    font-variant-numeric: tabular-nums;
   }
 
   .pit-range {

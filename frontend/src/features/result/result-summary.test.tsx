@@ -42,7 +42,7 @@ describe('ResultSummary', () => {
     render(<ResultSummary result={result} previous={null} overview={OVERVIEW} />)
 
     expect(screen.getByText('Tiempo total estimado')).toBeVisible()
-    expect(screen.getByText('0:14:00.700')).toHaveClass('font-mono', 'text-time-hero')
+    expect(screen.getByText('0:14:00.700')).toHaveClass('time-hero')
     expect(screen.getByText('Vuelta más rápida').parentElement).toHaveTextContent(
       'Vuelta más rápida1:18.000V5 · Intermedio',
     )

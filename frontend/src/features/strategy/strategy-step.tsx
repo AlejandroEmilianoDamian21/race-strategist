@@ -86,8 +86,8 @@ function BuilderSkeleton() {
 
   return (
     <Card role="status" aria-busy="true" aria-label={t('strategy.loading')}>
-      <Skeleton className="h-9 w-[280px] max-w-full" />
-      <Skeleton className="mt-4 h-[130px] w-full" />
+      <Skeleton className="h-9 w-70 max-w-full" />
+      <Skeleton className="mt-4 h-32 w-full" />
       <Skeleton className="mt-6 h-14 w-full" />
       <Skeleton className="mt-2 h-14 w-full" />
     </Card>

@@ -226,7 +226,7 @@ export function LapTimeChart({ result, previous, forecast }: LapTimeChartProps) 
             style={{ left: hover.left, top: hover.top }}
             className="pointer-events-none absolute -mt-2.5 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-sm border border-line-strong bg-surface-2 px-3 py-2 text-xs leading-[18px] shadow-pop"
           >
-            <div className="font-display text-eyebrow font-bold uppercase tracking-[1.5px] text-ink-muted">
+            <div className="eyebrow text-ink-muted">
               {t('result.chart.tip.lap', { lap: hover.lap })}
             </div>
             <b className="font-mono text-[14px]">{formatLapTime(point.time)}</b>{' '}

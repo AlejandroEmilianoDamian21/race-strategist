@@ -67,9 +67,7 @@ export function StatusPanel(props: StatusPanelProps) {
       return (
         <Card cut aria-busy="true" aria-live="polite">
           <div className="flex items-center justify-between gap-4">
-            <p className="font-display text-eyebrow font-bold uppercase tracking-[1.5px] text-ink-muted">
-              {label}
-            </p>
+            <p className="eyebrow text-ink-muted">{label}</p>
             <span className="font-mono text-caption tabular-nums text-ink-faint">
               {Math.round(toPercent(props.lap, props.totalLaps))}%
             </span>

@@ -26,7 +26,7 @@ The frontend works but diverges visually from the design (missing components, co
 - [x] D6 Step 3: StintBuilder (weather band, draggable handles, rows, live validation, SIMULAR states).
 - [x] D7 Step 5: ResultSummary, PitStops, StintTimeline, BreakdownTable, LapTimeChart, compare.
 - [x] D8 Screen: fixed header with scroll-following stepper, single page, mobile CTA.
-- [ ] D9 Final pass: all states at 1280 and 390 against the screenshots.
+- [x] D9 Final pass: all states at 1280 and 390 against the screenshots.
 
 ## Notes
 - WIP from the stopped T8.4 writer is in `git stash` ("wip T8.4 design parity (stopped writer)"); reuse per phase.
@@ -49,5 +49,7 @@ The frontend works but diverges visually from the design (missing components, co
 
 - D8 implemented (delegated writer). Sticky header (render: sticky, not fixed) with brand strip and stepper; useActiveStep inside AppShell follows scroll with a reading line at 90px + 25% viewport, bottom of page activates the last section; clicking a step scrolls with 90px scroll-margin; Simular maps to the strategy section and is never active by scroll (reference active mapping yields 1/2/3/5). Mid-width labels truncate with ellipsis; stepper column minmax(0,1fr) fixed a sideways scroll at 721-880px. Container 1232 with 16px gutters, sections pt-12. Mobile sticky CTA (<=720) mirrors SIMULAR via portal with short copy; inline SIMULAR hidden on mobile. Footer disclaimer from the reference. RED 6 files / 8 failures -> GREEN FE 470; lint/typecheck/build/prettier clean (re-run by parent). No horizontal scroll at 390 across the whole flow (scrollWidth 390). Design note: scroll-follow is not in the reference (state-derived there); added because the HANDOFF asks for it. HANDOFF Global no-horizontal-scroll checked; local design-system.md corrected (sticky header/CTA). Review: not run, by user request.
 
+- D9 final pass (delegated writer). Audits: tokens (arbitrary values kept only when bundle.css renders them; step 2/3 skeleton sizes moved to the 4px scale), accent (HANDOFF list plus render-only uses: eyebrow number, feature bolt, summary separator, logo mark, mobile stepper track), mono (all mono text tabular-nums via .font-mono; prose/inputs follow the render), compound letters (only the thin compare ghost bar has none, as the reference, named in its legend). State walk vs AppScreen demo row at 1280/390: all ok after fixing wake (panel + 7 skeletons, RED 1 -> GREEN). Token classes .eyebrow/.heading-1/.heading-2/.time-hero used directly; removed unused @theme --text-* (display-xl, heading-1/2, eyebrow, body-lg, time-hero, time-md), CloseIcon, ErrorResponse type, 2 i18n keys. FE 469 (2 parent re-runs green; one flaky failure under load reported by the writer, not reproduced). HANDOFF Global wording aligned with the render (user precedent) and checked. Open: 'cada tarjeta carga y falla por separado' (single /overview deviation). Review: not run, by user request.
+
 ## Next step
-D9 Final pass: all states at 1280 and 390 against the screenshots; audit the remaining Global items (tokens only, accent usage, mono numbers, compound letters). Autonomous commits/PR/merge authorized for D4-D9; gentle-ai reviews not run by user request.
+Design parity D1-D9 complete. With the user: T10 (README + CLAUDE.md); decide whether to review the D5-D9 commits with gentle-ai.

@@ -26,7 +26,7 @@ const DESIGN_ICONS = [
   'FlagEndIcon',
 ]
 
-const LEGACY_ICONS = ['CloseIcon', 'ArrowLeftIcon', 'DotIcon']
+const LEGACY_ICONS = ['ArrowLeftIcon', 'DotIcon']
 
 describe('icons', () => {
   it.each([...DESIGN_ICONS, ...LEGACY_ICONS])(

@@ -1,8 +1,7 @@
 {
   "app": {
     "title": "Race Strategist",
-    "footer": "Data from the challenge API (tech-challenge101.onrender.com). Values are made up for the exercise and do not represent the real performance of drivers or teams.",
-    "tagline": "Build your tyre strategy"
+    "footer": "Data from the challenge API (tech-challenge101.onrender.com). Values are made up for the exercise and do not represent the real performance of drivers or teams."
   },
   "language": {
     "label": "Language"
@@ -99,8 +98,7 @@
     "season_one": "Season {{year}} · {{count}} race",
     "season_other": "Season {{year}} · {{count}} races",
     "lapsShort": "{{count}} laps",
-    "rain": "{{percent}} rain",
-    "selected": "Selected"
+    "rain": "{{percent}} rain"
   },
   "circuitTypes": {
     "permanent": "Permanent",
