@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { RaceNotFoundError } from '../../domain/errors/race-not-found.error.js';
 import type { Circuit } from '../../domain/model/circuit.js';
 import { TYRE_COMPOUNDS, type Tyre } from '../../domain/model/tyre.js';
 import type { WeatherSegment } from '../../domain/model/weather.js';
 import { DataSourceUnavailableError } from '../errors/data-source-unavailable.error.js';
 import { F1DataPort } from '../ports/f1-data.port.js';
+import { allPreferringRaceNotFound } from './all-preferring-race-not-found.js';
 
 export interface RaceOverviewDriver {
   id: string;
@@ -43,24 +43,6 @@ export interface RaceOverview {
   };
   tyres: Tyre[];
   teams: RaceOverviewTeam[];
-}
-
-async function allPreferringRaceNotFound<T extends readonly unknown[] | []>(
-  values: T,
-): Promise<{ -readonly [P in keyof T]: Awaited<T[P]> }> {
-  const settled = await Promise.allSettled(values);
-  const failures = settled.flatMap((result) =>
-    result.status === 'rejected' ? [result.reason as unknown] : [],
-  );
-  if (failures.length > 0) {
-    throw (
-      failures.find((reason) => reason instanceof RaceNotFoundError) ??
-      failures[0]
-    );
-  }
-  return settled.map(
-    (result) => (result as PromiseFulfilledResult<unknown>).value,
-  ) as { -readonly [P in keyof T]: Awaited<T[P]> };
 }
 
 @Injectable()
