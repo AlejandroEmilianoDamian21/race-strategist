@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatDate, formatLapTime, formatPercent } from './format'
+import { formatDate, formatLapTime, formatPercent, rainLevel } from './format'
 
 describe('format helpers', () => {
   it('formats an ISO date in the given language without timezone drift', () => {
@@ -15,5 +15,20 @@ describe('format helpers', () => {
   it('formats a 0-1 fraction as a rounded percentage', () => {
     expect(formatPercent(0.1)).toBe('10%')
     expect(formatPercent(0.255)).toBe('26%')
+  })
+})
+
+describe('rainLevel', () => {
+  it.each([
+    [0, 'dry'],
+    [-0.1, 'dry'],
+    [0.01, 'light'],
+    [0.2, 'light'],
+    [0.21, 'moderate'],
+    [0.5, 'moderate'],
+    [0.51, 'heavy'],
+    [1, 'heavy'],
+  ])('maps a rain intensity of %s to "%s"', (intensity, level) => {
+    expect(rainLevel(intensity)).toBe(level)
   })
 })

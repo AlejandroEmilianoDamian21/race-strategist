@@ -95,7 +95,7 @@ describe('App', () => {
     await user.click(await screen.findByRole('button', { name: /Italian Grand Prix/ }))
     await user.click(await screen.findByRole('button', { name: /Charles Leclerc/ }))
 
-    expect(screen.getByRole('progressbar', { name: 'Paso 2 de 5 · Info' })).toBeVisible()
+    expect(screen.getByRole('progressbar', { name: 'Paso 3 de 5 · Estrategia' })).toBeVisible()
     expect(screen.getByRole('button', { name: /Charles Leclerc/ })).toHaveAttribute(
       'aria-pressed',
       'true',
@@ -107,8 +107,51 @@ describe('App', () => {
       'aria-pressed',
       'false',
     )
+    expect(screen.getByRole('progressbar', { name: 'Paso 2 de 5 · Info' })).toBeVisible()
     expect(fetchMock.mock.calls.map(([input]) => String(input))).toContainEqual(
       expect.stringContaining('/api/races/monaco-gp/overview'),
+    )
+  })
+
+  it('stays on step 2 until a driver is picked and keeps the strategy builder gated by the race', async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.endsWith('/overview')) return jsonResponse(200, OVERVIEW)
+      return jsonResponse(200, { races: [MONZA, MONACO] })
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    render(<App client={createClient()} />)
+    const user = userEvent.setup()
+
+    expect(await screen.findByText('Elegí una carrera para armar tu estrategia.')).toBeVisible()
+
+    await user.click(await screen.findByRole('button', { name: /Italian Grand Prix/ }))
+
+    expect(await screen.findByRole('button', { name: 'Simular' })).toBeDisabled()
+    expect(screen.getByRole('progressbar', { name: 'Paso 2 de 5 · Info' })).toBeVisible()
+    expect(
+      fetchMock.mock.calls.filter(([input]) => String(input).endsWith('/overview')),
+    ).toHaveLength(1)
+  })
+
+  it('simulates without calling the API yet', async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.endsWith('/overview')) return jsonResponse(200, OVERVIEW)
+      return jsonResponse(200, { races: [MONZA, MONACO] })
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    render(<App client={createClient()} />)
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByRole('button', { name: /Italian Grand Prix/ }))
+    await user.click(await screen.findByRole('button', { name: /Charles Leclerc/ }))
+    const callsBefore = fetchMock.mock.calls.length
+    await user.click(screen.getByRole('button', { name: 'Simular' }))
+
+    expect(fetchMock.mock.calls).toHaveLength(callsBefore)
+    expect(fetchMock.mock.calls.map(([input]) => String(input))).not.toContainEqual(
+      expect.stringContaining('/api/simulate'),
     )
   })
 })

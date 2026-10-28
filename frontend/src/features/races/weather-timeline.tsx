@@ -3,13 +3,7 @@ import type { RaceOverview } from '@/shared/api/types'
 import { cn } from '@/shared/lib/cn'
 import { Card, CardTitle } from '@/shared/ui/card'
 import { RainIcon } from '@/shared/ui/icons'
-
-function rainKey(intensity: number): 'dry' | 'light' | 'moderate' | 'heavy' {
-  if (intensity <= 0) return 'dry'
-  if (intensity <= 0.2) return 'light'
-  if (intensity <= 0.5) return 'moderate'
-  return 'heavy'
-}
+import { rainLevel } from './format'
 
 interface WeatherTimelineProps {
   weather: RaceOverview['weather']
@@ -46,7 +40,7 @@ export function WeatherTimeline({ weather }: WeatherTimelineProps) {
                   {`V${segment.fromLap}–V${segment.toLap}`}
                 </p>
                 <p className="text-label">
-                  {t(`raceInfo.weather.${rainKey(segment.rainIntensity)}`)}
+                  {t(`raceInfo.weather.${rainLevel(segment.rainIntensity)}`)}
                 </p>
                 <p className="font-mono text-caption tabular-nums text-ink-muted">
                   {`${segment.temperature}°C · ${t('raceInfo.weather.intensity', { value: segment.rainIntensity })}`}

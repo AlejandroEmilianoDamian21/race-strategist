@@ -149,5 +149,52 @@
       "pace": "Ritmo",
       "lapShort": "V"
     }
+  },
+  "strategy": {
+    "title": "Armá tu estrategia",
+    "hint": "Editá las filas de abajo",
+    "empty": "Elegí una carrera para armar tu estrategia.",
+    "waiting": "Esperando los datos de la carrera…",
+    "bar": {
+      "label": "Stints de la estrategia",
+      "stintName": "Stint {{number}} · {{compound}}"
+    },
+    "stints": {
+      "title": "Stints",
+      "stint": "Stint {{number}}",
+      "compound": "Compuesto del stint {{number}}",
+      "laps": "Vueltas del stint {{number}}",
+      "remove": "Quitar el stint {{number}}",
+      "add": "Agregar stint"
+    },
+    "chips": {
+      "laps": "Vueltas {{total}} / {{expected}}",
+      "pit": "Parada {{pitStopLoss}} + {{tyreChangeTime}}",
+      "minStops_one": "Mínimo {{count}} parada",
+      "minStops_other": "Mínimo {{count}} paradas",
+      "noDriver": "Elegí un piloto",
+      "driver": "{{name}} · {{team}}",
+      "performance": "Auto {{car}} · Ritmo {{pace}}"
+    },
+    "feedback": {
+      "errors": "Errores",
+      "warnings": "Avisos"
+    },
+    "warning": {
+      "rain": {
+        "dry": "pista seca",
+        "light": "lluvia ligera",
+        "moderate": "lluvia moderada",
+        "heavy": "lluvia intensa"
+      },
+      "message": "Stint {{stint}} · {{compound}} corre {{lap}}{{from}}–{{lap}}{{to}} con {{rain}} ({{intensity}}). Perdés ≈{{loss}}s por vuelta.",
+      "ideal": "Ideal: {{compound}}."
+    },
+    "simulate": {
+      "action": "Simular",
+      "fixErrors_one": "Corregí {{count}} error para simular",
+      "fixErrors_other": "Corregí {{count}} errores para simular",
+      "pickDriver": "Elegí un piloto para simular"
+    }
   }
 }
