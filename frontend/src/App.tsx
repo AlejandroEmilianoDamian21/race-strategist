@@ -1,5 +1,6 @@
 import { QueryClientProvider, type QueryClient } from '@tanstack/react-query'
 import { useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { RaceInfoStep } from '@/features/races/race-info-step'
 import { RacesStep } from '@/features/races/races-step'
 import { useRaceOverview } from '@/features/races/use-race-overview'
@@ -27,6 +28,7 @@ function scrollToSection(id: string) {
 }
 
 function Screen() {
+  const { t } = useTranslation()
   const { raceId, driverId, selectRace, selectDriver } = useRaceSelection()
   const overview = useRaceOverview(raceId).data
   const { view, run, retry } = useSimulation(raceId)
@@ -34,7 +36,6 @@ function Screen() {
   const raceLaps = overview?.race.laps ?? 0
   const lap = useSimulationProgress(view.kind === 'loading', raceLaps)
   const progress = lap === null || raceLaps === 0 ? null : lap / raceLaps
-  const activeStep = raceId === null ? 1 : view.kind === 'success' ? 5 : driverId === null ? 2 : 3
 
   const rememberStints = useCallback(
     (draftRaceId: string, stints: Stint[]) => setDraft({ raceId: draftRaceId, stints }),
@@ -47,8 +48,8 @@ function Screen() {
   }
 
   return (
-    <AppShell activeStep={activeStep}>
-      <div className="flex flex-col gap-12">
+    <AppShell>
+      <div>
         <RacesStep selectedId={raceId} onSelect={selectRace} />
         <RaceInfoStep raceId={raceId} driverId={driverId} onSelectDriver={selectDriver} />
         <StrategyStep
@@ -68,6 +69,7 @@ function Screen() {
           onBackToStrategy={focusStint}
           onBackToCalendar={() => scrollToSection('step-race')}
         />
+        <p className="mt-12 text-caption text-ink-faint">{t('app.footer')}</p>
       </div>
     </AppShell>
   )

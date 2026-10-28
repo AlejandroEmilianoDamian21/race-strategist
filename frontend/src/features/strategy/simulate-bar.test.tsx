@@ -1,6 +1,7 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { MobileCtaHostContext } from '@/shared/layout/mobile-cta-host'
 import { SimulateBar } from './simulate-bar'
 
 interface Options {
@@ -79,5 +80,69 @@ describe('SimulateBar', () => {
     renderBar({ progress: 0 })
 
     expect(screen.getByRole('button', { name: /Simulando vuelta 1\/70/ })).toBeVisible()
+  })
+
+  describe('mobile action bar', () => {
+    function renderWithHost(options: Options = {}) {
+      const host = document.createElement('div')
+      document.body.appendChild(host)
+      const onSimulate = vi.fn()
+      const { errorCount = 0, hasDriver = true, progress = null } = options
+      const view = render(
+        <MobileCtaHostContext.Provider value={host}>
+          <SimulateBar
+            errorCount={errorCount}
+            hasDriver={hasDriver}
+            raceLaps={70}
+            progress={progress}
+            onAddStop={vi.fn()}
+            onSimulate={onSimulate}
+          />
+        </MobileCtaHostContext.Provider>,
+      )
+      return { host, onSimulate, view }
+    }
+
+    afterEach(() => {
+      document.body.innerHTML = ''
+    })
+
+    it('mirrors an enabled SIMULAR into the bar and runs the simulation from it', async () => {
+      const { host, onSimulate } = renderWithHost()
+
+      await userEvent.setup().click(within(host).getByRole('button', { name: 'Simular' }))
+
+      expect(onSimulate).toHaveBeenCalledTimes(1)
+    })
+
+    it('shows the short reason beside a disabled SIMULAR', () => {
+      const { host } = renderWithHost({ errorCount: 2 })
+
+      expect(within(host).getByRole('button', { name: 'Simular' })).toBeDisabled()
+      expect(within(host).getByText('Corregí errores')).toBeVisible()
+    })
+
+    it('asks for a driver in the bar when nobody is picked', () => {
+      const { host } = renderWithHost({ hasDriver: false })
+
+      expect(within(host).getByRole('button', { name: 'Simular' })).toBeDisabled()
+      expect(within(host).getByText('Elegí un piloto para simular')).toBeVisible()
+    })
+
+    it('shows the simulation progress in the bar', () => {
+      const { host } = renderWithHost({ progress: 0.5 })
+
+      const button = within(host).getByRole('button', { name: 'Simulando 35/70' })
+      expect(button).toHaveAttribute('aria-busy', 'true')
+    })
+
+    it('hides the inline primary action on mobile but keeps add-stop', () => {
+      const { view } = renderWithHost()
+
+      const inline = view.container.querySelector('.max-\\[720px\\]\\:\\[\\&_button\\]\\:hidden')
+      expect(inline).not.toBeNull()
+      expect(inline).toHaveTextContent('Simular')
+      expect(inline).not.toHaveTextContent('Agregar parada')
+    })
   })
 })

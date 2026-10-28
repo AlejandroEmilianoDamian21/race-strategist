@@ -24,7 +24,7 @@ export function Stepper({ activeStep }: StepperProps) {
 
   return (
     <nav aria-label={t('stepper.label')}>
-      <ol className="hidden min-[720px]:flex gap-0.5 list-none m-0 p-0">
+      <ol className="hidden min-[721px]:flex gap-0.5 list-none m-0 p-0">
         {STEP_KEYS.map((key, index) => {
           const number = index + 1
           const active = number === activeStep
@@ -43,14 +43,12 @@ export function Stepper({ activeStep }: StepperProps) {
               <button
                 type="button"
                 onClick={() => goToStep(key)}
-                className="block w-full cursor-pointer px-3 pt-3 pb-2 text-left font-display text-[14px] font-bold uppercase tracking-[1px] text-inherit focus-visible:outline-none focus-visible:shadow-focus"
+                className="block w-full cursor-pointer truncate px-3 pt-3 pb-2 text-left font-display text-[14px] font-bold uppercase tracking-[1px] text-inherit focus-visible:outline-none focus-visible:shadow-focus"
               >
                 <span className="mr-2 font-mono text-caption">
                   {String(number).padStart(2, '0')}
                 </span>
-                <span data-step-label className={cn(!active && 'max-[1099px]:sr-only')}>
-                  {t(`stepper.steps.${key}`)}
-                </span>
+                <span data-step-label>{t(`stepper.steps.${key}`)}</span>
                 {done && <span className="sr-only"> {t('stepper.done')}</span>}
               </button>
             </li>
@@ -63,7 +61,7 @@ export function Stepper({ activeStep }: StepperProps) {
         aria-valuemin={1}
         aria-valuemax={total}
         aria-valuenow={activeStep}
-        className="min-[720px]:hidden pb-3 font-display text-label font-bold uppercase tracking-[1px] text-ink-muted"
+        className="min-[721px]:hidden pb-3 font-display text-label leading-[22px] font-bold uppercase tracking-[1px] text-ink-muted"
       >
         <span aria-hidden="true">
           <Trans

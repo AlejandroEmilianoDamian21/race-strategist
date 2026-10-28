@@ -22,7 +22,11 @@ export function RacesStep({ selectedId, onSelect }: RacesStepProps) {
   const year = races[0]?.date.slice(0, 4)
 
   return (
-    <section id="step-race" aria-labelledby="step-race-title" className="scroll-mt-24">
+    <section
+      id="step-race"
+      aria-labelledby="step-race-title"
+      className="scroll-mt-[90px] pt-12 first:pt-0"
+    >
       <SectionHead
         step={1}
         title={t('races.title')}

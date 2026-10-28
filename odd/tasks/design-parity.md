@@ -25,7 +25,7 @@ The frontend works but diverges visually from the design (missing components, co
 - [x] D5 Step 2: CircuitCard, TyreCompounds, WeatherTimeline, DriverGrid.
 - [x] D6 Step 3: StintBuilder (weather band, draggable handles, rows, live validation, SIMULAR states).
 - [x] D7 Step 5: ResultSummary, PitStops, StintTimeline, BreakdownTable, LapTimeChart, compare.
-- [ ] D8 Screen: fixed header with scroll-following stepper, single page, mobile CTA.
+- [x] D8 Screen: fixed header with scroll-following stepper, single page, mobile CTA.
 - [ ] D9 Final pass: all states at 1280 and 390 against the screenshots.
 
 ## Notes
@@ -47,5 +47,7 @@ The frontend works but diverges visually from the design (missing components, co
 
 - D7 implemented (delegated writer). SIMULAR wired to POST /api/simulate via mutation (covers original T9): timer-driven "Simulando vuelta N/<laps>" progress capped one lap short; result step: ResultSummary (chip, stops + compounds, sentence, time hero, delta, 3 KPIs, Como se calculo), PitStops, StintTimeline with weather band and ghost bar, BreakdownTable with interleaved pits + total (cards on mobile), SVG LapTimeChart (compound backgrounds, rain strip, clipped annotated pit spikes, adaptive Y, tooltip, dashed previous line), compare toggle from the 2nd run, states empty/loading/invalid (400 details -> field + reason, Volver a la estrategia focuses the input)/api-error with retry. Backend response had every value the reference simulate() shows; nothing derived. RED logic 5 files + hooks 2 + UI 7 + App flow -> GREEN FE 448; lint/typecheck/build/prettier clean. Real POST race-01 driver-01 M29/H28: UI 1:27:11.903 = backend 5231.903s. Fixes after comparing: twMerge dropped text-eyebrow and badge leading-none, Tailwind text-xs/sm line-heights -> 22px. Render-over-README: clip 14px, invalid code ink uppercase, loading panel copy (local design-system.md corrected). HANDOFF Paso 5 (7) + Errores 400 checked. Review: not run, by user request.
 
+- D8 implemented (delegated writer). Sticky header (render: sticky, not fixed) with brand strip and stepper; useActiveStep inside AppShell follows scroll with a reading line at 90px + 25% viewport, bottom of page activates the last section; clicking a step scrolls with 90px scroll-margin; Simular maps to the strategy section and is never active by scroll (reference active mapping yields 1/2/3/5). Mid-width labels truncate with ellipsis; stepper column minmax(0,1fr) fixed a sideways scroll at 721-880px. Container 1232 with 16px gutters, sections pt-12. Mobile sticky CTA (<=720) mirrors SIMULAR via portal with short copy; inline SIMULAR hidden on mobile. Footer disclaimer from the reference. RED 6 files / 8 failures -> GREEN FE 470; lint/typecheck/build/prettier clean (re-run by parent). No horizontal scroll at 390 across the whole flow (scrollWidth 390). Design note: scroll-follow is not in the reference (state-derived there); added because the HANDOFF asks for it. HANDOFF Global no-horizontal-scroll checked; local design-system.md corrected (sticky header/CTA). Review: not run, by user request.
+
 ## Next step
-D8 Screen (fixed header with scroll-following stepper, single page, mobile CTA). Autonomous commits/PR/merge authorized for D4-D9; gentle-ai reviews not run by user request.
+D9 Final pass: all states at 1280 and 390 against the screenshots; audit the remaining Global items (tokens only, accent usage, mono numbers, compound letters). Autonomous commits/PR/merge authorized for D4-D9; gentle-ai reviews not run by user request.

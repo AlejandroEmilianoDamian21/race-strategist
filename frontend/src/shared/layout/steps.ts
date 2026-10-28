@@ -3,5 +3,5 @@ export const STEP_KEYS = ['race', 'info', 'strategy', 'simulate', 'result'] as c
 export type StepKey = (typeof STEP_KEYS)[number]
 
 export function stepSectionId(key: StepKey): string {
-  return `step-${key}`
+  return `step-${key === 'simulate' ? 'strategy' : key}`
 }

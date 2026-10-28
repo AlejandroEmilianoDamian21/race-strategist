@@ -30,16 +30,15 @@ describe('Stepper', () => {
     )
   })
 
-  it('keeps labels readable at mid widths by collapsing only the inactive ones', () => {
+  it('truncates labels with an ellipsis at mid widths instead of hiding them', () => {
     render(<Stepper activeStep={2} />)
 
-    const items = Array.from(screen.getByRole('list').querySelectorAll('li'))
-    items.forEach((item) => expect(item.className).not.toMatch(/\btruncate\b/))
-    const labels = items.map((item) => item.querySelector('[data-step-label]'))
-    expect(labels[1]?.className).not.toContain('sr-only')
-    expect(labels[0]?.className).toContain('max-[1099px]:sr-only')
-    expect(labels[2]?.className).toContain('max-[1099px]:sr-only')
+    const buttons = screen.getAllByRole('button')
+    buttons.forEach((button) => expect(button).toHaveClass('truncate'))
+    const labels = buttons.map((button) => button.querySelector('[data-step-label]'))
+    labels.forEach((label) => expect(label?.className).not.toContain('sr-only'))
     expect(labels[0]).toHaveTextContent('Carrera')
+    expect(labels[2]).toHaveTextContent('Estrategia')
   })
 
   it('renders the mobile text with the emphasized parts', () => {
@@ -90,5 +89,26 @@ describe('Stepper', () => {
     await userEvent.setup().click(screen.getByRole('button', { name: /Estrategia/ }))
     expect(scrollIntoView).toHaveBeenCalledOnce()
     section.remove()
+  })
+
+  it('sends the Simular step to the strategy section, which holds the action', async () => {
+    const section = document.createElement('section')
+    section.id = 'step-strategy'
+    const scrollIntoView = vi.fn()
+    section.scrollIntoView = scrollIntoView
+    document.body.appendChild(section)
+    render(<Stepper activeStep={1} />)
+
+    await userEvent.setup().click(screen.getByRole('button', { name: /Simular/ }))
+
+    expect(scrollIntoView).toHaveBeenCalledOnce()
+    section.remove()
+  })
+
+  it('switches to the desktop layout above 720px, like the mobile text switches below it', () => {
+    const { container } = render(<Stepper activeStep={1} />)
+
+    expect(screen.getByRole('list')).toHaveClass('min-[721px]:flex')
+    expect(container.querySelector('[role="progressbar"]')).toHaveClass('min-[721px]:hidden')
   })
 })
