@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0b0b0f;
+  --color-surface-1: #15151c;
+  --color-surface-2: #1f1f29;
+  --color-surface-3: #2a2a36;
+  --color-line: #2c2c38;
+  --color-line-strong: #4a4a5a;
+  --color-ink: #ffffff;
+  --color-ink-muted: #a3a3b2;
+  --color-ink-faint: #8a8a99;
+  --color-accent: #e10600;
+  --color-accent-hover: #ff1a0d;
+  --color-accent-text: #ff4436;
+  --color-on-accent: #ffffff;
+  --color-tyre-soft: #ff5a5f;
+  --color-tyre-medium: #ffd12e;
+  --color-tyre-hard: #f2f2f2;
+  --color-tyre-inter: #3fbf5a;
+  --color-tyre-wet: #3d8bff;
+  --color-on-tyre: #0b0b0f;
+  --color-success: #2fd67b;
+  --color-warning: #ffb020;
+  --color-danger: #ff6e61;
+  --color-danger-surface: #2a1414;
+  --color-warning-surface: #2a2112;
+  --color-rain: #4aa3ff;
+  --color-series-current: #ffffff;
+  --color-series-previous: #7c93ff;
+
+  --font-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-sans: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --radius-sm: 2px;
+  --radius-md: 6px;
+
+  --shadow-focus: 0 0 0 2px #0b0b0f, 0 0 0 4px #ffffff;
+  --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+  --text-display-xl: 56px;
+  --text-display-xl--line-height: 56px;
+  --text-heading-1: 32px;
+  --text-heading-1--line-height: 36px;
+  --text-heading-2: 22px;
+  --text-heading-2--line-height: 26px;
+  --text-eyebrow: 13px;
+  --text-eyebrow--line-height: 16px;
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 26px;
+  --text-body: 15px;
+  --text-body--line-height: 22px;
+  --text-label: 13px;
+  --text-label--line-height: 18px;
+  --text-caption: 12px;
+  --text-caption--line-height: 16px;
+  --text-time-hero: 64px;
+  --text-time-hero--line-height: 64px;
+  --text-time-md: 20px;
+  --text-time-md--line-height: 24px;
+  --text-data: 14px;
+  --text-data--line-height: 20px;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "race-strategist",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "concurrently -n backend,frontend -c blue,magenta \"npm run start:dev -w backend\" \"npm run dev -w frontend\"",
+    "build": "npm run build -w backend -w frontend",
+    "test": "npm run test -w backend -w frontend",
+    "lint": "npm run lint -w backend -w frontend",
+    "typecheck": "npm run typecheck -w backend -w frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6"
+  }
+}
