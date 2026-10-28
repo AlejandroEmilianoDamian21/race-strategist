@@ -43,6 +43,19 @@ function renderRow({
 }
 
 describe('StintRow', () => {
+  it('exposes the stint index and its fields so a backend violation can focus them', () => {
+    renderRow()
+
+    const row = screen.getByRole('listitem')
+    expect(row).toHaveAttribute('data-stint', '0')
+    expect(row.querySelector('[data-field="laps"]')).toBe(
+      screen.getByRole('spinbutton', { name: 'Vueltas del stint 1' }),
+    )
+    expect(row.querySelector('[data-field="compound"]')).toBe(
+      screen.getByRole('radiogroup', { name: 'Compuesto del stint 1' }),
+    )
+  })
+
   it('offers the five compounds as a radio group with the chosen one checked', () => {
     renderRow()
 

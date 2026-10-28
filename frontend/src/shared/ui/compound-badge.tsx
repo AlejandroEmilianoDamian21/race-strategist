@@ -42,8 +42,9 @@ export function CompoundBadge({
       aria-hidden={decorative ? true : undefined}
       className={cn(
         'inline-grid flex-none place-items-center rounded-full bg-bg',
-        'font-display font-extrabold leading-none',
+        'font-display font-extrabold',
         SIZES[size],
+        'leading-none',
         COMPOUND_COLOR[compound],
         className,
       )}

@@ -24,7 +24,7 @@ The frontend works but diverges visually from the design (missing components, co
 - [x] D4 Step 1: RacePicker + skeleton + wake/api-error.
 - [x] D5 Step 2: CircuitCard, TyreCompounds, WeatherTimeline, DriverGrid.
 - [x] D6 Step 3: StintBuilder (weather band, draggable handles, rows, live validation, SIMULAR states).
-- [ ] D7 Step 5: ResultSummary, PitStops, StintTimeline, BreakdownTable, LapTimeChart, compare.
+- [x] D7 Step 5: ResultSummary, PitStops, StintTimeline, BreakdownTable, LapTimeChart, compare.
 - [ ] D8 Screen: fixed header with scroll-following stepper, single page, mobile CTA.
 - [ ] D9 Final pass: all states at 1280 and 390 against the screenshots.
 
@@ -45,5 +45,7 @@ The frontend works but diverges visually from the design (missing components, co
 
 - D6 parent verification: FE 351 passed, lint/typecheck clean; mobile flow shot checked. T8 review follow-ups closed (per-stint error scope tests; overview failure shows api-error with retry, no builder). Render-over-README: inputs Barlow 400 (font: inherit), delete icon ink, default split defStints (local design-system.md corrected). HANDOFF Paso 3: 9 items + Global focus/handles checked. Mobile sticky CTA left for D8. Review: not run, by user request.
 
+- D7 implemented (delegated writer). SIMULAR wired to POST /api/simulate via mutation (covers original T9): timer-driven "Simulando vuelta N/<laps>" progress capped one lap short; result step: ResultSummary (chip, stops + compounds, sentence, time hero, delta, 3 KPIs, Como se calculo), PitStops, StintTimeline with weather band and ghost bar, BreakdownTable with interleaved pits + total (cards on mobile), SVG LapTimeChart (compound backgrounds, rain strip, clipped annotated pit spikes, adaptive Y, tooltip, dashed previous line), compare toggle from the 2nd run, states empty/loading/invalid (400 details -> field + reason, Volver a la estrategia focuses the input)/api-error with retry. Backend response had every value the reference simulate() shows; nothing derived. RED logic 5 files + hooks 2 + UI 7 + App flow -> GREEN FE 448; lint/typecheck/build/prettier clean. Real POST race-01 driver-01 M29/H28: UI 1:27:11.903 = backend 5231.903s. Fixes after comparing: twMerge dropped text-eyebrow and badge leading-none, Tailwind text-xs/sm line-heights -> 22px. Render-over-README: clip 14px, invalid code ink uppercase, loading panel copy (local design-system.md corrected). HANDOFF Paso 5 (7) + Errores 400 checked. Review: not run, by user request.
+
 ## Next step
-D7 Step 5 (ResultSummary, PitStops, StintTimeline, BreakdownTable, LapTimeChart, compare) incl. the POST /api/simulate wiring. Autonomous commits/PR/merge authorized for D4-D9; gentle-ai reviews not run by user request.
+D8 Screen (fixed header with scroll-following stepper, single page, mobile CTA). Autonomous commits/PR/merge authorized for D4-D9; gentle-ai reviews not run by user request.

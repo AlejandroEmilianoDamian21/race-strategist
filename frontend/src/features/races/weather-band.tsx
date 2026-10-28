@@ -19,14 +19,19 @@ function rainShare(intensity: number): string {
 interface WeatherBandProps {
   forecast: WeatherSegment[]
   tyres: Tyre[]
+  compact?: boolean
 }
 
-export function WeatherBand({ forecast, tyres }: WeatherBandProps) {
+export function WeatherBand({ forecast, tyres, compact = false }: WeatherBandProps) {
   const { t } = useTranslation()
   const lap = t('raceInfo.drivers.lapShort')
 
   return (
-    <div role="list" aria-label={t('raceInfo.weather.band')} className="mb-1 flex h-8">
+    <div
+      role="list"
+      aria-label={t('raceInfo.weather.band')}
+      className={cn('mb-1 flex', compact ? 'h-[22px]' : 'h-8')}
+    >
       {forecast.map((segment) => {
         const wet = segment.rainIntensity > 0
         const ideal = idealCompounds(tyres, segment.rainIntensity)
@@ -69,12 +74,15 @@ export function WeatherBand({ forecast, tyres }: WeatherBandProps) {
             <span className="inline-flex min-w-0 items-center gap-1 overflow-hidden text-ellipsis">
               <Icon className="size-3.5 flex-none" />
               <span className="max-[720px]:hidden">
-                {`${lap}${segment.fromLap}–${segment.toLap} · ${segment.temperature}° · ${
+                {`${compact ? '' : `${lap}${segment.fromLap}–${segment.toLap} · `}${segment.temperature}° · ${
                   wet ? segment.rainIntensity : t('raceInfo.weather.dryShort')
                 }`}
               </span>
             </span>
-            <span aria-hidden="true" className="inline-flex flex-none gap-0.5">
+            <span
+              aria-hidden="true"
+              className={cn('inline-flex flex-none gap-0.5', compact && 'hidden')}
+            >
               {ideal.map((compound) => (
                 <CompoundBadge key={compound} compound={compound} size="sm" decorative />
               ))}

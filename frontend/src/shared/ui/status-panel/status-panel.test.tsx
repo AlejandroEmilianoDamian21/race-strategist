@@ -230,8 +230,33 @@ describe('StatusPanel', () => {
   it('sim-loading shows the lap progress', () => {
     render(<StatusPanel variant="sim-loading" lap={34} totalLaps={53} />)
 
-    expect(screen.getByText('Simulando vuelta 34/53…')).toBeVisible()
+    expect(screen.getByText('Simulando · vuelta 34 de 53')).toBeVisible()
     expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '34')
+  })
+
+  it('sim-loading draws the skeleton of the result around the given bar', () => {
+    const { container } = render(
+      <StatusPanel variant="sim-loading" lap={34} totalLaps={53} bar={<div data-testid="bar" />} />,
+    )
+
+    expect(screen.getByTestId('bar')).toBeInTheDocument()
+    expect(container.querySelectorAll('.skeleton').length).toBeGreaterThanOrEqual(5)
+    expect(container.firstElementChild).toHaveAttribute('aria-busy', 'true')
+  })
+
+  it('invalid shows the technical line when given one', () => {
+    render(
+      <StatusPanel
+        variant="invalid"
+        violations={[]}
+        technical="POST /api/simulate → 400 · INVALID_STRATEGY · The strategy is not valid."
+        onBack={vi.fn()}
+      />,
+    )
+
+    expect(
+      screen.getByText('POST /api/simulate → 400 · INVALID_STRATEGY · The strategy is not valid.'),
+    ).toBeVisible()
   })
 
   it('sim-loading with zero total laps shows 0% and no NaN', () => {

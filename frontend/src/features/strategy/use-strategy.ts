@@ -21,7 +21,10 @@ export function useStrategy(overview: RaceOverview) {
   const raceId = overview.race.id
   const raceLaps = overview.race.laps
   const [draft, setDraft] = useState<Draft | null>(null)
-  const stints = draft !== null && draft.raceId === raceId ? draft.stints : defaultStints(raceLaps)
+  const stints = useMemo(
+    () => (draft !== null && draft.raceId === raceId ? draft.stints : defaultStints(raceLaps)),
+    [draft, raceId, raceLaps],
+  )
 
   const update = useCallback(
     (change: (current: Stint[]) => Stint[]) => {

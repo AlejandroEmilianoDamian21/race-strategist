@@ -73,7 +73,7 @@
       "body": "Armá tu estrategia y tocá SIMULAR. El resultado aparece acá: tiempo total, stints, paradas y cómo cae el ritmo vuelta a vuelta."
     },
     "simLoading": {
-      "label": "Simulando vuelta {{lap}}/{{total}}…",
+      "label": "Simulando · vuelta {{lap}} de {{total}}",
       "progressLabel": "Progreso de la simulación"
     },
     "emptyStrategy": {
@@ -243,6 +243,92 @@
       "fixErrors_one": "Corregí {{count}} error para simular",
       "fixErrors_other": "Corregí {{count}} errores para simular",
       "pickDriver": "Elegí un piloto para simular"
+    }
+  },
+  "result": {
+    "title": "Resultado de la simulación",
+    "compare": "Comparar con la anterior",
+    "summary": {
+      "eyebrow": "Resumen",
+      "chip": "#{{number}} {{driver}} · {{race}}",
+      "sentence": {
+        "pits": "Parás en {{laps}}. ",
+        "pitLap": "la {{lap}}",
+        "pitJoiner": " y ",
+        "noPits": "Sin paradas. ",
+        "longest_one": "El stint más largo es con {{compound}} ({{count}} vuelta). ",
+        "longest_other": "El stint más largo es con {{compound}} ({{count}} vueltas). ",
+        "wet": "Perdés {{loss}} por usar compuestos fuera de su banda de lluvia.",
+        "dry": "Cada compuesto corre dentro de su banda de lluvia."
+      },
+      "total": "Tiempo total estimado",
+      "vsPrevious": "{{delta}} vs. anterior",
+      "kpi": {
+        "fastest": "Vuelta más rápida",
+        "fastestNote": "{{lap}} · {{compound}}",
+        "pit": "Perdido en boxes",
+        "average": "Promedio / vuelta",
+        "averageNote_one": "{{count}} vuelta",
+        "averageNote_other": "{{count}} vueltas"
+      }
+    },
+    "assumptions": {
+      "title": "Cómo se calculó",
+      "lap": "<b>Vuelta</b> = <code>baseLapTime</code> {{base}}s + <code>pace</code> del compuesto + <code>degradation</code> × <code>tyreWear</code> {{wear}} × edad del neumático − <code>fuelEffectPerLap</code> {{fuel}}s × vuelta.",
+      "driver": "<b>Piloto</b>: +{{delta}}s/vuelta = ((1 − <code>carPerformance</code> {{car}}) + (1 − <code>pace</code> {{pace}})) × 10.",
+      "rain": "<b>Lluvia</b>: si la <code>rainIntensity</code> del tramo cae fuera de <code>optimalRainIntensity</code> del compuesto, se suma (exceso × 20 × (1 − <code>wetPerformance</code>)); un compuesto de lluvia en seco suma (falta × 6).",
+      "pit": "<b>Parada</b>: <code>pitStopLoss</code> {{lane}}s + <code>tyreChangeTime</code> {{change}}s, sumada en la vuelta de entrada.",
+      "unmodeled": "<b>No modelado</b>: safety car ({{safety}} de probabilidad), <code>lapTimeVariance</code> {{variance}}s, <code>consistency</code> y tráfico (<code>overtakingDifficulty</code> {{overtaking}}). La simulación es determinística."
+    },
+    "pitStops": {
+      "title": "Paradas en boxes",
+      "count_one": "{{count}} parada",
+      "count_other": "{{count}} paradas",
+      "none": "Sin paradas: un solo stint de principio a fin.",
+      "total": "Total perdido en boxes",
+      "note": "Cada parada = {{lane}}s en pit lane (<code>pitStopLoss</code>) + {{change}}s de cambio (<code>tyreChangeTime</code>)."
+    },
+    "timeline": {
+      "title": "Línea de tiempo de stints",
+      "previousNote": "Abajo, fina: la anterior ({{summary}})",
+      "previousLabel": "Estrategia anterior",
+      "stint": "Stint {{number}}: {{compound}}, vueltas {{from}} a {{to}}, {{time}}"
+    },
+    "table": {
+      "title": "Desglose por stint",
+      "stint": "Stint",
+      "compound": "Compuesto",
+      "from": "Desde",
+      "to": "Hasta",
+      "laps": "Vueltas",
+      "average": "Prom./vuelta",
+      "rain": "Por lluvia",
+      "time": "Tiempo",
+      "pit": "Parada en boxes",
+      "total": "Total",
+      "cardTitle": "Stint {{number}} · {{compound}}",
+      "cardDetail_one": "{{from}}–{{to}} · {{count}} vuelta · {{average}}/v",
+      "cardDetail_other": "{{from}}–{{to}} · {{count}} vueltas · {{average}}/v",
+      "cardRain": " · lluvia {{loss}}",
+      "cardPit": "Parada en {{lap}}"
+    },
+    "chart": {
+      "title": "Tiempo por vuelta",
+      "label": "Tiempo por vuelta: sube con el desgaste dentro de cada stint, con la lluvia si el compuesto no es el indicado, y salta en las vueltas de parada",
+      "current": "Esta simulación",
+      "previous": "Anterior",
+      "pit": "Parada",
+      "rain": "Lluvia",
+      "box": "BOX {{lap}} · {{loss}} ↑",
+      "rainTitle": "Lluvia {{value}}",
+      "tip": {
+        "lap": "Vuelta {{lap}}",
+        "age": "{{age}}ª vuelta del {{compound}}",
+        "rainWrong": "Lluvia {{value}} · {{loss}} por compuesto",
+        "rainRight": "Lluvia {{value}} · compuesto correcto",
+        "pit": "Incluye parada en boxes",
+        "previous": "Anterior: {{time}}"
+      }
     }
   }
 }

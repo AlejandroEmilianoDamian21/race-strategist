@@ -73,7 +73,7 @@
       "body": "Build your strategy and press SIMULATE. The result shows up here: total time, stints, pit stops and how the pace changes lap by lap."
     },
     "simLoading": {
-      "label": "Simulating lap {{lap}}/{{total}}…",
+      "label": "Simulating · lap {{lap}} of {{total}}",
       "progressLabel": "Simulation progress"
     },
     "emptyStrategy": {
@@ -243,6 +243,92 @@
       "fixErrors_one": "Fix {{count}} error to simulate",
       "fixErrors_other": "Fix {{count}} errors to simulate",
       "pickDriver": "Pick a driver to simulate"
+    }
+  },
+  "result": {
+    "title": "Simulation result",
+    "compare": "Compare with the previous one",
+    "summary": {
+      "eyebrow": "Summary",
+      "chip": "#{{number}} {{driver}} · {{race}}",
+      "sentence": {
+        "pits": "You pit on {{laps}}. ",
+        "pitLap": "{{lap}}",
+        "pitJoiner": " and ",
+        "noPits": "No pit stops. ",
+        "longest_one": "The longest stint is on {{compound}} ({{count}} lap). ",
+        "longest_other": "The longest stint is on {{compound}} ({{count}} laps). ",
+        "wet": "You lose {{loss}} for running compounds outside their rain band.",
+        "dry": "Every compound runs inside its rain band."
+      },
+      "total": "Estimated total time",
+      "vsPrevious": "{{delta}} vs. previous",
+      "kpi": {
+        "fastest": "Fastest lap",
+        "fastestNote": "{{lap}} · {{compound}}",
+        "pit": "Lost in the pits",
+        "average": "Average / lap",
+        "averageNote_one": "{{count}} lap",
+        "averageNote_other": "{{count}} laps"
+      }
+    },
+    "assumptions": {
+      "title": "How it was calculated",
+      "lap": "<b>Lap</b> = <code>baseLapTime</code> {{base}}s + the compound <code>pace</code> + <code>degradation</code> × <code>tyreWear</code> {{wear}} × tyre age − <code>fuelEffectPerLap</code> {{fuel}}s × lap.",
+      "driver": "<b>Driver</b>: +{{delta}}s/lap = ((1 − <code>carPerformance</code> {{car}}) + (1 − <code>pace</code> {{pace}})) × 10.",
+      "rain": "<b>Rain</b>: if the segment <code>rainIntensity</code> falls outside the compound <code>optimalRainIntensity</code>, it adds (excess × 20 × (1 − <code>wetPerformance</code>)); a wet compound on a dry track adds (shortfall × 6).",
+      "pit": "<b>Pit stop</b>: <code>pitStopLoss</code> {{lane}}s + <code>tyreChangeTime</code> {{change}}s, added on the in lap.",
+      "unmodeled": "<b>Not modelled</b>: safety car ({{safety}} chance), <code>lapTimeVariance</code> {{variance}}s, <code>consistency</code> and traffic (<code>overtakingDifficulty</code> {{overtaking}}). The simulation is deterministic."
+    },
+    "pitStops": {
+      "title": "Pit stops",
+      "count_one": "{{count}} pit stop",
+      "count_other": "{{count}} pit stops",
+      "none": "No pit stops: a single stint from start to finish.",
+      "total": "Total lost in the pits",
+      "note": "Each stop = {{lane}}s in the pit lane (<code>pitStopLoss</code>) + {{change}}s tyre change (<code>tyreChangeTime</code>)."
+    },
+    "timeline": {
+      "title": "Stint timeline",
+      "previousNote": "Below, thin: the previous one ({{summary}})",
+      "previousLabel": "Previous strategy",
+      "stint": "Stint {{number}}: {{compound}}, laps {{from}} to {{to}}, {{time}}"
+    },
+    "table": {
+      "title": "Stint breakdown",
+      "stint": "Stint",
+      "compound": "Compound",
+      "from": "From",
+      "to": "To",
+      "laps": "Laps",
+      "average": "Avg./lap",
+      "rain": "From rain",
+      "time": "Time",
+      "pit": "Pit stop",
+      "total": "Total",
+      "cardTitle": "Stint {{number}} · {{compound}}",
+      "cardDetail_one": "{{from}}–{{to}} · {{count}} lap · {{average}}/l",
+      "cardDetail_other": "{{from}}–{{to}} · {{count}} laps · {{average}}/l",
+      "cardRain": " · rain {{loss}}",
+      "cardPit": "Pit stop on {{lap}}"
+    },
+    "chart": {
+      "title": "Lap time",
+      "label": "Lap time: it rises with wear inside each stint, with rain when the compound is not the right one, and jumps on the pit laps",
+      "current": "This simulation",
+      "previous": "Previous",
+      "pit": "Pit stop",
+      "rain": "Rain",
+      "box": "PIT {{lap}} · {{loss}} ↑",
+      "rainTitle": "Rain {{value}}",
+      "tip": {
+        "lap": "Lap {{lap}}",
+        "age": "lap {{age}} on the {{compound}}",
+        "rainWrong": "Rain {{value}} · {{loss}} from the compound",
+        "rainRight": "Rain {{value}} · right compound",
+        "pit": "Includes a pit stop",
+        "previous": "Previous: {{time}}"
+      }
     }
   }
 }
