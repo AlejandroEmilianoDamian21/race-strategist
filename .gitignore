@@ -11,5 +11,3 @@ coverage
 .codegraph
 *.tsbuildinfo
 .atl/
-
-frontend/out/
