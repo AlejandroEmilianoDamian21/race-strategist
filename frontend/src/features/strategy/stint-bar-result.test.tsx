@@ -44,7 +44,7 @@ describe('StintBar in result mode', () => {
   it('has no drag handles', () => {
     bar()
 
-    expect(screen.queryAllByRole('button')).toHaveLength(0)
+    expect(screen.queryAllByRole('slider')).toHaveLength(0)
   })
 
   it('draws a thinner ghost bar of the previous strategy when given one', () => {

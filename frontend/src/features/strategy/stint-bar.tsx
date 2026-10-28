@@ -26,6 +26,7 @@ const BAR_HEIGHT = 64
 const RESULT_BAR_HEIGHT = 84
 const PIN_TOP = 30
 const WEATHER_HEIGHT = 36
+const PAGE_STEP = 5
 
 interface StintBarProps {
   stints: Stint[]
@@ -84,7 +85,7 @@ export function StintBar({
 
   useEffect(() => () => stopDrag.current?.(), [])
 
-  function startDrag(index: number, event: PointerEvent<HTMLButtonElement>) {
+  function startDrag(index: number, event: PointerEvent<HTMLDivElement>) {
     if (onMovePit === undefined) return
     event.preventDefault()
     event.currentTarget.focus()
@@ -104,11 +105,26 @@ export function StintBar({
     stopDrag.current = end
   }
 
-  function onKeyDown(index: number, event: KeyboardEvent<HTMLButtonElement>) {
-    const delta = event.key === 'ArrowLeft' ? -1 : event.key === 'ArrowRight' ? 1 : 0
-    if (delta === 0) return
+  function pitBounds(index: number) {
+    return { min: (ends[index - 1] ?? 0) + 1, max: (ends[index + 1] ?? span + 1) - 1 }
+  }
+
+  function onKeyDown(index: number, event: KeyboardEvent<HTMLDivElement>) {
+    const current = ends[index] ?? 0
+    const { min, max } = pitBounds(index)
+    const target = {
+      ArrowLeft: current - 1,
+      ArrowDown: current - 1,
+      ArrowRight: current + 1,
+      ArrowUp: current + 1,
+      PageDown: current - PAGE_STEP,
+      PageUp: current + PAGE_STEP,
+      Home: min,
+      End: max,
+    }[event.key]
+    if (target === undefined) return
     event.preventDefault()
-    onMovePit?.(index, (ends[index] ?? 0) + delta)
+    onMovePit?.(index, Math.max(min, Math.min(max, target)))
   }
 
   return (
@@ -246,10 +262,16 @@ export function StintBar({
           stints
             .slice(0, -1)
             .map((_, index) => (
-              <button
+              <div
                 key={`handle-${index}`}
-                type="button"
-                aria-label={t('strategy.bar.handle', { number: index + 1, lap: ends[index] })}
+                role="slider"
+                tabIndex={0}
+                aria-label={t('strategy.bar.handle', { number: index + 1 })}
+                aria-orientation="horizontal"
+                aria-valuemin={pitBounds(index).min}
+                aria-valuemax={pitBounds(index).max}
+                aria-valuenow={ends[index]}
+                aria-valuetext={t('strategy.bar.handleValue', { lap: ends[index] })}
                 onPointerDown={(event) => startDrag(index, event)}
                 onKeyDown={(event) => onKeyDown(index, event)}
                 style={{ left: `${((ends[index] ?? 0) / span) * 100}%`, top: barTop }}

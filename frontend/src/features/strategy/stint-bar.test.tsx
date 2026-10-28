@@ -83,7 +83,7 @@ describe('StintBar', () => {
     renderBar()
 
     expect(screen.getAllByText(/^V23$/)).toHaveLength(1)
-    expect(screen.getAllByRole('button')).toHaveLength(1)
+    expect(screen.getAllByRole('slider')).toHaveLength(1)
   })
 
   it('draws a hatched segment with the missing laps', () => {
@@ -125,7 +125,7 @@ describe('StintBar', () => {
 
   it('moves the pit with the arrow keys from the current lap', () => {
     const { onMovePit } = renderBar()
-    const handle = screen.getByRole('button', { name: 'Mover parada 1 (vuelta 23)' })
+    const handle = screen.getByRole('slider', { name: 'Mover parada 1' })
 
     fireEvent.keyDown(handle, { key: 'ArrowRight' })
     fireEvent.keyDown(handle, { key: 'ArrowLeft' })
@@ -134,6 +134,49 @@ describe('StintBar', () => {
     expect(onMovePit).toHaveBeenNthCalledWith(1, 0, 24)
     expect(onMovePit).toHaveBeenNthCalledWith(2, 0, 22)
     expect(onMovePit).toHaveBeenCalledTimes(2)
+  })
+
+  it('exposes each pit handle as a slider with its value and neighbour bounds', () => {
+    renderBar({
+      stints: [
+        { compound: 'MEDIUM', laps: 20 },
+        { compound: 'HARD', laps: 15 },
+        { compound: 'SOFT', laps: 18 },
+      ],
+    })
+
+    const first = screen.getByRole('slider', { name: 'Mover parada 1' })
+    const second = screen.getByRole('slider', { name: 'Mover parada 2' })
+    expect(first).toHaveAttribute('aria-valuenow', '20')
+    expect(first).toHaveAttribute('aria-valuemin', '1')
+    expect(first).toHaveAttribute('aria-valuemax', '34')
+    expect(first).toHaveAttribute('aria-valuetext', 'Vuelta 20')
+    expect(first).toHaveAttribute('tabindex', '0')
+    expect(second).toHaveAttribute('aria-valuenow', '35')
+    expect(second).toHaveAttribute('aria-valuemin', '21')
+    expect(second).toHaveAttribute('aria-valuemax', '52')
+    expect(second).toHaveAttribute('aria-valuetext', 'Vuelta 35')
+  })
+
+  it.each([
+    ['Home', 1],
+    ['End', 34],
+    ['PageUp', 25],
+    ['PageDown', 15],
+    ['ArrowUp', 21],
+    ['ArrowDown', 19],
+  ])('moves the pit with %s', (key, lap) => {
+    const { onMovePit } = renderBar({
+      stints: [
+        { compound: 'MEDIUM', laps: 20 },
+        { compound: 'HARD', laps: 15 },
+        { compound: 'SOFT', laps: 18 },
+      ],
+    })
+
+    fireEvent.keyDown(screen.getByRole('slider', { name: 'Mover parada 1' }), { key })
+
+    expect(onMovePit).toHaveBeenCalledExactlyOnceWith(0, lap)
   })
 
   it('drags the handle along the bar and stops on release', () => {
@@ -149,7 +192,7 @@ describe('StintBar', () => {
       y: 0,
       toJSON: () => ({}),
     })
-    const handle = screen.getByRole('button', { name: 'Mover parada 1 (vuelta 23)' })
+    const handle = screen.getByRole('slider', { name: 'Mover parada 1' })
 
     fireEvent.pointerDown(handle, { clientX: 340 })
     fireEvent.pointerMove(window, { clientX: 365 })

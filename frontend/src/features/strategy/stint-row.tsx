@@ -1,4 +1,4 @@
-import { useId, useState, type ChangeEvent } from 'react'
+import { useId, useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import type { Stint } from '@/shared/api/types'
 import { COMPOUNDS, compoundNameKey, isTyreCompound } from '@/shared/domain/compounds'
@@ -55,6 +55,9 @@ export function StintRow({
   const lapsId = useId()
   const pitId = useId()
   const [draft, setDraft] = useState<string | null>(null)
+  const radios = useRef<(HTMLButtonElement | null)[]>([])
+  const checkedIndex = COMPOUNDS.findIndex((compound) => compound.api === stint.compound)
+  const tabbableIndex = checkedIndex === -1 ? 0 : checkedIndex
   const number = index + 1
   const lapsValue =
     draft !== null && parseLaps(draft) === stint.laps
@@ -63,6 +66,24 @@ export function StintRow({
         ? String(stint.laps)
         : ''
   const name = isTyreCompound(stint.compound) ? t(compoundNameKey(stint.compound)) : '—'
+
+  function onCompoundKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    const last = COMPOUNDS.length - 1
+    const from = Math.max(checkedIndex, 0)
+    const target = {
+      ArrowRight: from === last ? 0 : from + 1,
+      ArrowDown: from === last ? 0 : from + 1,
+      ArrowLeft: from === 0 ? last : from - 1,
+      ArrowUp: from === 0 ? last : from - 1,
+      Home: 0,
+      End: last,
+    }[event.key]
+    const next = target === undefined ? undefined : COMPOUNDS[target]
+    if (target === undefined || next === undefined) return
+    event.preventDefault()
+    onCompoundChange(index, next.api)
+    radios.current[target]?.focus()
+  }
 
   function onLapsInput(event: ChangeEvent<HTMLInputElement>) {
     const raw = stripLeadingZeros(event.target.value)
@@ -99,17 +120,22 @@ export function StintRow({
           role="radiogroup"
           data-field="compound"
           aria-label={t('strategy.rows.group', { number })}
+          onKeyDown={onCompoundKeyDown}
           className="flex gap-1"
         >
-          {COMPOUNDS.map((compound) => {
+          {COMPOUNDS.map((compound, position) => {
             const checked = stint.compound === compound.api
             const label = t(compound.nameKey)
             return (
               <button
                 key={compound.api}
+                ref={(element) => {
+                  radios.current[position] = element
+                }}
                 type="button"
                 role="radio"
                 aria-checked={checked}
+                tabIndex={position === tabbableIndex ? 0 : -1}
                 aria-label={label}
                 title={label}
                 onClick={() => onCompoundChange(index, compound.api)}

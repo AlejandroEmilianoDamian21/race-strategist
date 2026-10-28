@@ -154,6 +154,69 @@ describe('StintRow', () => {
     expect(onCompoundChange).toHaveBeenCalledWith(0, 'WET')
   })
 
+  it('keeps a single tab stop on the checked compound', () => {
+    renderRow()
+
+    const radios = within(screen.getByRole('radiogroup')).getAllByRole('radio')
+    expect(radios.map((radio) => radio.getAttribute('tabindex'))).toEqual([
+      '-1',
+      '0',
+      '-1',
+      '-1',
+      '-1',
+    ])
+  })
+
+  it('makes the first compound tabbable when none is checked', () => {
+    renderRow({ stint: { compound: 'SLICK', laps: 10 } })
+
+    const radios = within(screen.getByRole('radiogroup')).getAllByRole('radio')
+    expect(radios.map((radio) => radio.getAttribute('tabindex'))).toEqual([
+      '0',
+      '-1',
+      '-1',
+      '-1',
+      '-1',
+    ])
+  })
+
+  it.each([
+    ['ArrowRight', 'HARD'],
+    ['ArrowDown', 'HARD'],
+    ['ArrowLeft', 'SOFT'],
+    ['ArrowUp', 'SOFT'],
+    ['Home', 'SOFT'],
+    ['End', 'WET'],
+  ])('selects the compound reached with %s and moves focus to it', (key, compound) => {
+    const { onCompoundChange } = renderRow()
+    const radios = within(screen.getByRole('radiogroup')).getAllByRole('radio')
+    radios[1]?.focus()
+
+    fireEvent.keyDown(radios[1] as HTMLElement, { key })
+
+    expect(onCompoundChange).toHaveBeenCalledExactlyOnceWith(0, compound)
+    const index = ['SOFT', 'MEDIUM', 'HARD', 'INTERMEDIATE', 'WET'].indexOf(compound)
+    expect(radios[index]).toHaveFocus()
+  })
+
+  it('wraps around at the ends of the compound group', () => {
+    const { onCompoundChange } = renderRow({ stint: { compound: 'WET', laps: 10 } })
+    const radios = within(screen.getByRole('radiogroup')).getAllByRole('radio')
+
+    fireEvent.keyDown(radios[4] as HTMLElement, { key: 'ArrowRight' })
+
+    expect(onCompoundChange).toHaveBeenCalledExactlyOnceWith(0, 'SOFT')
+  })
+
+  it('ignores other keys in the compound group', () => {
+    const { onCompoundChange } = renderRow()
+    const radios = within(screen.getByRole('radiogroup')).getAllByRole('radio')
+
+    fireEvent.keyDown(radios[1] as HTMLElement, { key: 'a' })
+
+    expect(onCompoundChange).not.toHaveBeenCalled()
+  })
+
   it('edits the laps and treats an empty field as zero', () => {
     const { onLapsChange } = renderRow()
     const input = screen.getByRole('spinbutton', { name: 'Vueltas del stint 1' })

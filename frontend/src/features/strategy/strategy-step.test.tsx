@@ -269,7 +269,7 @@ describe('StrategyStep builder', () => {
     expect(lapsInput(1)).toHaveValue(30)
     expect(lapsInput(2)).toHaveValue(23)
 
-    fireEvent.keyDown(screen.getByRole('button', { name: 'Mover parada 1 (vuelta 30)' }), {
+    fireEvent.keyDown(screen.getByRole('slider', { name: 'Mover parada 1' }), {
       key: 'ArrowLeft',
     })
     expect(lapsInput(1)).toHaveValue(29)
@@ -278,7 +278,7 @@ describe('StrategyStep builder', () => {
 
   it('never lets the handle cross its neighbour', async () => {
     await builderReady()
-    const handle = screen.getByRole('button', { name: 'Mover parada 1 (vuelta 27)' })
+    const handle = screen.getByRole('slider', { name: 'Mover parada 1' })
 
     for (let press = 0; press < 40; press += 1) fireEvent.keyDown(handle, { key: 'ArrowRight' })
 
