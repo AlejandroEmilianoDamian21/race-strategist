@@ -2,5 +2,94 @@
   "app": {
     "title": "Race Strategist",
     "tagline": "Armá tu estrategia de neumáticos"
+  },
+  "language": {
+    "label": "Idioma"
+  },
+  "common": {
+    "retry": "Reintentar",
+    "backToCalendar": "Volver al calendario",
+    "backToStrategy": "Volver a la estrategia"
+  },
+  "stepper": {
+    "done": "completado",
+    "label": "Pasos",
+    "eyebrow": "Paso {{number}} · {{name}}",
+    "compact": "Paso {{current}} de {{total}} · {{name}}",
+    "steps": {
+      "race": "Carrera",
+      "info": "Info",
+      "strategy": "Estrategia",
+      "simulate": "Simular",
+      "result": "Resultado"
+    }
+  },
+  "status": {
+    "wake": {
+      "title": "Despertando el servidor",
+      "body": "La API gratuita se duerme cuando no se usa. Puede tardar hasta un minuto la primera vez; después es rápida.",
+      "progressLabel": "Tiempo de espera",
+      "elapsed": "{{elapsed}} de ~1:00",
+      "steps": {
+        "connecting": "Conectando…",
+        "races": "Cargando carreras…",
+        "details": "Cargando circuitos y neumáticos"
+      }
+    },
+    "apiError": {
+      "title": {
+        "default": "No pudimos leer los datos de F1",
+        "notFound": "No encontramos esa carrera"
+      },
+      "body": {
+        "network": "No hay conexión con la API. Revisá tu red y reintentá.",
+        "timeout": "La API no respondió en 90 segundos.",
+        "upstream": "El proveedor de datos de F1 no está disponible en este momento.",
+        "notFound": "La carrera que pediste ya no existe en la API. Elegí otra del calendario.",
+        "unknown": "La API respondió con un error inesperado."
+      },
+      "upstreamReason": {
+        "timeout": "El proveedor tardó demasiado en responder.",
+        "network": "No pudimos comunicarnos con el proveedor.",
+        "server-error": "El proveedor respondió con un error.",
+        "empty-response": "El proveedor devolvió una respuesta vacía.",
+        "invalid-response": "El proveedor devolvió datos inesperados."
+      },
+      "reassurance": "Tu estrategia no se pierde."
+    },
+    "emptyRace": {
+      "title": "Elegí una carrera",
+      "body": "Cuando elijas una del calendario, acá aparecen el circuito, el pronóstico por tramos, los neumáticos que encajan con ese clima y la parrilla."
+    },
+    "invalid": {
+      "title": "El backend rechazó la estrategia",
+      "body_one": "Encontró {{count}} problema. Corregilo en el constructor y volvé a simular.",
+      "body_other": "Encontró {{count}} problemas. Corregilos en el constructor y volvé a simular."
+    },
+    "emptyResult": {
+      "title": "Todavía no simulaste",
+      "body": "Armá tu estrategia y tocá SIMULAR. El resultado aparece acá: tiempo total, stints, paradas y cómo cae el ritmo vuelta a vuelta."
+    },
+    "simLoading": {
+      "label": "Simulando vuelta {{lap}}/{{total}}…",
+      "progressLabel": "Progreso de la simulación"
+    }
+  },
+  "violations": {
+    "NO_STINTS": "La estrategia necesita al menos un stint.",
+    "STINT_TOO_SHORT": "El stint {{stint}} tiene {{laps}} vueltas. Cada stint necesita al menos 1 vuelta entera.",
+    "UNKNOWN_COMPOUND": "El stint {{stint}} usa \"{{compound}}\", que no es un compuesto válido. Opciones: {{allowed}}.",
+    "LAPS_MISMATCH_missing_one": "Los stints suman {{actual}} vueltas y la carrera tiene {{expected}}. Falta {{count}} vuelta.",
+    "LAPS_MISMATCH_missing_other": "Los stints suman {{actual}} vueltas y la carrera tiene {{expected}}. Faltan {{count}} vueltas.",
+    "LAPS_MISMATCH_extra_one": "Los stints suman {{actual}} vueltas y la carrera tiene {{expected}}. Sobra {{count}} vuelta.",
+    "LAPS_MISMATCH_extra_other": "Los stints suman {{actual}} vueltas y la carrera tiene {{expected}}. Sobran {{count}} vueltas.",
+    "NOT_ENOUGH_PIT_STOPS_one": "Hace falta al menos {{count}} parada y la estrategia tiene {{actual}}.",
+    "NOT_ENOUGH_PIT_STOPS_other": "Hace falta al menos {{count}} paradas y la estrategia tiene {{actual}}."
+  },
+  "races": {
+    "title": "Elegí una carrera",
+    "loading": "Cargando carreras…",
+    "loaded_one": "{{count}} carrera en el calendario",
+    "loaded_other": "{{count}} carreras en el calendario"
   }
 }

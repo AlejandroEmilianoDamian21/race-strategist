@@ -2,5 +2,94 @@
   "app": {
     "title": "Race Strategist",
     "tagline": "Build your tyre strategy"
+  },
+  "language": {
+    "label": "Language"
+  },
+  "common": {
+    "retry": "Retry",
+    "backToCalendar": "Back to the calendar",
+    "backToStrategy": "Back to the strategy"
+  },
+  "stepper": {
+    "done": "done",
+    "label": "Steps",
+    "eyebrow": "Step {{number}} · {{name}}",
+    "compact": "Step {{current}} of {{total}} · {{name}}",
+    "steps": {
+      "race": "Race",
+      "info": "Info",
+      "strategy": "Strategy",
+      "simulate": "Simulate",
+      "result": "Result"
+    }
+  },
+  "status": {
+    "wake": {
+      "title": "Waking up the server",
+      "body": "The free API goes to sleep when idle. The first request can take up to a minute; after that it is fast.",
+      "progressLabel": "Wait time",
+      "elapsed": "{{elapsed}} of ~1:00",
+      "steps": {
+        "connecting": "Connecting…",
+        "races": "Loading races…",
+        "details": "Loading circuits and tyres"
+      }
+    },
+    "apiError": {
+      "title": {
+        "default": "We couldn't read the F1 data",
+        "notFound": "We couldn't find that race"
+      },
+      "body": {
+        "network": "There is no connection to the API. Check your network and retry.",
+        "timeout": "The API did not respond within 90 seconds.",
+        "upstream": "The F1 data provider is unavailable right now.",
+        "notFound": "The race you asked for no longer exists in the API. Pick another one from the calendar.",
+        "unknown": "The API responded with an unexpected error."
+      },
+      "upstreamReason": {
+        "timeout": "The provider took too long to respond.",
+        "network": "We couldn't reach the provider.",
+        "server-error": "The provider responded with an error.",
+        "empty-response": "The provider returned an empty response.",
+        "invalid-response": "The provider returned unexpected data."
+      },
+      "reassurance": "Your strategy is not lost."
+    },
+    "emptyRace": {
+      "title": "Pick a race",
+      "body": "Once you pick one from the calendar, the circuit, the lap-by-lap forecast, the tyres that fit that weather and the grid show up here."
+    },
+    "invalid": {
+      "title": "The backend rejected the strategy",
+      "body_one": "It found {{count}} problem. Fix it in the builder and simulate again.",
+      "body_other": "It found {{count}} problems. Fix them in the builder and simulate again."
+    },
+    "emptyResult": {
+      "title": "You haven't simulated yet",
+      "body": "Build your strategy and press SIMULATE. The result shows up here: total time, stints, pit stops and how the pace changes lap by lap."
+    },
+    "simLoading": {
+      "label": "Simulating lap {{lap}}/{{total}}…",
+      "progressLabel": "Simulation progress"
+    }
+  },
+  "violations": {
+    "NO_STINTS": "The strategy needs at least one stint.",
+    "STINT_TOO_SHORT": "Stint {{stint}} has {{laps}} laps. Every stint needs at least 1 whole lap.",
+    "UNKNOWN_COMPOUND": "Stint {{stint}} uses \"{{compound}}\", which is not a valid compound. Options: {{allowed}}.",
+    "LAPS_MISMATCH_missing_one": "Stints add up to {{actual}} laps but the race has {{expected}}. {{count}} lap is missing.",
+    "LAPS_MISMATCH_missing_other": "Stints add up to {{actual}} laps but the race has {{expected}}. {{count}} laps are missing.",
+    "LAPS_MISMATCH_extra_one": "Stints add up to {{actual}} laps but the race has {{expected}}. {{count}} lap too many.",
+    "LAPS_MISMATCH_extra_other": "Stints add up to {{actual}} laps but the race has {{expected}}. {{count}} laps too many.",
+    "NOT_ENOUGH_PIT_STOPS_one": "At least {{count}} pit stop is required but the strategy has {{actual}}.",
+    "NOT_ENOUGH_PIT_STOPS_other": "At least {{count}} pit stops are required but the strategy has {{actual}}."
+  },
+  "races": {
+    "title": "Pick a race",
+    "loading": "Loading races…",
+    "loaded_one": "{{count}} race on the calendar",
+    "loaded_other": "{{count}} races on the calendar"
   }
 }
