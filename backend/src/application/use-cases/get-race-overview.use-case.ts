@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { RaceNotFoundError } from '../../domain/errors/race-not-found.error.js';
 import type { Circuit } from '../../domain/model/circuit.js';
 import { TYRE_COMPOUNDS, type Tyre } from '../../domain/model/tyre.js';
 import type { WeatherSegment } from '../../domain/model/weather.js';
@@ -44,13 +45,31 @@ export interface RaceOverview {
   teams: RaceOverviewTeam[];
 }
 
+async function allPreferringRaceNotFound<T extends readonly unknown[] | []>(
+  values: T,
+): Promise<{ -readonly [P in keyof T]: Awaited<T[P]> }> {
+  const settled = await Promise.allSettled(values);
+  const failures = settled.flatMap((result) =>
+    result.status === 'rejected' ? [result.reason as unknown] : [],
+  );
+  if (failures.length > 0) {
+    throw (
+      failures.find((reason) => reason instanceof RaceNotFoundError) ??
+      failures[0]
+    );
+  }
+  return settled.map(
+    (result) => (result as PromiseFulfilledResult<unknown>).value,
+  ) as { -readonly [P in keyof T]: Awaited<T[P]> };
+}
+
 @Injectable()
 export class GetRaceOverview {
   constructor(@Inject(F1DataPort) private readonly f1Data: F1DataPort) {}
 
   async execute(raceId: string): Promise<RaceOverview> {
     const [detail, weather, parameters, tyres, drivers, teams] =
-      await Promise.all([
+      await allPreferringRaceNotFound([
         this.f1Data.getRaceDetail(raceId),
         this.f1Data.getWeather(raceId),
         this.f1Data.getSimulationParameters(raceId),

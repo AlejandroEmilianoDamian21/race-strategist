@@ -159,6 +159,41 @@ describe('GetRaceOverview', () => {
     );
   });
 
+  it('prefers RaceNotFoundError over an earlier failure of another call', async () => {
+    port.failWith(
+      'getWeather',
+      new DataSourceUnavailableError('timeout', '/api/races/nope/weather'),
+    );
+    vi.spyOn(port, 'getRaceDetail').mockImplementation(
+      (raceId) =>
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new RaceNotFoundError(raceId)), 0),
+        ),
+    );
+
+    await expect(useCase.execute('nope')).rejects.toBeInstanceOf(
+      RaceNotFoundError,
+    );
+  });
+
+  it('propagates the failure of the earliest call when no race is missing', async () => {
+    const weatherFailure = new DataSourceUnavailableError(
+      'timeout',
+      '/api/races/spa-2026/weather',
+    );
+    const teamsFailure = new DataSourceUnavailableError(
+      'server-error',
+      '/api/teams',
+    );
+    port.failWith('listTeams', teamsFailure);
+    vi.spyOn(port, 'getWeather').mockImplementation(
+      () =>
+        new Promise((_, reject) => setTimeout(() => reject(weatherFailure), 0)),
+    );
+
+    await expect(useCase.execute('spa-2026')).rejects.toBe(weatherFailure);
+  });
+
   it('propagates port errors unchanged', async () => {
     const failure = new DataSourceUnavailableError('timeout', '/api/teams');
     port.failWith('listTeams', failure);
