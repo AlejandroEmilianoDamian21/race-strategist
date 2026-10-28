@@ -1,6 +1,7 @@
 {
   "app": {
     "title": "Race Strategist",
+    "footer": "Data from the challenge API (tech-challenge101.onrender.com). Values are made up for the exercise and do not represent the real performance of drivers or teams.",
     "tagline": "Build your tyre strategy"
   },
   "language": {
@@ -242,6 +243,8 @@
       "loading": "Simulating lap {{lap}}/{{total}}",
       "fixErrors_one": "Fix {{count}} error to simulate",
       "fixErrors_other": "Fix {{count}} errors to simulate",
+      "loadingShort": "Simulating {{lap}}/{{total}}",
+      "fixErrorsShort": "Fix errors",
       "pickDriver": "Pick a driver to simulate"
     }
   },

@@ -1,6 +1,7 @@
 {
   "app": {
     "title": "Race Strategist",
+    "footer": "Datos de la API del desafío (tech-challenge101.onrender.com). Los valores son inventados para el ejercicio y no representan el rendimiento real de pilotos ni equipos.",
     "tagline": "Armá tu estrategia de neumáticos"
   },
   "language": {
@@ -242,6 +243,8 @@
       "loading": "Simulando vuelta {{lap}}/{{total}}",
       "fixErrors_one": "Corregí {{count}} error para simular",
       "fixErrors_other": "Corregí {{count}} errores para simular",
+      "loadingShort": "Simulando {{lap}}/{{total}}",
+      "fixErrorsShort": "Corregí errores",
       "pickDriver": "Elegí un piloto para simular"
     }
   },

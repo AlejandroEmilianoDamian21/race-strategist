@@ -28,7 +28,11 @@ export function RaceInfoStep({ raceId, driverId, onSelectDriver }: RaceInfoStepP
   const race = raceId !== null && status.kind === 'success' ? status.data.race : null
 
   return (
-    <section id="step-info" aria-labelledby="step-info-title" className="scroll-mt-24">
+    <section
+      id="step-info"
+      aria-labelledby="step-info-title"
+      className="scroll-mt-[90px] pt-12 first:pt-0"
+    >
       <SectionHead
         step={2}
         title={race?.name ?? t('raceInfo.title')}

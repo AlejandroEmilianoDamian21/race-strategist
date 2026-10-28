@@ -79,7 +79,7 @@ describe('App', () => {
     expect(await screen.findByRole('navigation', { name: 'Steps' })).toBeVisible()
   })
 
-  it('selects a race, loads its overview, advances the stepper and resets the driver on change', async () => {
+  it('selects a race, loads its overview, resets the driver on change', async () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input)
       if (url.endsWith('/overview')) return jsonResponse(200, OVERVIEW)
@@ -97,7 +97,6 @@ describe('App', () => {
     await user.click(await screen.findByRole('button', { name: /Italian Grand Prix/ }))
     await user.click(await screen.findByRole('button', { name: /Charles Leclerc/ }))
 
-    expect(screen.getByRole('progressbar', { name: 'Paso 3 de 5 · Estrategia' })).toBeVisible()
     expect(screen.getByRole('button', { name: /Charles Leclerc/ })).toHaveAttribute(
       'aria-pressed',
       'true',
@@ -109,13 +108,12 @@ describe('App', () => {
       'aria-pressed',
       'false',
     )
-    expect(screen.getByRole('progressbar', { name: 'Paso 2 de 5 · Info' })).toBeVisible()
     expect(fetchMock.mock.calls.map(([input]) => String(input))).toContainEqual(
       expect.stringContaining('/api/races/monaco-gp/overview'),
     )
   })
 
-  it('stays on step 2 until a driver is picked and keeps the strategy builder gated by the race', async () => {
+  it('keeps the strategy builder gated by the race', async () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input)
       if (url.endsWith('/overview')) return jsonResponse(200, OVERVIEW)
@@ -129,8 +127,7 @@ describe('App', () => {
 
     await user.click(await screen.findByRole('button', { name: /Italian Grand Prix/ }))
 
-    expect(await screen.findByRole('button', { name: 'Simular' })).toBeDisabled()
-    expect(screen.getByRole('progressbar', { name: 'Paso 2 de 5 · Info' })).toBeVisible()
+    expect((await screen.findAllByRole('button', { name: 'Simular' }))[0]).toBeDisabled()
     expect(
       fetchMock.mock.calls.filter(([input]) => String(input).endsWith('/overview')),
     ).toHaveLength(1)
@@ -195,7 +192,7 @@ describe('App', () => {
       const fetchMock = stubApi(() => jsonResponse(200, buildResult(PLAN)))
       const user = await readyToSimulate()
 
-      await user.click(screen.getByRole('button', { name: 'Simular' }))
+      await user.click(screen.getAllByRole('button', { name: 'Simular' })[0])
 
       expect(
         await screen.findByRole('heading', { level: 3, name: 'Paradas en boxes' }),
@@ -211,8 +208,7 @@ describe('App', () => {
         ],
       })
       expect(screen.getAllByText(formatTotalTime(buildResult(PLAN).totalTime))).not.toHaveLength(0)
-      expect(screen.getByRole('progressbar', { name: 'Paso 5 de 5 · Resultado' })).toBeVisible()
-      expect(screen.getByRole('button', { name: 'Simular' })).toBeEnabled()
+      expect(screen.getAllByRole('button', { name: 'Simular' })[0]).toBeEnabled()
     })
 
     it('shows the loading state while the backend answers', async () => {
@@ -220,7 +216,7 @@ describe('App', () => {
       stubApi(() => new Promise<Response>((resolve) => (release = resolve)))
       const user = await readyToSimulate()
 
-      await user.click(screen.getByRole('button', { name: 'Simular' }))
+      await user.click(screen.getAllByRole('button', { name: 'Simular' })[0])
 
       expect(await screen.findByText(/Simulando · vuelta \d+ de 53/)).toBeVisible()
       expect(screen.getByRole('button', { name: /Simulando vuelta \d+\/53/ })).toBeVisible()
@@ -232,13 +228,13 @@ describe('App', () => {
       stubApi(() => jsonResponse(200, buildResult(PLAN)))
       const user = await readyToSimulate()
 
-      await user.click(screen.getByRole('button', { name: 'Simular' }))
+      await user.click(screen.getAllByRole('button', { name: 'Simular' })[0])
       await screen.findByRole('heading', { name: 'Paradas en boxes' })
       expect(
         screen.queryByRole('checkbox', { name: 'Comparar con la anterior' }),
       ).not.toBeInTheDocument()
 
-      await user.click(screen.getByRole('button', { name: 'Simular' }))
+      await user.click(screen.getAllByRole('button', { name: 'Simular' })[0])
       expect(
         await screen.findByRole('checkbox', { name: 'Comparar con la anterior' }),
       ).toBeChecked()
@@ -266,7 +262,7 @@ describe('App', () => {
       Element.prototype.scrollIntoView = vi.fn()
       const user = await readyToSimulate()
 
-      await user.click(screen.getByRole('button', { name: 'Simular' }))
+      await user.click(screen.getAllByRole('button', { name: 'Simular' })[0])
       expect(
         await screen.findByRole('heading', { name: 'El backend rechazó la estrategia' }),
       ).toBeVisible()
@@ -289,7 +285,7 @@ describe('App', () => {
       )
       const user = await readyToSimulate()
 
-      await user.click(screen.getByRole('button', { name: 'Simular' }))
+      await user.click(screen.getAllByRole('button', { name: 'Simular' })[0])
       expect(
         await screen.findByRole('heading', { name: 'No pudimos leer los datos de F1' }),
       ).toBeVisible()
@@ -298,5 +294,42 @@ describe('App', () => {
       await user.click(screen.getByRole('button', { name: 'Reintentar' }))
       expect(await screen.findByRole('heading', { name: 'Paradas en boxes' })).toBeVisible()
     })
+  })
+
+  it('spaces the sections like the reference and offsets anchors under the header', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => jsonResponse(200, { races: [MONZA] })),
+    )
+    render(<App client={createClient()} />)
+    await screen.findByText('Temporada 2026 · 1 carrera')
+
+    const sections = Array.from(
+      screen.getByRole('main').querySelectorAll<HTMLElement>('section[id^="step-"]'),
+    )
+    expect(sections.map((section) => section.id)).toEqual([
+      'step-race',
+      'step-info',
+      'step-strategy',
+      'step-result',
+    ])
+    sections.forEach((section) => {
+      expect(section).toHaveClass('pt-12', 'first:pt-0', 'scroll-mt-[90px]')
+    })
+    expect(sections[0].parentElement).not.toHaveClass('gap-12')
+  })
+
+  it('closes the page with the data disclaimer', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => jsonResponse(200, { races: [MONZA] })),
+    )
+    render(<App client={createClient()} />)
+
+    expect(
+      await screen.findByText(
+        'Datos de la API del desafío (tech-challenge101.onrender.com). Los valores son inventados para el ejercicio y no representan el rendimiento real de pilotos ni equipos.',
+      ),
+    ).toHaveClass('mt-12')
   })
 })

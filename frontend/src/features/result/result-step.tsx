@@ -38,7 +38,11 @@ export function ResultStep({
   const hasPrevious = view.kind === 'success' && view.previous !== null
 
   return (
-    <section id="step-result" aria-labelledby="step-result-title" className="scroll-mt-24">
+    <section
+      id="step-result"
+      aria-labelledby="step-result-title"
+      className="scroll-mt-[90px] pt-12 first:pt-0"
+    >
       <SectionHead
         step={5}
         title={t('result.title')}

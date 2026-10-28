@@ -39,7 +39,11 @@ export function StrategyStep({
   const { status, retry } = useQueryStatus(useRaceOverview(raceId), raceOverviewKey(raceId))
 
   return (
-    <section id="step-strategy" aria-labelledby="step-strategy-title" className="scroll-mt-24">
+    <section
+      id="step-strategy"
+      aria-labelledby="step-strategy-title"
+      className="scroll-mt-[90px] pt-12 first:pt-0"
+    >
       <SectionHead
         step={3}
         title={t('strategy.title')}

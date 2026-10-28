@@ -21,12 +21,16 @@ const viewports = [
 ]
 
 async function settle(page) {
+  await page.evaluate(() => window.scrollTo(0, 0))
   await page.evaluate(() => document.fonts.ready)
   await page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => undefined)
 }
 
 async function shootReference(browser, name) {
-  const context = await browser.newContext({ viewport: { width: 1280, height: 900 } })
+  const width = name.endsWith('Mobile') ? 390 : 1280
+  const context = await browser.newContext({
+    viewport: { width, height: width === 390 ? 844 : 900 },
+  })
   const page = await context.newPage()
   await page.goto(pathToFileURL(join(previewsDir, `${name}.html`)).href, { waitUntil: 'load' })
   await settle(page)
