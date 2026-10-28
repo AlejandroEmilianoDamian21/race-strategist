@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import type { AppError } from '@/shared/api/app-error'
 import type { StrategyViolation } from '@/shared/api/types'
 import { toPercent } from '@/shared/lib/to-percent'
-import { BoltIcon, FlagIcon } from '@/shared/ui/icons'
+import { BoltIcon, FlagIcon, WrenchIcon } from '@/shared/ui/icons'
 import { ProgressBar } from '@/shared/ui/progress-bar'
 import { Card } from '@/shared/ui/card'
 import { ApiEmptyPanel, ApiErrorPanel } from './api-error-panel'
@@ -15,6 +15,7 @@ export type StatusPanelProps =
   | { variant: 'api-error'; error: AppError; onRetry: () => void; onBack?: () => void }
   | { variant: 'api-empty'; technical: string; onRetry: () => void }
   | { variant: 'empty-race' }
+  | { variant: 'empty-strategy' }
   | { variant: 'invalid'; violations: StrategyViolation[]; onBack: () => void }
   | { variant: 'empty-result' }
   | { variant: 'sim-loading'; lap: number; totalLaps: number }
@@ -35,6 +36,12 @@ export function StatusPanel(props: StatusPanelProps) {
       return (
         <StatusFrame tone="empty" icon={<FlagIcon />} title={t('status.emptyRace.title')}>
           <p className="mt-1 text-body text-ink-muted">{t('status.emptyRace.body')}</p>
+        </StatusFrame>
+      )
+    case 'empty-strategy':
+      return (
+        <StatusFrame tone="empty" icon={<WrenchIcon />} title={t('status.emptyStrategy.title')}>
+          <p className="mt-1 text-body text-ink-muted">{t('status.emptyStrategy.body')}</p>
         </StatusFrame>
       )
     case 'empty-result':

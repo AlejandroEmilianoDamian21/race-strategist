@@ -75,6 +75,10 @@
     "simLoading": {
       "label": "Simulando vuelta {{lap}}/{{total}}…",
       "progressLabel": "Progreso de la simulación"
+    },
+    "emptyStrategy": {
+      "title": "Primero elegí una carrera",
+      "body": "El constructor necesita las vueltas, el clima y los parámetros de esa carrera."
     }
   },
   "violations": {
@@ -173,46 +177,69 @@
   },
   "strategy": {
     "title": "Armá tu estrategia",
-    "hint": "Editá las filas de abajo",
-    "empty": "Elegí una carrera para armar tu estrategia.",
-    "waiting": "Esperando los datos de la carrera…",
+    "hint": "Arrastrá las paradas o editá las filas",
+    "loading": "Esperando los datos de la carrera…",
+    "driver": {
+      "label": "Piloto",
+      "placeholder": "Elegí un piloto"
+    },
+    "facts": {
+      "team": "{{team}} · auto {{car}} · ritmo {{pace}}",
+      "pit": "Parada {{loss}} + {{change}} = <b>{{total}}s</b>",
+      "minStops_one": "Mínimo <b>{{count}}</b> parada",
+      "minStops_other": "Mínimo <b>{{count}}</b> paradas"
+    },
     "bar": {
       "label": "Stints de la estrategia",
-      "stintName": "Stint {{number}} · {{compound}}"
+      "stint": "Stint {{number}}: {{compound}}, vueltas {{from}} a {{to}}",
+      "gap_one": "Falta {{count}} vuelta",
+      "gap_other": "Faltan {{count}} vueltas",
+      "gapTitle": "Faltan {{count}}",
+      "gapShort": "{{count}} v",
+      "sub": "{{from}}–{{to}} · {{laps}} v",
+      "handle": "Mover parada {{number}} (vuelta {{lap}})"
     },
-    "stints": {
-      "title": "Stints",
+    "issues": {
+      "stintShort": "<b>Stint {{stint}}</b> necesita al menos 1 vuelta.",
+      "noCompound": "<b>Stint {{stint}}</b> no tiene compuesto.",
+      "sumMissing_one": "Los stints suman <b>{{sum}} vueltas</b> y la carrera tiene <b>{{total}}</b>. Faltan {{count}} vuelta por cubrir.",
+      "sumMissing_other": "Los stints suman <b>{{sum}} vueltas</b> y la carrera tiene <b>{{total}}</b>. Faltan {{count}} vueltas por cubrir.",
+      "sumExtra_one": "Los stints suman <b>{{sum}} vueltas</b> y la carrera tiene <b>{{total}}</b>. Sobran {{count}} vuelta.",
+      "sumExtra_other": "Los stints suman <b>{{sum}} vueltas</b> y la carrera tiene <b>{{total}}</b>. Sobran {{count}} vueltas.",
+      "minStops_one": "Esta carrera exige <b>al menos {{count}} parada</b> (<code>minimumPitStops</code>). Agregá una.",
+      "minStops_other": "Esta carrera exige <b>al menos {{count}} paradas</b> (<code>minimumPitStops</code>). Agregá una.",
+      "valid": "Estrategia válida · {{stops}} · cubre las {{total}} vueltas.",
+      "noStops": "Sin paradas",
+      "stops_one": "{{count}} parada",
+      "stops_other": "{{count}} paradas",
+      "warning": "<b>Stint {{stint}} · {{compound}}</b> corre {{from}}–{{to}} con {{rain}} ({{intensity}}). Rinde entre {{min}} y {{max}}: perdés ≈{{loss}}s por vuelta.",
+      "ideal": " Ideal: {{compounds}}.",
+      "idealJoiner": " o "
+    },
+    "warningRain": {
+      "dry": "seco",
+      "drizzle": "llovizna",
+      "moderate": "lluvia moderada",
+      "heavy": "lluvia fuerte"
+    },
+    "rows": {
       "stint": "Stint {{number}}",
-      "compound": "Compuesto del stint {{number}}",
-      "laps": "Vueltas del stint {{number}}",
-      "remove": "Quitar el stint {{number}}",
-      "add": "Agregar stint"
+      "compound": "Compuesto · <b>{{name}}</b>",
+      "group": "Compuesto del stint {{number}}",
+      "laps": "Vueltas",
+      "lapsOf": "Vueltas del stint {{number}}",
+      "pit": "Parada en boxes · <b>V{{lap}}</b>",
+      "pitSlider": "Vuelta de parada {{number}}",
+      "end": "Termina",
+      "flag": "Bandera · {{lap}}",
+      "remove": "Quitar stint {{number}}"
     },
-    "chips": {
-      "laps": "Vueltas {{total}} / {{expected}}",
-      "pit": "Parada {{pitStopLoss}} + {{tyreChangeTime}}",
-      "minStops_one": "Mínimo {{count}} parada",
-      "minStops_other": "Mínimo {{count}} paradas",
-      "noDriver": "Elegí un piloto",
-      "driver": "{{name}} · {{team}}",
-      "performance": "Auto {{car}} · Ritmo {{pace}}"
-    },
-    "feedback": {
-      "errors": "Errores",
-      "warnings": "Avisos"
-    },
-    "warning": {
-      "rain": {
-        "dry": "seco",
-        "drizzle": "llovizna",
-        "moderate": "lluvia moderada",
-        "heavy": "lluvia fuerte"
-      },
-      "message": "Stint {{stint}} · {{compound}} corre {{lap}}{{from}}–{{lap}}{{to}} con {{rain}} ({{intensity}}). Perdés ≈{{loss}}s por vuelta.",
-      "ideal": "Ideal: {{compound}}."
+    "actions": {
+      "add": "Agregar parada"
     },
     "simulate": {
       "action": "Simular",
+      "loading": "Simulando vuelta {{lap}}/{{total}}",
       "fixErrors_one": "Corregí {{count}} error para simular",
       "fixErrors_other": "Corregí {{count}} errores para simular",
       "pickDriver": "Elegí un piloto para simular"

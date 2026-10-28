@@ -100,6 +100,38 @@
     font-variant-numeric: tabular-nums;
   }
 
+  .pit-range {
+    appearance: none;
+    width: 100%;
+    height: 20px;
+    margin: 2px 0;
+    background: transparent;
+  }
+  .pit-range::-webkit-slider-runnable-track {
+    height: 4px;
+    background: var(--surface-3);
+    border-radius: 2px;
+  }
+  .pit-range::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    margin-top: -7px;
+    border-radius: 50%;
+    background: var(--ink);
+    border: 3px solid var(--bg);
+  }
+  .pit-range::-moz-range-track {
+    height: 4px;
+    background: var(--surface-3);
+  }
+  .pit-range::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--ink);
+    border: 3px solid var(--bg);
+  }
   .skeleton {
     background: linear-gradient(
       90deg,

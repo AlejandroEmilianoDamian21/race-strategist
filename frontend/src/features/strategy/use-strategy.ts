@@ -1,14 +1,14 @@
 import { useCallback, useMemo, useState } from 'react'
 import type { RaceOverview, Stint } from '@/shared/api/types'
+import { movePit as movePitIn } from './pit-lap'
+import { removeStint as removeStintIn, splitLongestStint } from './stop-edits'
 import { validateStrategy } from './validate-strategy'
 
-const FIRST_STINT_SHARE = 0.45
-
 export function defaultStints(raceLaps: number): Stint[] {
-  const first = Math.min(raceLaps, Math.max(1, Math.floor(raceLaps * FIRST_STINT_SHARE)))
+  const second = Math.floor(raceLaps / 2)
   return [
-    { compound: 'MEDIUM', laps: first },
-    { compound: 'HARD', laps: raceLaps - first },
+    { compound: 'MEDIUM', laps: raceLaps - second },
+    { compound: 'HARD', laps: second },
   ]
 }
 
@@ -50,21 +50,19 @@ export function useStrategy(overview: RaceOverview) {
     [update],
   )
 
-  const addStint = useCallback(
+  const addStop = useCallback(
     () =>
-      update((current) => {
-        const last = current.at(-1)
-        const moved = last === undefined ? 0 : Math.floor(last.laps / 2)
-        const head =
-          last === undefined ? [] : [...current.slice(0, -1), { ...last, laps: last.laps - moved }]
-        return [...head, { compound: 'MEDIUM', laps: moved }]
-      }),
-    [update],
+      update((current) => splitLongestStint(current, overview.weather.forecast, overview.tyres)),
+    [update, overview.weather.forecast, overview.tyres],
   )
 
   const removeStint = useCallback(
-    (index: number) =>
-      update((current) => (current.length > 1 ? current.filter((_, i) => i !== index) : current)),
+    (index: number) => update((current) => removeStintIn(current, index)),
+    [update],
+  )
+
+  const movePit = useCallback(
+    (index: number, lap: number) => update((current) => movePitIn(current, index, lap)),
     [update],
   )
 
@@ -85,5 +83,5 @@ export function useStrategy(overview: RaceOverview) {
     ],
   )
 
-  return { stints, validation, setCompound, setLaps, addStint, removeStint }
+  return { stints, validation, setCompound, setLaps, addStop, removeStint, movePit }
 }

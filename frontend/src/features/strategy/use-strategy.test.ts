@@ -9,14 +9,14 @@ function overviewWith(id: string, laps: number): RaceOverview {
 }
 
 describe('defaultStints', () => {
-  it('builds a one-stop Medium to Hard split at 45% of the race', () => {
+  it('builds a one-stop Medium to Hard split, the extra lap going to the Medium stint', () => {
     expect(defaultStints(53)).toEqual([
-      { compound: 'MEDIUM', laps: 23 },
-      { compound: 'HARD', laps: 30 },
+      { compound: 'MEDIUM', laps: 27 },
+      { compound: 'HARD', laps: 26 },
     ])
-    expect(defaultStints(78)).toEqual([
+    expect(defaultStints(70)).toEqual([
       { compound: 'MEDIUM', laps: 35 },
-      { compound: 'HARD', laps: 43 },
+      { compound: 'HARD', laps: 35 },
     ])
   })
 
@@ -25,13 +25,6 @@ describe('defaultStints', () => {
       const total = defaultStints(laps).reduce((sum, stint) => sum + stint.laps, 0)
       expect(total).toBe(laps)
     }
-  })
-
-  it('keeps the first stint at one lap or more', () => {
-    expect(defaultStints(2)).toEqual([
-      { compound: 'MEDIUM', laps: 1 },
-      { compound: 'HARD', laps: 1 },
-    ])
   })
 })
 
@@ -51,7 +44,7 @@ describe('useStrategy', () => {
 
     expect(result.current.stints).toEqual([
       { compound: 'MEDIUM', laps: 20 },
-      { compound: 'SOFT', laps: 30 },
+      { compound: 'SOFT', laps: 26 },
     ])
     expect(result.current.validation.errors.map((error) => error.code)).toEqual(['LAPS_MISMATCH'])
   })
@@ -59,8 +52,7 @@ describe('useStrategy', () => {
   it('reports rain warnings from the overview forecast and tyres', () => {
     const { result } = renderHook(() => useStrategy(OVERVIEW))
 
-    act(() => result.current.setLaps(0, 30))
-    act(() => result.current.setLaps(1, 23))
+    act(() => result.current.movePit(0, 30))
     act(() => result.current.setCompound(1, 'SOFT'))
 
     expect(result.current.validation.errors).toEqual([])
@@ -69,36 +61,44 @@ describe('useStrategy', () => {
     ])
   })
 
-  it('adds a stint by taking half of the last one so the total is preserved', () => {
+  it('adds a stop by splitting the longest stint with the ideal compound', () => {
     const { result } = renderHook(() => useStrategy(OVERVIEW))
 
-    act(() => result.current.addStint())
+    act(() => result.current.addStop())
 
     expect(result.current.stints).toEqual([
-      { compound: 'MEDIUM', laps: 23 },
-      { compound: 'HARD', laps: 15 },
-      { compound: 'MEDIUM', laps: 15 },
+      { compound: 'MEDIUM', laps: 14 },
+      { compound: 'SOFT', laps: 13 },
+      { compound: 'HARD', laps: 26 },
     ])
   })
 
-  it('adds an empty stint when the last one cannot be split', () => {
+  it('does not add a stop when the longest stint has a single lap', () => {
     const { result } = renderHook(() => useStrategy(overviewWith('tiny', 2)))
 
-    act(() => result.current.setLaps(1, 1))
-    act(() => result.current.addStint())
+    act(() => result.current.addStop())
 
-    expect(result.current.stints.at(-1)).toEqual({ compound: 'MEDIUM', laps: 0 })
-    expect(result.current.stints.at(-2)?.laps).toBe(1)
+    expect(result.current.stints).toHaveLength(2)
   })
 
-  it('removes a stint but never the last remaining one', () => {
+  it('removes a stint giving its laps to the previous one, never the last remaining', () => {
     const { result } = renderHook(() => useStrategy(OVERVIEW))
 
-    act(() => result.current.removeStint(0))
-    expect(result.current.stints).toEqual([{ compound: 'HARD', laps: 30 }])
+    act(() => result.current.removeStint(1))
+    expect(result.current.stints).toEqual([{ compound: 'MEDIUM', laps: 53 }])
 
     act(() => result.current.removeStint(0))
     expect(result.current.stints).toHaveLength(1)
+  })
+
+  it('moves a pit stop keeping the total and clamping between its neighbours', () => {
+    const { result } = renderHook(() => useStrategy(OVERVIEW))
+
+    act(() => result.current.movePit(0, 30))
+    expect(result.current.stints.map((stint) => stint.laps)).toEqual([30, 23])
+
+    act(() => result.current.movePit(0, 99))
+    expect(result.current.stints.map((stint) => stint.laps)).toEqual([52, 1])
   })
 
   it('resets to the new default when the race changes', () => {

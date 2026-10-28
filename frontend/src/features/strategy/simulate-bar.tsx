@@ -1,14 +1,24 @@
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/shared/ui/button'
-import { BoltIcon } from '@/shared/ui/icons'
+import { BoltIcon, PlusIcon } from '@/shared/ui/icons'
 
 interface SimulateBarProps {
   errorCount: number
   hasDriver: boolean
+  raceLaps: number
+  progress: number | null
+  onAddStop: () => void
   onSimulate: () => void
 }
 
-export function SimulateBar({ errorCount, hasDriver, onSimulate }: SimulateBarProps) {
+export function SimulateBar({
+  errorCount,
+  hasDriver,
+  raceLaps,
+  progress,
+  onAddStop,
+  onSimulate,
+}: SimulateBarProps) {
   const { t } = useTranslation()
   const label = t('strategy.simulate.action')
   const reason =
@@ -19,16 +29,34 @@ export function SimulateBar({ errorCount, hasDriver, onSimulate }: SimulateBarPr
         : t('strategy.simulate.pickDriver')
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-10 border-t border-line bg-bg p-4 min-[720px]:static min-[720px]:flex min-[720px]:justify-end min-[720px]:border-t-0 min-[720px]:bg-transparent min-[720px]:p-0 [&_button]:max-[719px]:w-full min-[720px]:[&>div]:flex-row-reverse">
-      {reason === null ? (
-        <Button size="lg" icon={<BoltIcon />} onClick={onSimulate}>
-          {label}
-        </Button>
-      ) : (
-        <Button size="lg" icon={<BoltIcon />} disabled hint={reason}>
-          {label}
-        </Button>
-      )}
+    <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6">
+      <Button variant="secondary" icon={<PlusIcon />} onClick={onAddStop}>
+        {t('strategy.actions.add')}
+      </Button>
+      <div className="flex flex-wrap items-center gap-4 [&>div]:flex-row-reverse">
+        {progress !== null ? (
+          <Button
+            size="lg"
+            loading
+            progress={progress}
+            loadingText={t('strategy.simulate.loading', {
+              lap: Math.max(1, Math.round(progress * raceLaps)),
+              total: raceLaps,
+            })}
+            icon={<BoltIcon />}
+          >
+            {label}
+          </Button>
+        ) : reason === null ? (
+          <Button size="lg" icon={<BoltIcon />} onClick={onSimulate}>
+            {label}
+          </Button>
+        ) : (
+          <Button size="lg" icon={<BoltIcon />} disabled hint={reason}>
+            {label}
+          </Button>
+        )}
+      </div>
     </div>
   )
 }

@@ -229,7 +229,8 @@ describe('validateStrategy rain warnings', () => {
       fromLap: 31,
       toLap: 53,
       rainIntensity: 0.35,
-      idealCompound: 'INTERMEDIATE',
+      band: { min: 0, max: 0.05 },
+      idealCompounds: ['INTERMEDIATE'],
     })
     expect(warnings[0]?.lossPerLap).toBeCloseTo(5.4, 10)
   })
@@ -247,194 +248,139 @@ describe('validateStrategy rain warnings', () => {
   })
 
   it('treats both band limits as inclusive', () => {
-    const forecast: WeatherSegment[] = [
-      { fromLap: 1, toLap: 20, temperature: 20, rainIntensity: 0.05 },
-      { fromLap: 21, toLap: 53, temperature: 20, rainIntensity: 0.1 },
-    ]
     const { warnings } = validate(
       [
-        { compound: 'SOFT', laps: 20 },
-        { compound: 'INTERMEDIATE', laps: 33 },
+        { compound: 'INTERMEDIATE', laps: 30 },
+        { compound: 'INTERMEDIATE', laps: 23 },
       ],
-      { forecast },
+      { forecast: [{ fromLap: 1, toLap: 53, temperature: 20, rainIntensity: 0.5 }] },
     )
 
     expect(warnings).toEqual([])
   })
 
-  it('applies the below-band penalty of 6 per unit', () => {
+  it('applies the below-band penalty of 6 per unit and lists every ideal compound', () => {
+    const { warnings } = validate(
+      [
+        { compound: 'INTERMEDIATE', laps: 30 },
+        { compound: 'HARD', laps: 23 },
+      ],
+      { forecast: [{ fromLap: 1, toLap: 53, temperature: 28, rainIntensity: 0 }] },
+    )
+
+    expect(warnings).toHaveLength(1)
+    expect(warnings[0]).toMatchObject({
+      stintIndex: 0,
+      compound: 'INTERMEDIATE',
+      fromLap: 1,
+      toLap: 30,
+      idealCompounds: ['SOFT', 'MEDIUM', 'HARD'],
+    })
+    expect(warnings[0]?.lossPerLap).toBeCloseTo(0.6, 10)
+  })
+
+  it('ignores losses of half a second per lap or less', () => {
     const { warnings } = validate(
       [
         { compound: 'WET', laps: 30 },
-        { compound: 'HARD', laps: 23 },
+        { compound: 'INTERMEDIATE', laps: 23 },
+      ],
+      { forecast: [{ fromLap: 1, toLap: 53, temperature: 28, rainIntensity: 0.35 }] },
+    )
+
+    expect(warnings).toEqual([])
+  })
+
+  it('reports one warning per stint, for the segment with the worst loss', () => {
+    const { warnings } = validate(
+      [
+        { compound: 'SOFT', laps: 40 },
+        { compound: 'INTERMEDIATE', laps: 13 },
+      ],
+      {
+        forecast: [
+          { fromLap: 1, toLap: 10, temperature: 28, rainIntensity: 0 },
+          { fromLap: 11, toLap: 25, temperature: 26, rainIntensity: 0.2 },
+          { fromLap: 26, toLap: 53, temperature: 24, rainIntensity: 0.5 },
+        ],
+      },
+    )
+
+    expect(warnings).toHaveLength(1)
+    expect(warnings[0]).toMatchObject({ stintIndex: 0, fromLap: 26, toLap: 40, rainIntensity: 0.5 })
+  })
+
+  it('numbers lap ranges from the cumulative laps of previous stints', () => {
+    const { warnings } = validate(
+      [
+        { compound: 'HARD', laps: 10 },
+        { compound: 'MEDIUM', laps: 20 },
+        { compound: 'SOFT', laps: 23 },
       ],
       { forecast: DRY_THEN_RAIN },
     )
 
-    expect(warnings).toHaveLength(2)
-    expect(warnings[0]).toMatchObject({
-      stintIndex: 0,
-      compound: 'WET',
-      fromLap: 1,
-      toLap: 30,
-      rainIntensity: 0,
-      idealCompound: 'SOFT',
-    })
-    expect(warnings[0]?.lossPerLap).toBeCloseTo(2.4, 10)
-    expect(warnings[1]).toMatchObject({
-      stintIndex: 1,
-      compound: 'HARD',
-      fromLap: 31,
-      toLap: 53,
-      idealCompound: 'INTERMEDIATE',
-    })
-    expect(warnings[1]?.lossPerLap).toBeCloseTo(4, 10)
-  })
-
-  it('splits a stint that crosses segments and clips each overlap', () => {
-    const forecast: WeatherSegment[] = [
-      { fromLap: 1, toLap: 20, temperature: 20, rainIntensity: 0.3 },
-      { fromLap: 21, toLap: 40, temperature: 20, rainIntensity: 0 },
-      { fromLap: 41, toLap: 53, temperature: 20, rainIntensity: 0.6 },
-    ]
-    const { warnings } = validate(
-      [
-        { compound: 'INTERMEDIATE', laps: 15 },
-        { compound: 'INTERMEDIATE', laps: 38 },
-      ],
-      { forecast },
+    expect(warnings.map((warning) => [warning.stintIndex, warning.fromLap, warning.toLap])).toEqual(
+      [[2, 31, 53]],
     )
-
-    expect(warnings.map((w) => [w.stintIndex, w.fromLap, w.toLap, w.rainIntensity])).toEqual([
-      [1, 21, 40, 0],
-      [1, 41, 53, 0.6],
-    ])
-  })
-
-  it('numbers lap ranges from the cumulative laps of previous stints', () => {
-    const forecast: WeatherSegment[] = [
-      { fromLap: 11, toLap: 12, temperature: 20, rainIntensity: 1 },
-    ]
-    const { warnings } = validate(
-      [
-        { compound: 'WET', laps: 10 },
-        { compound: 'SOFT', laps: 2 },
-        { compound: 'WET', laps: 41 },
-      ],
-      { forecast },
-    )
-
-    expect(warnings.map((w) => [w.stintIndex, w.fromLap, w.toLap])).toEqual([[1, 11, 12]])
   })
 
   it('ignores segments that do not overlap any stint lap', () => {
-    const forecast: WeatherSegment[] = [
-      { fromLap: 60, toLap: 70, temperature: 20, rainIntensity: 1 },
-    ]
     const { warnings } = validate(
       [
-        { compound: 'SOFT', laps: 26 },
-        { compound: 'SOFT', laps: 27 },
+        { compound: 'SOFT', laps: 20 },
+        { compound: 'HARD', laps: 33 },
       ],
-      { forecast },
+      { forecast: [{ fromLap: 54, toLap: 70, temperature: 20, rainIntensity: 0.35 }] },
     )
 
     expect(warnings).toEqual([])
   })
 
   it('skips stints with invalid laps without shifting the following ones', () => {
-    const forecast: WeatherSegment[] = [{ fromLap: 1, toLap: 5, temperature: 20, rainIntensity: 1 }]
     const { warnings } = validate(
       [
-        { compound: 'SOFT', laps: 0 },
-        { compound: 'SOFT', laps: 1.5 },
-        { compound: 'SOFT', laps: 3 },
+        { compound: 'HARD', laps: 30 },
+        { compound: 'MEDIUM', laps: Number.NaN },
+        { compound: 'SOFT', laps: 23 },
       ],
-      { forecast },
+      { forecast: DRY_THEN_RAIN },
     )
 
-    expect(warnings.map((w) => [w.stintIndex, w.fromLap, w.toLap])).toEqual([[2, 1, 3]])
+    expect(warnings.map((warning) => [warning.stintIndex, warning.fromLap, warning.toLap])).toEqual(
+      [[2, 31, 53]],
+    )
   })
 
   it('skips unknown compounds and compounds missing from the tyre list', () => {
-    const { warnings } = validate(
-      [
-        { compound: 'SLICK', laps: 20 },
-        { compound: 'MEDIUM', laps: 33 },
-      ],
-      { forecast: DRY_THEN_RAIN, tyres: TYRES.filter((tyre) => tyre.compound !== 'MEDIUM') },
-    )
-
-    expect(warnings).toEqual([])
-  })
-
-  it('does not warn when the loss is zero', () => {
-    const perfectGrip = TYRES.map((tyre) =>
-      tyre.compound === 'SOFT' ? { ...tyre, wetPerformance: 1 } : tyre,
-    )
-    const { warnings } = validate([{ compound: 'SOFT', laps: 53 }], {
-      forecast: DRY_THEN_RAIN,
-      tyres: perfectGrip,
-      minimumPitStops: 0,
-    })
-
-    expect(warnings).toEqual([])
-  })
-
-  it('suggests nothing when the stint compound is already the best option', () => {
-    const { warnings } = validate([{ compound: 'SOFT', laps: 53 }], {
-      forecast: DRY_THEN_RAIN,
-      tyres: TYRES.filter((tyre) => tyre.compound === 'SOFT'),
-      minimumPitStops: 0,
-    })
-
-    expect(warnings).toHaveLength(1)
-    expect(warnings[0]?.idealCompound).toBeNull()
-  })
-
-  it('breaks ties between ideal compounds by lowest pace', () => {
-    const tied: Tyre[] = [
-      { ...TYRES[1]!, compound: 'MEDIUM', pace: 0.2, optimalRainIntensity: { min: 0.3, max: 0.4 } },
-      {
-        ...TYRES[3]!,
-        compound: 'INTERMEDIATE',
-        pace: 0.2,
-        optimalRainIntensity: { min: 0.3, max: 0.4 },
-      },
-      { ...TYRES[4]!, compound: 'WET', pace: 0.1, optimalRainIntensity: { min: 0.3, max: 0.4 } },
-      { ...TYRES[0]!, compound: 'SOFT', pace: -1, optimalRainIntensity: { min: 0, max: 0 } },
+    const forecast = DRY_THEN_RAIN
+    const stints = [
+      { compound: 'HARD', laps: 30 },
+      { compound: 'SLICK', laps: 23 },
     ]
-    const { warnings } = validate([{ compound: 'SOFT', laps: 53 }], {
-      forecast: [{ fromLap: 1, toLap: 53, temperature: 20, rainIntensity: 0.35 }],
-      tyres: tied,
-      minimumPitStops: 0,
-    })
 
-    expect(warnings[0]?.idealCompound).toBe('WET')
-  })
-
-  it('breaks full ties by compound order regardless of the input order', () => {
-    const band = { min: 0.3, max: 0.4 }
-    const tied: Tyre[] = [
-      { ...TYRES[4]!, compound: 'WET', pace: 1, optimalRainIntensity: band },
-      { ...TYRES[3]!, compound: 'INTERMEDIATE', pace: 1, optimalRainIntensity: band },
-      { ...TYRES[0]!, compound: 'SOFT', pace: -1, optimalRainIntensity: { min: 0, max: 0 } },
-    ]
-    const { warnings } = validate([{ compound: 'SOFT', laps: 53 }], {
-      forecast: [{ fromLap: 1, toLap: 53, temperature: 20, rainIntensity: 0.35 }],
-      tyres: tied,
-      minimumPitStops: 0,
-    })
-
-    expect(warnings[0]?.idealCompound).toBe('INTERMEDIATE')
+    expect(validate(stints, { forecast }).warnings).toEqual([])
+    expect(
+      validate(
+        [
+          { compound: 'HARD', laps: 30 },
+          { compound: 'SOFT', laps: 23 },
+        ],
+        { forecast, tyres: TYRES.filter((tyre) => tyre.compound !== 'SOFT') },
+      ).warnings,
+    ).toEqual([])
   })
 
   it('still reports warnings while the strategy has errors', () => {
-    const { errors, warnings } = validate([{ compound: 'SOFT', laps: 53 }], {
-      forecast: DRY_THEN_RAIN,
-    })
+    const { errors, warnings } = validate(
+      [
+        { compound: 'HARD', laps: 30 },
+        { compound: 'SOFT', laps: 20 },
+      ],
+      { forecast: DRY_THEN_RAIN },
+    )
 
-    expect(errors.map((error) => error.code)).toEqual(['NOT_ENOUGH_PIT_STOPS'])
+    expect(errors.map((error) => error.code)).toEqual(['LAPS_MISMATCH'])
     expect(warnings).toHaveLength(1)
   })
 })

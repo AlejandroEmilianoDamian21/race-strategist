@@ -75,6 +75,10 @@
     "simLoading": {
       "label": "Simulating lap {{lap}}/{{total}}…",
       "progressLabel": "Simulation progress"
+    },
+    "emptyStrategy": {
+      "title": "Pick a race first",
+      "body": "The builder needs that race's laps, weather and parameters."
     }
   },
   "violations": {
@@ -173,46 +177,69 @@
   },
   "strategy": {
     "title": "Build your strategy",
-    "hint": "Edit the rows below",
-    "empty": "Pick a race to build your strategy.",
-    "waiting": "Waiting for the race data…",
+    "hint": "Drag the pit stops or edit the rows",
+    "loading": "Waiting for the race data…",
+    "driver": {
+      "label": "Driver",
+      "placeholder": "Pick a driver"
+    },
+    "facts": {
+      "team": "{{team}} · car {{car}} · pace {{pace}}",
+      "pit": "Pit {{loss}} + {{change}} = <b>{{total}}s</b>",
+      "minStops_one": "Minimum <b>{{count}}</b> pit stop",
+      "minStops_other": "Minimum <b>{{count}}</b> pit stops"
+    },
     "bar": {
       "label": "Strategy stints",
-      "stintName": "Stint {{number}} · {{compound}}"
+      "stint": "Stint {{number}}: {{compound}}, laps {{from}} to {{to}}",
+      "gap_one": "{{count}} lap missing",
+      "gap_other": "{{count}} laps missing",
+      "gapTitle": "{{count}} missing",
+      "gapShort": "{{count}} L",
+      "sub": "{{from}}–{{to}} · {{laps}} L",
+      "handle": "Move pit stop {{number}} (lap {{lap}})"
     },
-    "stints": {
-      "title": "Stints",
+    "issues": {
+      "stintShort": "<b>Stint {{stint}}</b> needs at least 1 lap.",
+      "noCompound": "<b>Stint {{stint}}</b> has no tyre compound.",
+      "sumMissing_one": "The stints add up to <b>{{sum}} laps</b> and the race has <b>{{total}}</b>. {{count}} lap left to cover.",
+      "sumMissing_other": "The stints add up to <b>{{sum}} laps</b> and the race has <b>{{total}}</b>. {{count}} laps left to cover.",
+      "sumExtra_one": "The stints add up to <b>{{sum}} laps</b> and the race has <b>{{total}}</b>. {{count}} lap too many.",
+      "sumExtra_other": "The stints add up to <b>{{sum}} laps</b> and the race has <b>{{total}}</b>. {{count}} laps too many.",
+      "minStops_one": "This race requires <b>at least {{count}} pit stop</b> (<code>minimumPitStops</code>). Add one.",
+      "minStops_other": "This race requires <b>at least {{count}} pit stops</b> (<code>minimumPitStops</code>). Add one.",
+      "valid": "Valid strategy · {{stops}} · covers all {{total}} laps.",
+      "noStops": "No pit stops",
+      "stops_one": "{{count}} pit stop",
+      "stops_other": "{{count}} pit stops",
+      "warning": "<b>Stint {{stint}} · {{compound}}</b> runs {{from}}–{{to}} in {{rain}} ({{intensity}}). It performs between {{min}} and {{max}}: you lose ≈{{loss}}s per lap.",
+      "ideal": " Ideal: {{compounds}}.",
+      "idealJoiner": " or "
+    },
+    "warningRain": {
+      "dry": "dry",
+      "drizzle": "drizzle",
+      "moderate": "moderate rain",
+      "heavy": "heavy rain"
+    },
+    "rows": {
       "stint": "Stint {{number}}",
-      "compound": "Tyre compound for stint {{number}}",
-      "laps": "Laps for stint {{number}}",
-      "remove": "Remove stint {{number}}",
-      "add": "Add stint"
+      "compound": "Tyre compound · <b>{{name}}</b>",
+      "group": "Tyre compound of stint {{number}}",
+      "laps": "Laps",
+      "lapsOf": "Laps of stint {{number}}",
+      "pit": "Pit stop · <b>L{{lap}}</b>",
+      "pitSlider": "Pit stop lap {{number}}",
+      "end": "Finishes",
+      "flag": "Flag · {{lap}}",
+      "remove": "Remove stint {{number}}"
     },
-    "chips": {
-      "laps": "Laps {{total}} / {{expected}}",
-      "pit": "Pit {{pitStopLoss}} + {{tyreChangeTime}}",
-      "minStops_one": "Minimum {{count}} pit stop",
-      "minStops_other": "Minimum {{count}} pit stops",
-      "noDriver": "Pick a driver",
-      "driver": "{{name}} · {{team}}",
-      "performance": "Car {{car}} · Pace {{pace}}"
-    },
-    "feedback": {
-      "errors": "Errors",
-      "warnings": "Warnings"
-    },
-    "warning": {
-      "rain": {
-        "dry": "dry",
-        "drizzle": "drizzle",
-        "moderate": "moderate rain",
-        "heavy": "heavy rain"
-      },
-      "message": "Stint {{stint}} · {{compound}} runs {{lap}}{{from}}–{{lap}}{{to}} in {{rain}} ({{intensity}}). You lose ≈{{loss}}s per lap.",
-      "ideal": "Ideal: {{compound}}."
+    "actions": {
+      "add": "Add pit stop"
     },
     "simulate": {
       "action": "Simulate",
+      "loading": "Simulating lap {{lap}}/{{total}}",
       "fixErrors_one": "Fix {{count}} error to simulate",
       "fixErrors_other": "Fix {{count}} errors to simulate",
       "pickDriver": "Pick a driver to simulate"

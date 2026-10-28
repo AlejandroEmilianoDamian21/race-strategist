@@ -123,7 +123,7 @@ describe('App', () => {
     render(<App client={createClient()} />)
     const user = userEvent.setup()
 
-    expect(await screen.findByText('Elegí una carrera para armar tu estrategia.')).toBeVisible()
+    expect(await screen.findByRole('heading', { name: 'Primero elegí una carrera' })).toBeVisible()
 
     await user.click(await screen.findByRole('button', { name: /Italian Grand Prix/ }))
 
@@ -132,6 +132,29 @@ describe('App', () => {
     expect(
       fetchMock.mock.calls.filter(([input]) => String(input).endsWith('/overview')),
     ).toHaveLength(1)
+  })
+
+  it('keeps the driver grid and the builder selector in sync', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: RequestInfo | URL) =>
+        String(input).endsWith('/overview')
+          ? jsonResponse(200, OVERVIEW)
+          : jsonResponse(200, { races: [MONZA, MONACO] }),
+      ),
+    )
+    render(<App client={createClient()} />)
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByRole('button', { name: /Italian Grand Prix/ }))
+    await user.selectOptions(await screen.findByRole('combobox', { name: 'Piloto' }), 'hamilton')
+
+    expect(screen.getByRole('button', { name: /Lewis Hamilton/ })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+    await user.click(screen.getByRole('button', { name: /Charles Leclerc/ }))
+    expect(screen.getByRole('combobox', { name: 'Piloto' })).toHaveValue('leclerc')
   })
 
   it('simulates without calling the API yet', async () => {

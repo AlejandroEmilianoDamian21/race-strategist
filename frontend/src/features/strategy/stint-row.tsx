@@ -1,24 +1,31 @@
 import { useId, type ChangeEvent } from 'react'
-import { useTranslation } from 'react-i18next'
-import type { Stint, StrategyViolation, TyreCompound } from '@/shared/api/types'
-import { translateViolation } from '@/shared/i18n/translate-violation'
+import { Trans, useTranslation } from 'react-i18next'
+import type { Stint } from '@/shared/api/types'
+import { COMPOUNDS, compoundNameKey, isTyreCompound } from '@/shared/domain/compounds'
 import { cn } from '@/shared/lib/cn'
 import { CompoundBadge } from '@/shared/ui/compound-badge'
-import { CloseIcon, ErrorIcon } from '@/shared/ui/icons'
-import { TYRE_COMPOUNDS, compoundNameKey, isTyreCompound } from '@/shared/domain/compounds'
-
-const CONTROL =
-  'h-11 rounded-sm border border-line-strong bg-surface-2 px-3 text-body text-ink focus-visible:outline-none focus-visible:shadow-focus aria-invalid:border-danger'
+import { FlagEndIcon, TrashIcon } from '@/shared/ui/icons'
+import { INPUT_CLASS } from './controls'
 
 interface StintRowProps {
   index: number
   stint: Stint
-  errors: StrategyViolation[]
+  end: number
+  raceLaps: number
+  isLast: boolean
+  invalid: boolean
   canRemove: boolean
   onCompoundChange: (index: number, compound: string) => void
   onLapsChange: (index: number, laps: number) => void
+  onPitChange: (index: number, lap: number) => void
   onRemove: (index: number) => void
 }
+
+const FIELD = 'grid min-w-0 gap-0.5'
+const FIELD_LABEL = 'text-caption leading-[22px]'
+const MUTED_LABEL = 'text-caption font-semibold leading-[18px] text-ink-muted'
+const BOLD = { b: <b className="font-bold text-ink" /> }
+const PIT_BOLD = { b: <b className="num font-bold text-ink" /> }
 
 function parseLaps(raw: string): number {
   if (raw === '') return 0
@@ -29,87 +36,138 @@ function parseLaps(raw: string): number {
 export function StintRow({
   index,
   stint,
-  errors,
+  end,
+  raceLaps,
+  isLast,
+  invalid,
   canRemove,
   onCompoundChange,
   onLapsChange,
+  onPitChange,
   onRemove,
 }: StintRowProps) {
   const { t } = useTranslation()
-  const errorId = useId()
+  const lap = t('raceInfo.drivers.lapShort')
+  const lapsId = useId()
+  const pitId = useId()
   const number = index + 1
-  const lapsInvalid = errors.some((error) => error.field === `stints[${index}].laps`)
-  const compoundInvalid = errors.some((error) => error.field === `stints[${index}].compound`)
+  const name = isTyreCompound(stint.compound) ? t(compoundNameKey(stint.compound)) : '—'
+
+  function onPitInput(event: ChangeEvent<HTMLInputElement>) {
+    if (event.target.value === '') return
+    onPitChange(index, Number(event.target.value))
+  }
 
   return (
     <li
+      data-invalid={invalid ? 'true' : undefined}
       className={cn(
-        'grid gap-2 rounded-sm border bg-surface-2 p-3',
-        errors.length > 0 ? 'border-danger' : 'border-line',
+        'grid items-center gap-4 rounded-sm border bg-surface-2 px-4 py-3',
+        'grid-cols-[72px_auto_88px_minmax(160px,1fr)_40px]',
+        'max-[860px]:gap-3 max-[860px]:grid-cols-[minmax(0,1fr)_80px_40px]',
+        'max-[860px]:[grid-template-areas:"n_n_del""pick_pick_pick""pit_laps_laps"]',
+        '[&>*]:min-w-0',
+        invalid ? 'border-danger bg-danger-surface' : 'border-transparent',
       )}
     >
-      <div className="flex flex-wrap items-center gap-3">
-        <span className="w-16 font-display text-[15px] font-bold uppercase tracking-[0.5px]">
-          {t('strategy.stints.stint', { number })}
-        </span>
-        {isTyreCompound(stint.compound) && <CompoundBadge compound={stint.compound} />}
-        <select
-          aria-label={t('strategy.stints.compound', { number })}
-          aria-invalid={compoundInvalid || undefined}
-          aria-describedby={compoundInvalid ? errorId : undefined}
-          value={stint.compound}
-          onChange={(event: ChangeEvent<HTMLSelectElement>) =>
-            onCompoundChange(index, event.target.value)
-          }
-          className={cn(CONTROL, 'min-w-36 flex-1 min-[720px]:flex-none')}
-        >
-          {!isTyreCompound(stint.compound) && (
-            <option value={stint.compound}>{stint.compound}</option>
-          )}
-          {TYRE_COMPOUNDS.map((compound: TyreCompound) => (
-            <option key={compound} value={compound}>
-              {t(compoundNameKey(compound))}
-            </option>
-          ))}
-        </select>
-        <input
-          type="number"
-          inputMode="numeric"
-          min={1}
-          step={1}
-          placeholder="0"
-          aria-label={t('strategy.stints.laps', { number })}
-          aria-invalid={lapsInvalid || undefined}
-          aria-describedby={lapsInvalid ? errorId : undefined}
-          value={Number.isFinite(stint.laps) && stint.laps !== 0 ? stint.laps : ''}
-          onChange={(event: ChangeEvent<HTMLInputElement>) =>
-            onLapsChange(index, parseLaps(event.target.value))
-          }
-          className={cn(CONTROL, 'w-24 font-mono tabular-nums')}
-        />
-        <button
-          type="button"
-          disabled={!canRemove}
-          aria-label={t('strategy.stints.remove', { number })}
-          onClick={() => onRemove(index)}
-          className="ml-auto grid size-11 cursor-pointer place-items-center rounded-sm text-ink-muted hover:bg-surface-3 hover:text-ink focus-visible:outline-none focus-visible:shadow-focus disabled:cursor-not-allowed disabled:text-ink-faint disabled:hover:bg-transparent [&_svg]:size-[18px]"
-        >
-          <CloseIcon />
-        </button>
+      <div className="font-display text-[17px] font-extrabold uppercase max-[860px]:[grid-area:n]">
+        {t('strategy.rows.stint', { number })}
       </div>
-      {errors.length > 0 && (
-        <ul id={errorId} className="m-0 grid list-none gap-1 p-0">
-          {errors.map((error, position) => (
-            <li
-              key={`${error.code}-${position}`}
-              className="flex items-start gap-2 text-label text-danger"
-            >
-              <ErrorIcon className="mt-0.5 size-4 flex-none" />
-              <span>{translateViolation(t, error)}</span>
-            </li>
-          ))}
-        </ul>
+      <div className={cn(FIELD, 'max-[860px]:[grid-area:pick]')}>
+        <span className={MUTED_LABEL}>
+          <Trans i18nKey="strategy.rows.compound" values={{ name }} components={BOLD} />
+        </span>
+        <div
+          role="radiogroup"
+          aria-label={t('strategy.rows.group', { number })}
+          className="flex gap-1"
+        >
+          {COMPOUNDS.map((compound) => {
+            const checked = stint.compound === compound.api
+            const label = t(compound.nameKey)
+            return (
+              <button
+                key={compound.api}
+                type="button"
+                role="radio"
+                aria-checked={checked}
+                aria-label={label}
+                title={label}
+                onClick={() => onCompoundChange(index, compound.api)}
+                className={cn(
+                  'inline-grid h-[38px] w-10 cursor-pointer place-items-center rounded-sm border p-0 hover:opacity-100',
+                  'max-[720px]:w-auto max-[720px]:flex-1',
+                  checked
+                    ? 'border-ink bg-bg text-ink opacity-100'
+                    : 'border-line bg-surface-1 opacity-55',
+                )}
+              >
+                <CompoundBadge compound={compound.api} decorative />
+              </button>
+            )
+          })}
+        </div>
+      </div>
+      <div className={cn(FIELD, 'max-[860px]:[grid-area:laps]')}>
+        <label htmlFor={lapsId} className={FIELD_LABEL}>
+          {t('strategy.rows.laps')}
+        </label>
+        <input
+          id={lapsId}
+          type="number"
+          min={1}
+          max={raceLaps}
+          aria-label={t('strategy.rows.lapsOf', { number })}
+          aria-invalid={invalid || undefined}
+          value={Number.isFinite(stint.laps) ? stint.laps : ''}
+          onChange={(event) => onLapsChange(index, parseLaps(event.target.value))}
+          className={INPUT_CLASS}
+        />
+      </div>
+      {isLast ? (
+        <div className={cn(FIELD, 'max-[860px]:[grid-area:pit]')}>
+          <span className={MUTED_LABEL}>{t('strategy.rows.end')}</span>
+          <div className="flex h-9 items-center gap-2 font-mono text-[13px] text-ink-muted [&_svg]:size-4">
+            <FlagEndIcon />
+            {t('strategy.rows.flag', { lap: `${lap}${raceLaps}` })}
+          </div>
+        </div>
+      ) : (
+        <div className={cn(FIELD, 'max-[860px]:[grid-area:pit]')}>
+          <label htmlFor={pitId} className={FIELD_LABEL}>
+            <Trans i18nKey="strategy.rows.pit" values={{ lap: end }} components={PIT_BOLD} />
+          </label>
+          <div className="grid grid-cols-[minmax(0,1fr)_72px] items-center gap-3 max-[720px]:grid-cols-[minmax(0,1fr)]">
+            <input
+              type="range"
+              className="pit-range"
+              min={1}
+              max={raceLaps - 1}
+              value={end}
+              aria-label={t('strategy.rows.pitSlider', { number })}
+              onChange={onPitInput}
+            />
+            <input
+              id={pitId}
+              type="number"
+              min={1}
+              max={raceLaps - 1}
+              value={end}
+              onChange={onPitInput}
+              className={cn(INPUT_CLASS, 'max-[720px]:hidden')}
+            />
+          </div>
+        </div>
       )}
+      <button
+        type="button"
+        disabled={!canRemove}
+        aria-label={t('strategy.rows.remove', { number })}
+        onClick={() => onRemove(index)}
+        className="grid size-9 cursor-pointer place-items-center rounded-sm border border-transparent bg-transparent text-ink hover:border-line-strong disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-transparent max-[860px]:[grid-area:del] [&_svg]:size-[18px]"
+      >
+        <TrashIcon />
+      </button>
     </li>
   )
 }
