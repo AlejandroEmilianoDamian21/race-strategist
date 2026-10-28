@@ -13,6 +13,7 @@ export const appConfig = registerAs('app', () => ({
       process.env.F1_API_BASE_URL ?? 'https://tech-challenge101.onrender.com',
     timeoutMs: toInt(process.env.F1_API_TIMEOUT_MS, 75_000),
     retries: toInt(process.env.F1_API_RETRIES, 1),
+    retryDelayMs: toInt(process.env.F1_API_RETRY_DELAY_MS, 1000),
     cacheTtlMs: toInt(process.env.F1_API_CACHE_TTL_MS, 3_600_000),
   },
 }));
