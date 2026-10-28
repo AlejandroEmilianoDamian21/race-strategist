@@ -22,7 +22,7 @@ Full-stack web app (NestJS backend + React/Vite frontend) where a user picks an 
 ## Tasks
 - [x] T0 Scaffolding: root workspace, `.nvmrc`, `.gitignore`, `.env.example`, Nest app, Vite app, Tailwind tokens, i18n base, root `dev`/`test` scripts. Route: delegated (writer trigger, many files).
 - [x] T1 Domain: models, `validateStrategy`, `simulateRace` (driver + rain) with unit tests.
-- [ ] T2 F1 API adapter: fetch client (timeout ~75s, 1 retry), in-memory cache, raw→domain mappers, upstream error mapping, liveness warm-up on init; tests with mocked fetch.
+- [x] T2 F1 API adapter: fetch client (timeout ~75s, 1 retry), in-memory cache, raw→domain mappers, upstream error mapping, liveness warm-up on init; tests with mocked fetch.
 - [ ] T3 Use case ListRaces + `GET /api/races`.
 - [ ] T4 Use case GetRaceOverview + `GET /api/races/:id/overview`.
 - [ ] T5 Use case SimulateStrategy + `POST /api/simulate`, DTOs, global exception filter, e2e test with fake port.
@@ -43,5 +43,8 @@ Full-stack web app (NestJS backend + React/Vite frontend) where a user picks an 
 
 - T1 implemented (delegated writer, writer trigger: 22 files). TDD: RED = 3 spec files failing on missing modules; GREEN = 30/30; REFACTOR = pit loss computed once (30/30 still green). Comments removed per user rule, prettier applied. typecheck/lint/build ok. Commit approved by user; PR feature/domain-simulation → develop.
 
+- T1 review (reliability lens): approved; follow-ups for T5: label result with ctx.race.id/ctx.driver.id (ids unchecked), forecast-gap fallback documented as assumption.
+- T2 implemented (delegated writer, writer trigger: 13 files) on feature/f1-api-adapter. TDD: RED = 4 new spec files failing on missing modules; GREEN = 60/60. typecheck/lint/build ok; no comments; smoke: server started before warm-up, log `F1 API warm-up succeeded`. Commit approved by user; PR feature/f1-api-adapter → develop.
+
 ## Next step
-T2 F1 API adapter on feature branch from develop.
+T3 ListRaces use case + GET /api/races (branch from develop after T2 merge).
