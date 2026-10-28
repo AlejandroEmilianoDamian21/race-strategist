@@ -33,6 +33,10 @@ export function RaceInfoStep({ raceId, driverId, onSelectDriver }: RaceInfoStepP
   )
 }
 
+function scrollToCalendar() {
+  document.getElementById('step-race')?.scrollIntoView({ behavior: 'smooth' })
+}
+
 function RaceOverviewCards({
   raceId,
   driverId,
@@ -41,7 +45,13 @@ function RaceOverviewCards({
   const { status, retry } = useQueryStatus(useRaceOverview(raceId), raceOverviewKey(raceId))
 
   return (
-    <QueryStateGate status={status} onRetry={retry} loading={<RaceInfoSkeleton />}>
+    <QueryStateGate
+      status={status}
+      onRetry={retry}
+      onBack={scrollToCalendar}
+      request={{ method: 'GET', path: `/api/races/${encodeURIComponent(raceId)}/overview` }}
+      loading={<RaceInfoSkeleton />}
+    >
       {(overview) => (
         <div className="grid items-start gap-4 min-[1100px]:grid-cols-3">
           <CircuitCard circuit={overview.circuit} parameters={overview.parameters} />

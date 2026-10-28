@@ -14,7 +14,7 @@
   "stepper": {
     "done": "completado",
     "label": "Pasos",
-    "eyebrow": "Paso {{number}} · {{name}}",
+    "eyebrowRich": "<b>Paso {{number}}</b> · {{name}}",
     "compact": "Paso {{current}} de {{total}} · {{name}}",
     "compactRich": "Paso <b>{{current}}</b> de {{total}} · <b>{{name}}</b>",
     "steps": {
@@ -28,26 +28,27 @@
   "status": {
     "wake": {
       "title": "Despertando el servidor",
-      "body": "La API gratuita se duerme cuando no se usa. Puede tardar hasta un minuto la primera vez; después es rápida.",
+      "body": "La API gratuita se duerme cuando no se usa. La primera vez puede tardar <b>hasta un minuto</b>; después es rápida. No hace falta recargar.",
       "progressLabel": "Tiempo de espera",
-      "elapsed": "{{elapsed}} de ~1:00",
+      "elapsed": "{{elapsed}} transcurridos",
+      "expected": "~1:00",
       "steps": {
-        "connecting": "Conectando…",
-        "races": "Cargando carreras…",
+        "connecting": "Despertando la API · GET /api/__health/liveness",
+        "races": "Cargando carreras · GET /api/races",
         "details": "Cargando circuitos y neumáticos"
       }
     },
     "apiError": {
       "title": {
         "default": "No pudimos leer los datos de F1",
-        "notFound": "No encontramos esa carrera"
+        "notFound": "No encontramos esa carrera",
+        "empty": "La API no devolvió carreras"
       },
       "body": {
+        "default": "La API respondió con un error interno, o no respondió en 90 segundos.",
         "network": "No hay conexión con la API. Revisá tu red y reintentá.",
-        "timeout": "La API no respondió en 90 segundos.",
-        "upstream": "El proveedor de datos de F1 no está disponible en este momento.",
         "notFound": "La carrera que pediste ya no existe en la API. Elegí otra del calendario.",
-        "unknown": "La API respondió con un error inesperado."
+        "empty": "La lista de carreras llegó vacía. Puede ser un problema temporal del proveedor."
       },
       "upstreamReason": {
         "timeout": "El proveedor tardó demasiado en responder.",
@@ -90,15 +91,11 @@
   "races": {
     "title": "Elegí una carrera",
     "loading": "Cargando carreras…",
-    "loaded_one": "{{count}} carrera en el calendario",
-    "loaded_other": "{{count}} carreras en el calendario",
+    "season_one": "Temporada {{year}} · {{count}} carrera",
+    "season_other": "Temporada {{year}} · {{count}} carreras",
     "lapsShort": "{{count}} v",
     "rain": "{{percent}} lluvia",
-    "selected": "Seleccionada",
-    "empty": {
-      "title": "No hay carreras en el calendario",
-      "body": "La API no devolvió carreras. Reintentá en un rato."
-    }
+    "selected": "Seleccionada"
   },
   "circuitTypes": {
     "permanent": "Permanente",

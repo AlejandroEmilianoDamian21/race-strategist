@@ -29,7 +29,7 @@ export function StatusFrame({ tone, role, icon, title, children }: StatusFramePr
       role={role}
       aria-live={role === 'alert' ? 'assertive' : role === 'status' ? 'polite' : undefined}
       className={cn(
-        'grid grid-cols-1 gap-4 rounded-md border p-4 min-[720px]:grid-cols-[40px_1fr] min-[720px]:p-6',
+        'grid grid-cols-[40px_1fr] gap-4 rounded-md border p-6 max-[720px]:grid-cols-1 max-[720px]:p-4',
         FRAME[tone],
       )}
     >

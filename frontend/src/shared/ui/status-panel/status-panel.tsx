@@ -5,14 +5,15 @@ import { toPercent } from '@/shared/lib/to-percent'
 import { BoltIcon, FlagIcon } from '@/shared/ui/icons'
 import { ProgressBar } from '@/shared/ui/progress-bar'
 import { Card } from '@/shared/ui/card'
-import { ApiErrorPanel } from './api-error-panel'
+import { ApiEmptyPanel, ApiErrorPanel } from './api-error-panel'
 import { InvalidPanel } from './invalid-panel'
 import { StatusFrame } from './status-frame'
 import { WakePanel } from './wake-panel'
 
 export type StatusPanelProps =
   | { variant: 'wake'; elapsedSeconds: number }
-  | { variant: 'api-error'; error: AppError; onRetry: () => void }
+  | { variant: 'api-error'; error: AppError; onRetry: () => void; onBack?: () => void }
+  | { variant: 'api-empty'; technical: string; onRetry: () => void }
   | { variant: 'empty-race' }
   | { variant: 'invalid'; violations: StrategyViolation[]; onBack: () => void }
   | { variant: 'empty-result' }
@@ -25,7 +26,9 @@ export function StatusPanel(props: StatusPanelProps) {
     case 'wake':
       return <WakePanel elapsedSeconds={props.elapsedSeconds} />
     case 'api-error':
-      return <ApiErrorPanel error={props.error} onRetry={props.onRetry} />
+      return <ApiErrorPanel error={props.error} onRetry={props.onRetry} onBack={props.onBack} />
+    case 'api-empty':
+      return <ApiEmptyPanel technical={props.technical} onRetry={props.onRetry} />
     case 'invalid':
       return <InvalidPanel violations={props.violations} onBack={props.onBack} />
     case 'empty-race':

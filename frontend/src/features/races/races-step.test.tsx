@@ -95,7 +95,7 @@ describe('RacesStep retry behavior', () => {
 
     pending[1].resolve(racesResponse(2))
     await advance(0)
-    expect(screen.getByText('2 carreras en el calendario')).toBeVisible()
+    expect(screen.getByText('Temporada 2026 · 2 carreras')).toBeVisible()
   })
 
   it('shows the timed-out panel after 90s and restarts the timer on retry', async () => {
@@ -125,11 +125,19 @@ describe('RacesStep retry behavior', () => {
 
     pending[1].resolve(racesResponse(1))
     await advance(0)
-    expect(screen.getByText('1 carrera en el calendario')).toBeVisible()
+    expect(screen.getByText('Temporada 2026 · 1 carrera')).toBeVisible()
   })
 })
 
 describe('RacesStep states', () => {
+  it('shows the timeout error with its technical line after 90s', async () => {
+    renderStep()
+    await advance(90000)
+
+    expect(errorHeading()).toBeVisible()
+    expect(screen.getByText('GET /api/races → timeout')).toBeVisible()
+  })
+
   it('shows the skeleton while the first request is pending', () => {
     renderStep()
 
@@ -145,7 +153,7 @@ describe('RacesStep states', () => {
     pending[0].resolve(racesResponse(2))
     await advance(0)
 
-    expect(screen.getByText('2 carreras en el calendario')).toBeVisible()
+    expect(screen.getByText('Temporada 2026 · 2 carreras')).toBeVisible()
     expect(screen.getByRole('button', { name: /Monaco Grand Prix/ })).toHaveAttribute(
       'aria-pressed',
       'true',
@@ -154,11 +162,23 @@ describe('RacesStep states', () => {
     expect(onSelect).toHaveBeenCalledWith('italian-gp')
   })
 
-  it('shows an empty message when the calendar has no races', async () => {
+  it('shows the empty-list api error with its technical line and retries', async () => {
     renderStep()
     pending[0].resolve(racesResponse(0))
     await advance(0)
 
-    expect(screen.getByRole('heading', { name: 'No hay carreras en el calendario' })).toBeVisible()
+    expect(screen.getByRole('alert')).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'La API no devolvió carreras' })).toBeVisible()
+    expect(
+      screen.getByText(
+        'La lista de carreras llegó vacía. Puede ser un problema temporal del proveedor. Tu estrategia no se pierde.',
+      ),
+    ).toBeVisible()
+    expect(screen.getByText('GET /api/races → 200 · data.races = [] (0 elementos)')).toBeVisible()
+
+    fireEvent.click(retryButton())
+    await advance(0)
+
+    expect(pending).toHaveLength(2)
   })
 })

@@ -4,9 +4,10 @@ import { Skeleton } from '@/shared/ui/skeleton'
 import { RaceCard } from './race-card'
 
 const GRID =
-  'flex list-none gap-3 overflow-x-auto p-0 m-0 snap-x pb-2 min-[720px]:grid min-[720px]:grid-cols-2 ' +
-  'min-[720px]:overflow-visible min-[720px]:pb-0 min-[900px]:grid-cols-3 min-[1100px]:grid-cols-4'
-const CELL = 'w-60 flex-none snap-start min-[720px]:w-auto'
+  'm-0 grid list-none grid-cols-4 gap-3 p-0 max-[1100px]:grid-cols-3 ' +
+  'max-[720px]:-mx-4 max-[720px]:flex max-[720px]:snap-x max-[720px]:snap-mandatory ' +
+  'max-[720px]:overflow-x-auto max-[720px]:px-4 max-[720px]:pb-2'
+const CELL = 'flex min-w-0 max-[720px]:flex-none max-[720px]:basis-[72%] max-[720px]:snap-start'
 
 interface RacePickerProps {
   races: RaceListItem[]
@@ -26,7 +27,7 @@ export function RacePicker({ races, selectedId, onSelect }: RacePickerProps) {
   )
 }
 
-const SKELETON_COUNT = 8
+const SKELETON_COUNT = 7
 
 export function RacePickerSkeleton() {
   const { t } = useTranslation()
@@ -37,11 +38,12 @@ export function RacePickerSkeleton() {
         <div
           key={index}
           data-skeleton-card
-          className={`${CELL} min-h-28 rounded-md border border-line bg-surface-1 p-4`}
+          aria-hidden="true"
+          className={`${CELL} min-h-28 flex-col gap-1 rounded-md border border-line bg-surface-1 p-4`}
         >
-          <Skeleton className="h-3 w-2/5" />
-          <Skeleton className="mt-4 h-5 w-4/5" />
-          <Skeleton className="mt-2 h-3 w-3/5" />
+          <Skeleton className="h-[12px] w-2/5" />
+          <Skeleton className="mt-[14px] h-5 w-4/5" />
+          <Skeleton className="mt-2 h-[12px] w-3/5" />
         </div>
       ))}
     </div>

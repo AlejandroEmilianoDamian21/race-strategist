@@ -6,13 +6,37 @@ import type { StrategyViolation } from '@/shared/api/types'
 import { StatusPanel } from './status-panel'
 
 describe('StatusPanel', () => {
-  it('wake shows the title, elapsed time and progress', () => {
+  it('wake shows the reference copy, progress, elapsed time and steps', () => {
     render(<StatusPanel variant="wake" elapsedSeconds={23} />)
 
     expect(screen.getByRole('status')).toBeVisible()
     expect(screen.getByRole('heading', { name: 'Despertando el servidor' })).toBeVisible()
-    expect(screen.getByText('0:23 de ~1:00')).toBeVisible()
+    expect(
+      screen.getByText(/La API gratuita se duerme cuando no se usa\. La primera vez puede tardar/),
+    ).toHaveTextContent(
+      'La API gratuita se duerme cuando no se usa. La primera vez puede tardar hasta un minuto; después es rápida. No hace falta recargar.',
+    )
+    expect(screen.getByText('hasta un minuto').tagName).toBe('B')
+    expect(screen.getByText('0:23 transcurridos')).toBeVisible()
+    expect(screen.getByText('~1:00')).toBeVisible()
     expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '23')
+    const fill = screen.getByRole('progressbar').firstElementChild as HTMLElement
+    expect(parseFloat(fill.style.width)).toBeCloseTo(38.33, 1)
+    expect(screen.getByText('Despertando la API · GET /api/__health/liveness')).toHaveClass(
+      'text-ink',
+    )
+    expect(screen.getByText('Cargando carreras · GET /api/races')).toHaveClass('text-ink-faint')
+    expect(screen.getByText('Cargando circuitos y neumáticos')).toHaveClass('text-ink-faint')
+  })
+
+  it('wake advances the steps after 30s and caps the bar at 95%', () => {
+    render(<StatusPanel variant="wake" elapsedSeconds={58} />)
+
+    expect(screen.getByText('Despertando la API · GET /api/__health/liveness')).toHaveClass(
+      'text-ink-muted',
+    )
+    expect(screen.getByText('Cargando carreras · GET /api/races')).toHaveClass('text-ink')
+    expect(screen.getByRole('progressbar').firstElementChild).toHaveStyle({ width: '95%' })
   })
 
   it('api-error describes the failure and retries', async () => {
@@ -21,6 +45,7 @@ describe('StatusPanel', () => {
 
     expect(screen.getByRole('alert')).toBeVisible()
     expect(screen.getByRole('heading', { name: 'No pudimos leer los datos de F1' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Reintentar' })).toHaveClass('bg-accent')
     await userEvent.setup().click(screen.getByRole('button', { name: 'Reintentar' }))
     expect(onRetry).toHaveBeenCalledOnce()
   })
@@ -49,16 +74,104 @@ describe('StatusPanel', () => {
     ).toBeVisible()
   })
 
-  it('api-error for not-found offers to go back instead of retrying', () => {
+  it('api-error for a 500 uses the reference body and the mono technical line', () => {
     render(
       <StatusPanel
         variant="api-error"
-        error={new AppError('not-found', { status: 404 })}
+        error={
+          new AppError('unknown', {
+            method: 'GET',
+            path: '/api/races',
+            status: 500,
+            code: 'RACE5001',
+            backendMessage: 'Internal error reading races',
+          })
+        }
         onRetry={() => {}}
       />,
     )
 
+    expect(
+      screen.getByText(
+        'La API respondió con un error interno, o no respondió en 90 segundos. Tu estrategia no se pierde.',
+      ),
+    ).toBeVisible()
+    const line = screen.getByText('GET /api/races → 500 · RACE5001 · Internal error reading races')
+    expect(line).toHaveClass('font-mono', 'text-ink-faint')
+  })
+
+  it('api-error for a timeout uses the same reference body', () => {
+    render(
+      <StatusPanel
+        variant="api-error"
+        error={new AppError('timeout', { method: 'GET', path: '/api/races' })}
+        onRetry={() => {}}
+      />,
+    )
+
+    expect(
+      screen.getByText(
+        'La API respondió con un error interno, o no respondió en 90 segundos. Tu estrategia no se pierde.',
+      ),
+    ).toBeVisible()
+    expect(screen.getByText('GET /api/races → timeout')).toBeVisible()
+  })
+
+  it('api-error for not-found offers to go back to the calendar instead of retrying', async () => {
+    const onRetry = vi.fn()
+    const onBack = vi.fn()
+    render(
+      <StatusPanel
+        variant="api-error"
+        error={
+          new AppError('not-found', {
+            method: 'GET',
+            path: '/api/races/race-999',
+            status: 404,
+            code: 'RACE4040',
+            backendMessage: 'Race not found',
+          })
+        }
+        onRetry={onRetry}
+        onBack={onBack}
+      />,
+    )
+
     expect(screen.getByRole('heading', { name: 'No encontramos esa carrera' })).toBeVisible()
+    expect(
+      screen.getByText(
+        'La carrera que pediste ya no existe en la API. Elegí otra del calendario. Tu estrategia no se pierde.',
+      ),
+    ).toBeVisible()
+    expect(
+      screen.getByText('GET /api/races/race-999 → 404 · RACE4040 · Race not found'),
+    ).toBeVisible()
+    expect(screen.queryByRole('button', { name: 'Reintentar' })).toBeNull()
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Volver al calendario' }))
+    expect(onBack).toHaveBeenCalledOnce()
+    expect(onRetry).not.toHaveBeenCalled()
+  })
+
+  it('api-empty shows the empty-list title, body, technical line and retries', async () => {
+    const onRetry = vi.fn()
+    render(
+      <StatusPanel
+        variant="api-empty"
+        technical="GET /api/races → 200 · data.races = [] (0 elementos)"
+        onRetry={onRetry}
+      />,
+    )
+
+    expect(screen.getByRole('alert')).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'La API no devolvió carreras' })).toBeVisible()
+    expect(
+      screen.getByText(
+        'La lista de carreras llegó vacía. Puede ser un problema temporal del proveedor. Tu estrategia no se pierde.',
+      ),
+    ).toBeVisible()
+    expect(screen.getByText('GET /api/races → 200 · data.races = [] (0 elementos)')).toBeVisible()
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Reintentar' }))
+    expect(onRetry).toHaveBeenCalledOnce()
   })
 
   it('empty-race shows its title', () => {
