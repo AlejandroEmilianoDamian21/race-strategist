@@ -15,6 +15,28 @@ describe('lapTicks', () => {
   })
 })
 
+describe('lapTicks bounds', () => {
+  it('keeps the tick count bounded for any total', () => {
+    for (const total of [1000, 100000, 1e9, 1e15, Number.MAX_SAFE_INTEGER]) {
+      const ticks = lapTicks(total)
+      expect(ticks.length).toBeLessThanOrEqual(14)
+      expect(ticks[0]).toBe(1)
+      expect(ticks.at(-1)).toBe(total)
+    }
+  })
+
+  it('falls back to a single tick when the total is not a finite number', () => {
+    expect(lapTicks(Number.POSITIVE_INFINITY)).toEqual([1])
+    expect(lapTicks(Number.NaN)).toEqual([1])
+  })
+
+  it('keeps ticks ascending with a wider step on long totals', () => {
+    const ticks = lapTicks(500)
+    expect(ticks).toEqual([...ticks].sort((a, b) => a - b))
+    expect(ticks.length).toBeLessThanOrEqual(14)
+  })
+})
+
 describe('LapAxis', () => {
   it('labels the ticks with the lap prefix and positions them on the lap scale', () => {
     const { container } = render(<LapAxis total={50} />)

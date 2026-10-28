@@ -88,7 +88,7 @@ export function StintRow({
   function onLapsInput(event: ChangeEvent<HTMLInputElement>) {
     const raw = stripLeadingZeros(event.target.value)
     setDraft(raw)
-    onLapsChange(index, parseLaps(raw))
+    onLapsChange(index, Math.min(parseLaps(raw), raceLaps))
   }
 
   function onPitInput(event: ChangeEvent<HTMLInputElement>) {

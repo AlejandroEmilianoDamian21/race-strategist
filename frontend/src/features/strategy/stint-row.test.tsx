@@ -89,6 +89,28 @@ describe('StintRow', () => {
     expect(onLapsChange).toHaveBeenLastCalledWith(3)
   })
 
+  it('clamps a laps value above the race length so it never exceeds what the race allows', async () => {
+    const onLapsChange = vi.fn()
+    render(<EditableRow initial={24} onLapsChange={onLapsChange} />)
+    const input = screen.getByRole('spinbutton', { name: 'Vueltas del stint 1' })
+
+    await userEvent.setup().clear(input)
+    await userEvent.setup().type(input, '1000000')
+
+    expect(onLapsChange).toHaveBeenLastCalledWith(70)
+    expect(input).toHaveValue(70)
+  })
+
+  it('clamps an astronomically large pasted value', () => {
+    const onLapsChange = vi.fn()
+    render(<EditableRow initial={24} onLapsChange={onLapsChange} />)
+    const input = screen.getByRole('spinbutton', { name: 'Vueltas del stint 1' })
+
+    fireEvent.change(input, { target: { value: '1e308' } })
+
+    expect(onLapsChange).toHaveBeenLastCalledWith(70)
+  })
+
   it('strips leading zeros typed into the laps field', async () => {
     render(<EditableRow initial={24} onLapsChange={vi.fn()} />)
     const user = userEvent.setup()
