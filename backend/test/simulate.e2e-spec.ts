@@ -82,7 +82,7 @@ describe('Simulate (e2e)', () => {
     });
   });
 
-  it('answers 400 VALIDATION_FAILED when laps is not an integer', async () => {
+  it('answers 400 VALIDATION_FAILED when laps is not a number', async () => {
     const response = await post({
       ...validBody,
       stints: [{ compound: 'SOFT', laps: 'ten' }],
@@ -170,6 +170,76 @@ describe('Simulate (e2e)', () => {
       );
     },
   );
+
+  it('answers 400 INVALID_STRATEGY with structured details for decimal laps', async () => {
+    const response = await post({
+      ...validBody,
+      stints: [
+        { compound: 'MEDIUM', laps: 20.5 },
+        { compound: 'HARD', laps: 23.5 },
+      ],
+    }).expect(400);
+
+    expect(response.body).toMatchObject({
+      statusCode: 400,
+      code: 'INVALID_STRATEGY',
+    });
+    expect(response.body.details).toEqual(
+      expect.arrayContaining([
+        {
+          code: 'STINT_TOO_SHORT',
+          field: 'stints[0].laps',
+          params: { stint: 1, laps: 20.5 },
+          message: expect.stringContaining('whole lap'),
+        },
+      ]),
+    );
+  });
+
+  it('answers 400 INVALID_STRATEGY UNKNOWN_COMPOUND for an empty compound', async () => {
+    const response = await post({
+      ...validBody,
+      stints: [
+        { compound: '', laps: 20 },
+        { compound: 'HARD', laps: 24 },
+      ],
+    }).expect(400);
+
+    expect(response.body.code).toBe('INVALID_STRATEGY');
+    expect(response.body.details).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'UNKNOWN_COMPOUND',
+          field: 'stints[0].compound',
+        }),
+      ]),
+    );
+  });
+
+  it.each([
+    ['a stint without laps', [{ compound: 'SOFT' }]],
+    ['a null laps value', [{ compound: 'SOFT', laps: null }]],
+    ['a numeric compound', [{ compound: 5, laps: 44 }]],
+    ['a missing compound', [{ laps: 44 }]],
+    ['stints that is not an array', 'SOFT'],
+  ])('keeps 400 VALIDATION_FAILED for %s', async (_, stints) => {
+    const response = await post({ ...validBody, stints }).expect(400);
+
+    expect(response.body).toMatchObject({
+      statusCode: 400,
+      code: 'VALIDATION_FAILED',
+    });
+  });
+
+  it('keeps 404 for an unknown race even with decimal laps', async () => {
+    const response = await post({
+      ...validBody,
+      raceId: 'nope',
+      stints: [{ compound: 'SOFT', laps: 20.5 }],
+    }).expect(404);
+
+    expect(response.body.code).toBe('RACE_NOT_FOUND');
+  });
 
   it('answers 404 RACE_NOT_FOUND for an unknown race', async () => {
     const response = await post({ ...validBody, raceId: 'nope' }).expect(404);
