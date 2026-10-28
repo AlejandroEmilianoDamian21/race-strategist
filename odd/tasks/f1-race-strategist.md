@@ -23,7 +23,7 @@ Full-stack web app (NestJS backend + React/Vite frontend) where a user picks an 
 - [x] T0 Scaffolding: root workspace, `.nvmrc`, `.gitignore`, `.env.example`, Nest app, Vite app, Tailwind tokens, i18n base, root `dev`/`test` scripts. Route: delegated (writer trigger, many files).
 - [x] T1 Domain: models, `validateStrategy`, `simulateRace` (driver + rain) with unit tests.
 - [x] T2 F1 API adapter: fetch client (timeout ~75s, 1 retry), in-memory cache, raw→domain mappers, upstream error mapping, liveness warm-up on init; tests with mocked fetch.
-- [ ] T3 Use case ListRaces + `GET /api/races`.
+- [x] T3 Use case ListRaces + `GET /api/races` (+ global error filter moved here from T5, so the first endpoint already returns 502 on upstream failure).
 - [ ] T4 Use case GetRaceOverview + `GET /api/races/:id/overview`.
 - [ ] T5 Use case SimulateStrategy + `POST /api/simulate`, DTOs, global exception filter, e2e test with fake port.
 - [ ] T6 Frontend shared: api client + AppError, i18n ES/EN + switcher, UI primitives, layout/stepper, StatusPanel (wake/api-error/invalid/empty/sim-loading).
@@ -47,5 +47,7 @@ Full-stack web app (NestJS backend + React/Vite frontend) where a user picks an 
 - T2 implemented (delegated writer, writer trigger: 13 files) on feature/f1-api-adapter. TDD: RED = 4 new spec files failing on missing modules; GREEN = 60/60. typecheck/lint/build ok; no comments; smoke: server started before warm-up, log `F1 API warm-up succeeded`. Commit approved by user; PR #2 merged to develop.
 - T2 review (reliability): approved with advisories. Fixed on fix/f1-adapter-error-mapping (inline, 2 files): list endpoints leaked F1ApiHttpError (non-5xx) through the port; race-scoped payloads were cached before validation. TDD: RED 2 failing (429 leak, malformed payload cached), plus 2 coverage tests; GREEN 64/64; checks ok. Commit 9abf384, PR #3. Fix review approved with 2 suggestions, applied as 2nd commit (approved by user): async restored on race-scoped methods (sync URIError), non-object detail payload test. RED 2 failing, GREEN 68/68.
 
+- T3 implemented (delegated writer, 13 files) on feature/list-races. Filter + ValidationPipe registered via APP_FILTER/APP_PIPE; configureApp() shared by main and e2e; FakeF1DataPort in backend/test/support. TDD: RED 2 unit spec files + e2e failing on missing modules; GREEN unit 84/84, e2e 4/4, FE 1/1. Smoke real API: GET /api/races joined+sorted, GET /api/nope 404 ErrorResponse. Commit approved by user; PR feature/list-races → develop.
+
 ## Next step
-T3 ListRaces use case + GET /api/races (branch from develop after T2 merge).
+T4 GetRaceOverview + GET /api/races/:id/overview.
