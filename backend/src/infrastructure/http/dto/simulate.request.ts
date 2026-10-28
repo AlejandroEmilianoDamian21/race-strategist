@@ -1,8 +1,8 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
-  IsInt,
   IsNotEmpty,
+  IsNumber,
   IsString,
   ValidateNested,
 } from 'class-validator';
@@ -10,10 +10,9 @@ import type { Strategy } from '../../../domain/model/strategy.js';
 
 export class StintDto {
   @IsString()
-  @IsNotEmpty()
   compound!: string;
 
-  @IsInt()
+  @IsNumber({ allowNaN: false, allowInfinity: false })
   laps!: number;
 }
 
