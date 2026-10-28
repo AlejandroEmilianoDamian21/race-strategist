@@ -90,6 +90,64 @@
     "title": "Pick a race",
     "loading": "Loading races…",
     "loaded_one": "{{count}} race on the calendar",
-    "loaded_other": "{{count}} races on the calendar"
+    "loaded_other": "{{count}} races on the calendar",
+    "lapsShort": "{{count}} laps",
+    "rain": "{{percent}} rain",
+    "selected": "Selected",
+    "empty": {
+      "title": "No races on the calendar",
+      "body": "The API returned no races. Try again in a moment."
+    }
+  },
+  "circuitTypes": {
+    "permanent": "Permanent",
+    "street": "Street",
+    "semi-street": "Semi-street",
+    "high-speed": "High-speed"
+  },
+  "compounds": {
+    "SOFT": "Soft",
+    "MEDIUM": "Medium",
+    "HARD": "Hard",
+    "INTERMEDIATE": "Intermediate",
+    "WET": "Wet"
+  },
+  "raceInfo": {
+    "title": "Circuit, weather and grid",
+    "empty": "Pick a race to see the circuit, the weather and who is racing.",
+    "loading": "Loading race information…",
+    "circuit": {
+      "eyebrow": "Circuit · {{country}} · {{type}}",
+      "laps": "Laps",
+      "kmPerLap": "Km / lap",
+      "totalKm": "Total km",
+      "baseLap": "Base lap",
+      "tyreWear": "Tyre wear",
+      "tyreWearNote": "1.0 is neutral",
+      "overtaking": "Overtaking difficulty",
+      "overtakingNote": "0 easy · 1 impossible",
+      "safetyCar": "Safety car probability",
+      "safetyCarNote": "Not part of the simulation"
+    },
+    "tyres": {
+      "title": "Tyres",
+      "degradation": "Degradation here",
+      "optimalRain": "Optimal rain",
+      "note": "Pace vs. base lap (negative = faster). Degradation is multiplied by this circuit’s tyre wear."
+    },
+    "weather": {
+      "title": "Weather by stage",
+      "intensity": "Intensity {{value}}",
+      "dry": "Dry",
+      "light": "Light rain",
+      "moderate": "Moderate rain",
+      "heavy": "Heavy rain"
+    },
+    "drivers": {
+      "title": "Grid",
+      "carPerformance": "Car performance",
+      "pace": "Pace",
+      "lapShort": "L"
+    }
   }
 }
