@@ -1,6 +1,341 @@
 {
   "app": {
     "title": "Race Strategist",
-    "tagline": "Armá tu estrategia de neumáticos"
+    "footer": "Datos de la API del desafío (tech-challenge101.onrender.com). Los valores son inventados para el ejercicio y no representan el rendimiento real de pilotos ni equipos."
+  },
+  "language": {
+    "label": "Idioma"
+  },
+  "common": {
+    "retry": "Reintentar",
+    "backToCalendar": "Volver al calendario",
+    "backToStrategy": "Volver a la estrategia"
+  },
+  "stepper": {
+    "done": "completado",
+    "label": "Pasos",
+    "eyebrowRich": "<b>Paso {{number}}</b> · {{name}}",
+    "compact": "Paso {{current}} de {{total}} · {{name}}",
+    "compactRich": "Paso <b>{{current}}</b> de {{total}} · <b>{{name}}</b>",
+    "steps": {
+      "race": "Carrera",
+      "info": "Info",
+      "strategy": "Estrategia",
+      "simulate": "Simular",
+      "result": "Resultado"
+    }
+  },
+  "status": {
+    "wake": {
+      "title": "Despertando el servidor",
+      "body": "La API gratuita se duerme cuando no se usa. La primera vez puede tardar <b>hasta un minuto</b>; después es rápida. No hace falta recargar.",
+      "progressLabel": "Tiempo de espera",
+      "elapsed": "{{elapsed}} transcurridos",
+      "expected": "~1:00",
+      "steps": {
+        "connecting": "Despertando la API · GET /api/__health/liveness",
+        "races": "Cargando carreras · GET /api/races",
+        "details": "Cargando circuitos y neumáticos"
+      }
+    },
+    "apiError": {
+      "title": {
+        "default": "No pudimos leer los datos de F1",
+        "notFound": "No encontramos esa carrera",
+        "empty": "La API no devolvió carreras",
+        "validation": "El backend no aceptó la solicitud"
+      },
+      "body": {
+        "default": "La API respondió con un error interno, o no respondió en 90 segundos.",
+        "network": "No hay conexión con la API. Revisá tu red y reintentá.",
+        "notFound": "La carrera que pediste ya no existe en la API. Elegí otra del calendario.",
+        "empty": "La lista de carreras llegó vacía. Puede ser un problema temporal del proveedor.",
+        "validation": "La solicitud no pasó la validación del backend. Revisá la estrategia y volvé a simular."
+      },
+      "upstreamReason": {
+        "timeout": "El proveedor tardó demasiado en responder.",
+        "network": "No pudimos comunicarnos con el proveedor.",
+        "server-error": "El proveedor respondió con un error.",
+        "empty-response": "El proveedor devolvió una respuesta vacía.",
+        "invalid-response": "El proveedor devolvió datos inesperados."
+      },
+      "reassurance": "Tu estrategia no se pierde."
+    },
+    "emptyRace": {
+      "title": "Elegí una carrera",
+      "body": "Cuando elijas una del calendario, acá aparecen el circuito, el pronóstico por tramos, los neumáticos que encajan con ese clima y la parrilla."
+    },
+    "invalid": {
+      "title": "El backend rechazó la estrategia",
+      "body_one": "Encontró {{count}} problema. Corregilo en el constructor y volvé a simular.",
+      "body_other": "Encontró {{count}} problemas. Corregilos en el constructor y volvé a simular."
+    },
+    "emptyResult": {
+      "title": "Todavía no simulaste",
+      "body": "Armá tu estrategia y tocá SIMULAR. El resultado aparece acá: tiempo total, stints, paradas y cómo cae el ritmo vuelta a vuelta."
+    },
+    "simLoading": {
+      "label": "Simulando · vuelta {{lap}} de {{total}}",
+      "progressLabel": "Progreso de la simulación"
+    },
+    "emptyStrategy": {
+      "title": "Primero elegí una carrera",
+      "body": "El constructor necesita las vueltas, el clima y los parámetros de esa carrera."
+    }
+  },
+  "violations": {
+    "NO_STINTS": "La estrategia necesita al menos un stint.",
+    "STINT_TOO_SHORT": "El stint {{stint}} tiene {{laps}} vueltas. Cada stint necesita al menos 1 vuelta entera.",
+    "STINT_TOO_SHORT_whole": "El stint {{stint}} tiene {{laps}} vueltas. Cada stint necesita un número entero de vueltas.",
+    "UNKNOWN_COMPOUND": "El stint {{stint}} usa \"{{compound}}\", que no es un compuesto válido. Opciones: {{allowed}}.",
+    "LAPS_MISMATCH_missing_one": "Los stints suman {{actual}} vueltas y la carrera tiene {{expected}}. Falta {{count}} vuelta.",
+    "LAPS_MISMATCH_missing_other": "Los stints suman {{actual}} vueltas y la carrera tiene {{expected}}. Faltan {{count}} vueltas.",
+    "LAPS_MISMATCH_extra_one": "Los stints suman {{actual}} vueltas y la carrera tiene {{expected}}. Sobra {{count}} vuelta.",
+    "LAPS_MISMATCH_extra_other": "Los stints suman {{actual}} vueltas y la carrera tiene {{expected}}. Sobran {{count}} vueltas.",
+    "NOT_ENOUGH_PIT_STOPS_one": "Hace falta al menos {{count}} parada y la estrategia tiene {{actual}}.",
+    "NOT_ENOUGH_PIT_STOPS_other": "Hace falta al menos {{count}} paradas y la estrategia tiene {{actual}}."
+  },
+  "races": {
+    "title": "Elegí una carrera",
+    "loading": "Cargando carreras…",
+    "season_one": "Temporada {{year}} · {{count}} carrera",
+    "season_other": "Temporada {{year}} · {{count}} carreras",
+    "lapsShort": "{{count}} v",
+    "rain": "{{percent}} lluvia"
+  },
+  "circuitTypes": {
+    "permanent": "Permanente",
+    "street": "Callejero",
+    "semi-street": "Semi-callejero",
+    "high-speed": "Alta velocidad"
+  },
+  "compounds": {
+    "SOFT": "Blando",
+    "MEDIUM": "Medio",
+    "HARD": "Duro",
+    "INTERMEDIATE": "Intermedio",
+    "WET": "Lluvia"
+  },
+  "raceInfo": {
+    "title": "La carrera",
+    "headCaption": "Ronda {{round}} · {{date}} · {{temperature}}°C",
+    "loading": "Cargando información de la carrera…",
+    "circuit": {
+      "eyebrow": "Circuito · {{country}} · {{type}}",
+      "laps": "Vueltas",
+      "kmPerLap": "Km / vuelta",
+      "totalKm": "Km totales",
+      "baseLap": "Vuelta base",
+      "tyreWear": "Desgaste de neumáticos",
+      "tyreWearNote": "1.0 es neutro",
+      "pitCost": "Costo de una parada",
+      "pitCostNote": "{{pitStopLoss}}s pit lane + {{tyreChangeTime}}s cambio",
+      "overtaking": "Dificultad para adelantar",
+      "overtakingNote": "0 fácil · 1 imposible",
+      "safetyCar": "Probabilidad de safety car",
+      "safetyCarNote": "No entra en la simulación",
+      "reading": {
+        "title": "Lectura de estrategia",
+        "highWear": "Desgaste alto (×{{value}}): los blandos duran poco, conviene parar más o usar duros.",
+        "lowWear": "Desgaste bajo (×{{value}}): los neumáticos aguantan, una parada suele alcanzar.",
+        "hardOvertaking": "Adelantar es casi imposible ({{value}}): la posición en pista vale más que neumáticos frescos.",
+        "rain": "Probabilidad de lluvia del {{value}}: mirá el pronóstico por tramos antes de elegir compuestos.",
+        "safetyCar": "Safety car muy probable ({{value}}).",
+        "balanced": "Circuito equilibrado: desgaste y pérdida en boxes cerca de la media."
+      }
+    },
+    "tyres": {
+      "title": "Neumáticos",
+      "count_one": "{{count}} compuesto",
+      "count_other": "{{count}} compuestos",
+      "degradation": "Degradación aquí",
+      "optimalRain": "Lluvia óptima",
+      "optimalRange": "Lluvia óptima {{min}}–{{max}}",
+      "mark": "Lluvia {{value}} en esta carrera",
+      "noteRich": "Ritmo vs. <code>baseLapTime</code> (negativo = más rápido). Degradación × <code>tyreWear</code> {{wear}} de este circuito. Las marcas ▏ son las intensidades de lluvia de esta carrera; atenuados, los compuestos que no encajan en ningún tramo."
+    },
+    "weather": {
+      "title": "Clima durante la carrera",
+      "caption": "Probabilidad de lluvia {{percent}}",
+      "segments": "Tramos de la carrera · ideal por banda de lluvia",
+      "band": "Clima por tramos",
+      "segmentLabel": "{{from}}–{{to}}: {{level}} ({{value}}), {{temperature}}°C.{{ideal}}",
+      "idealLabel": " Ideal: {{compounds}}",
+      "dry": "Seco",
+      "drizzle": "Llovizna",
+      "moderate": "Lluvia moderada",
+      "heavy": "Lluvia fuerte",
+      "dryShort": "seco",
+      "detail": "{{temperature}}°C · intensidad {{value}}",
+      "idealDetail": " · ideal {{compounds}}"
+    },
+    "drivers": {
+      "title": "Parrilla",
+      "caption": "{{drivers}} pilotos · {{teams}} equipos · tocá uno para simular con él",
+      "carPerformance": "Rendimiento del auto",
+      "paceTitle": "Ritmo {{pace}} · consistencia {{consistency}}",
+      "lapShort": "V"
+    }
+  },
+  "strategy": {
+    "title": "Armá tu estrategia",
+    "hint": "Arrastrá las paradas o editá las filas",
+    "loading": "Esperando los datos de la carrera…",
+    "driver": {
+      "label": "Piloto",
+      "placeholder": "Elegí un piloto"
+    },
+    "facts": {
+      "team": "{{team}} · auto {{car}} · ritmo {{pace}}",
+      "pit": "Parada {{loss}} + {{change}} = <b>{{total}}s</b>",
+      "minStops_one": "Mínimo <b>{{count}}</b> parada",
+      "minStops_other": "Mínimo <b>{{count}}</b> paradas"
+    },
+    "bar": {
+      "label": "Stints de la estrategia",
+      "stint": "Stint {{number}}: {{compound}}, vueltas {{from}} a {{to}}",
+      "gap_one": "Falta {{count}} vuelta",
+      "gap_other": "Faltan {{count}} vueltas",
+      "gapTitle": "Faltan {{count}}",
+      "gapShort": "{{count}} v",
+      "sub": "{{from}}–{{to}} · {{laps}} v",
+      "handle": "Mover parada {{number}}",
+      "handleValue": "Vuelta {{lap}}"
+    },
+    "issues": {
+      "stintShort": "<b>Stint {{stint}}</b> necesita al menos 1 vuelta.",
+      "stintWhole": "<b>Stint {{stint}}</b> necesita un número entero de vueltas.",
+      "noCompound": "<b>Stint {{stint}}</b> no tiene compuesto.",
+      "sumMissing_one": "Los stints suman <b>{{sum}} vueltas</b> y la carrera tiene <b>{{total}}</b>. Faltan {{count}} vuelta por cubrir.",
+      "sumMissing_other": "Los stints suman <b>{{sum}} vueltas</b> y la carrera tiene <b>{{total}}</b>. Faltan {{count}} vueltas por cubrir.",
+      "sumExtra_one": "Los stints suman <b>{{sum}} vueltas</b> y la carrera tiene <b>{{total}}</b>. Sobran {{count}} vuelta.",
+      "sumExtra_other": "Los stints suman <b>{{sum}} vueltas</b> y la carrera tiene <b>{{total}}</b>. Sobran {{count}} vueltas.",
+      "minStops_one": "Esta carrera exige <b>al menos {{count}} parada</b> (<code>minimumPitStops</code>). Agregá una.",
+      "minStops_other": "Esta carrera exige <b>al menos {{count}} paradas</b> (<code>minimumPitStops</code>). Agregá una.",
+      "valid": "Estrategia válida · {{stops}} · cubre las {{total}} vueltas.",
+      "noStops": "Sin paradas",
+      "stops_one": "{{count}} parada",
+      "stops_other": "{{count}} paradas",
+      "warning": "<b>Stint {{stint}} · {{compound}}</b> corre {{from}}–{{to}} con {{rain}} ({{intensity}}). Rinde entre {{min}} y {{max}}: perdés ≈{{loss}}s por vuelta.",
+      "ideal": " Ideal: {{compounds}}.",
+      "idealJoiner": " o "
+    },
+    "warningRain": {
+      "dry": "seco",
+      "drizzle": "llovizna",
+      "moderate": "lluvia moderada",
+      "heavy": "lluvia fuerte"
+    },
+    "rows": {
+      "stint": "Stint {{number}}",
+      "compound": "Compuesto · <b>{{name}}</b>",
+      "group": "Compuesto del stint {{number}}",
+      "laps": "Vueltas",
+      "lapsOf": "Vueltas del stint {{number}}",
+      "pit": "Parada en boxes · <b>V{{lap}}</b>",
+      "pitSlider": "Vuelta de parada {{number}}",
+      "end": "Termina",
+      "flag": "Bandera · {{lap}}",
+      "remove": "Quitar stint {{number}}"
+    },
+    "actions": {
+      "add": "Agregar parada",
+      "addMax": "Cada stint ya tiene 1 vuelta"
+    },
+    "simulate": {
+      "action": "Simular",
+      "loading": "Simulando vuelta {{lap}}/{{total}}",
+      "fixErrors_one": "Corregí {{count}} error para simular",
+      "fixErrors_other": "Corregí {{count}} errores para simular",
+      "loadingShort": "Simulando {{lap}}/{{total}}",
+      "fixErrorsShort": "Corregí errores",
+      "pickDriver": "Elegí un piloto para simular"
+    }
+  },
+  "result": {
+    "title": "Resultado de la simulación",
+    "compare": "Comparar con la anterior",
+    "summary": {
+      "eyebrow": "Resumen",
+      "chip": "#{{number}} {{driver}} · {{race}}",
+      "sentence": {
+        "pits": "Parás en {{laps}}. ",
+        "pitLap": "la {{lap}}",
+        "pitJoiner": " y ",
+        "noPits": "Sin paradas. ",
+        "longest_one": "El stint más largo es con {{compound}} ({{count}} vuelta). ",
+        "longest_other": "El stint más largo es con {{compound}} ({{count}} vueltas). ",
+        "wet": "Perdés {{loss}} por usar compuestos fuera de su banda de lluvia.",
+        "dry": "Cada compuesto corre dentro de su banda de lluvia."
+      },
+      "total": "Tiempo total estimado",
+      "vsPrevious": "{{delta}} vs. anterior",
+      "kpi": {
+        "fastest": "Vuelta más rápida",
+        "fastestNote": "{{lap}} · {{compound}}",
+        "pit": "Perdido en boxes",
+        "average": "Promedio / vuelta",
+        "averageNote_one": "{{count}} vuelta",
+        "averageNote_other": "{{count}} vueltas"
+      }
+    },
+    "assumptions": {
+      "title": "Cómo se calculó",
+      "lap": "<b>Vuelta</b> = <code>baseLapTime</code> {{base}}s + <code>pace</code> del compuesto + <code>degradation</code> × <code>tyreWear</code> {{wear}} × edad del neumático − <code>fuelEffectPerLap</code> {{fuel}}s × vuelta.",
+      "driver": "<b>Piloto</b>: +{{delta}}s/vuelta = ((1 − <code>carPerformance</code> {{car}}) + (1 − <code>pace</code> {{pace}})) × 10.",
+      "rain": "<b>Lluvia</b>: si la <code>rainIntensity</code> del tramo cae fuera de <code>optimalRainIntensity</code> del compuesto, se suma (exceso × 20 × (1 − <code>wetPerformance</code>)); un compuesto de lluvia en seco suma (falta × 6).",
+      "pit": "<b>Parada</b>: <code>pitStopLoss</code> {{lane}}s + <code>tyreChangeTime</code> {{change}}s, sumada en la vuelta de entrada.",
+      "unmodeled": "<b>No modelado</b>: safety car ({{safety}} de probabilidad), <code>lapTimeVariance</code> {{variance}}s, <code>consistency</code> y tráfico (<code>overtakingDifficulty</code> {{overtaking}}). La simulación es determinística."
+    },
+    "pitStops": {
+      "title": "Paradas en boxes",
+      "count_one": "{{count}} parada",
+      "count_other": "{{count}} paradas",
+      "none": "Sin paradas: un solo stint de principio a fin.",
+      "total": "Total perdido en boxes",
+      "note": "Cada parada = {{lane}}s en pit lane (<code>pitStopLoss</code>) + {{change}}s de cambio (<code>tyreChangeTime</code>)."
+    },
+    "timeline": {
+      "title": "Línea de tiempo de stints",
+      "previousNote": "Abajo, fina: la anterior ({{summary}})",
+      "previousLabel": "Estrategia anterior",
+      "stint": "Stint {{number}}: {{compound}}, vueltas {{from}} a {{to}}, {{time}}"
+    },
+    "table": {
+      "title": "Desglose por stint",
+      "stint": "Stint",
+      "compound": "Compuesto",
+      "from": "Desde",
+      "to": "Hasta",
+      "laps": "Vueltas",
+      "average": "Prom./vuelta",
+      "rain": "Por lluvia",
+      "time": "Tiempo",
+      "pit": "Parada en boxes",
+      "total": "Total",
+      "cardTitle": "Stint {{number}} · {{compound}}",
+      "cardDetail_one": "{{from}}–{{to}} · {{count}} vuelta · {{average}}/v",
+      "cardDetail_other": "{{from}}–{{to}} · {{count}} vueltas · {{average}}/v",
+      "cardRain": " · lluvia {{loss}}",
+      "cardPit": "Parada en {{lap}}"
+    },
+    "chart": {
+      "title": "Tiempo por vuelta",
+      "label": "Tiempo por vuelta: sube con el desgaste dentro de cada stint, con la lluvia si el compuesto no es el indicado, y salta en las vueltas de parada",
+      "current": "Esta simulación",
+      "previous": "Anterior",
+      "pit": "Parada",
+      "rain": "Lluvia",
+      "box": "BOX {{lap}} · {{loss}} ↑",
+      "rainTitle": "Lluvia {{value}}",
+      "tip": {
+        "lap": "Vuelta {{lap}}",
+        "age": "{{age}}ª vuelta del {{compound}}",
+        "rainWrong": "Lluvia {{value}} · {{loss}} por compuesto",
+        "rainRight": "Lluvia {{value}} · compuesto correcto",
+        "pit": "Incluye parada en boxes",
+        "previous": "Anterior: {{time}}"
+      }
+    }
   }
 }
