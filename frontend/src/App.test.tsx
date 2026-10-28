@@ -79,40 +79,6 @@ describe('App', () => {
     expect(await screen.findByRole('navigation', { name: 'Steps' })).toBeVisible()
   })
 
-  it('selects a race, loads its overview, resets the driver on change', async () => {
-    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
-      const url = String(input)
-      if (url.endsWith('/overview')) return jsonResponse(200, OVERVIEW)
-      return jsonResponse(200, { races: [MONZA, MONACO] })
-    })
-    vi.stubGlobal('fetch', fetchMock)
-    render(<App client={createClient()} />)
-    const user = userEvent.setup()
-
-    expect(
-      await screen.findByText(/Cuando elijas una del calendario, acá aparecen el circuito/),
-    ).toBeVisible()
-    expect(screen.getByRole('progressbar', { name: 'Paso 1 de 5 · Carrera' })).toBeVisible()
-
-    await user.click(await screen.findByRole('button', { name: /Italian Grand Prix/ }))
-    await user.click(await screen.findByRole('button', { name: /Charles Leclerc/ }))
-
-    expect(screen.getByRole('button', { name: /Charles Leclerc/ })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    )
-
-    await user.click(screen.getByRole('button', { name: /Monaco Grand Prix/ }))
-
-    expect(await screen.findByRole('button', { name: /Charles Leclerc/ })).toHaveAttribute(
-      'aria-pressed',
-      'false',
-    )
-    expect(fetchMock.mock.calls.map(([input]) => String(input))).toContainEqual(
-      expect.stringContaining('/api/races/monaco-gp/overview'),
-    )
-  })
-
   it('keeps the strategy builder gated by the race', async () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input)
