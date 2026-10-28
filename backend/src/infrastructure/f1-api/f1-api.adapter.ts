@@ -82,20 +82,21 @@ export class F1ApiAdapter extends F1DataPort implements OnModuleInit {
     raceId: string,
   ): Promise<{ race: Race; circuit: Circuit }> {
     const path = `/api/races/${encodeURIComponent(raceId)}`;
-    const raw = await this.loadRaceScoped<{ circuit?: unknown }>(path, raceId);
-    return { race: toRace(raw, path), circuit: toCircuit(raw.circuit, path) };
+    return this.loadRaceScoped(path, raceId, (raw) => ({
+      race: toRace(raw, path),
+      circuit: toCircuit((raw as { circuit?: unknown } | null)?.circuit, path),
+    }));
   }
 
-  async getWeather(raceId: string): Promise<WeatherForecast> {
+  getWeather(raceId: string): Promise<WeatherForecast> {
     const path = `/api/races/${encodeURIComponent(raceId)}/weather`;
-    return toWeather(await this.loadRaceScoped(path, raceId), path);
+    return this.loadRaceScoped(path, raceId, (raw) => toWeather(raw, path));
   }
 
-  async getSimulationParameters(raceId: string): Promise<SimulationParameters> {
+  getSimulationParameters(raceId: string): Promise<SimulationParameters> {
     const path = `/api/races/${encodeURIComponent(raceId)}/simulation-parameters`;
-    return toSimulationParameters(
-      await this.loadRaceScoped(path, raceId),
-      path,
+    return this.loadRaceScoped(path, raceId, (raw) =>
+      toSimulationParameters(raw, path),
     );
   }
 
@@ -105,7 +106,7 @@ export class F1ApiAdapter extends F1DataPort implements OnModuleInit {
     map: (raw: unknown, resource: string) => T,
   ): Promise<T[]> {
     return this.cache.getOrLoad(path, async () => {
-      const data = await this.client.getData<Record<string, unknown>>(path);
+      const data = await this.fetchData<Record<string, unknown>>(path);
       const items = data[key];
       if (!Array.isArray(items)) {
         throw new DataSourceUnavailableError('invalid-response', path);
@@ -117,19 +118,35 @@ export class F1ApiAdapter extends F1DataPort implements OnModuleInit {
     });
   }
 
-  private loadRaceScoped<T>(path: string, raceId: string): Promise<T> {
+  private loadRaceScoped<T>(
+    path: string,
+    raceId: string,
+    map: (raw: unknown) => T,
+  ): Promise<T> {
     return this.cache.getOrLoad(path, async () => {
-      try {
-        return await this.client.getData<T>(path);
-      } catch (error) {
-        if (error instanceof F1ApiHttpError) {
-          if (error.status === 404 || error.status === 400) {
-            throw new RaceNotFoundError(raceId);
-          }
-          throw new DataSourceUnavailableError('server-error', path);
-        }
-        throw error;
-      }
+      const raw = await this.fetchData<unknown>(path, (error) =>
+        error.status === 404 || error.status === 400
+          ? new RaceNotFoundError(raceId)
+          : undefined,
+      );
+      return map(raw);
     });
+  }
+
+  private async fetchData<T>(
+    path: string,
+    translate?: (error: F1ApiHttpError) => Error | undefined,
+  ): Promise<T> {
+    try {
+      return await this.client.getData<T>(path);
+    } catch (error) {
+      if (error instanceof F1ApiHttpError) {
+        throw (
+          translate?.(error) ??
+          new DataSourceUnavailableError('server-error', path)
+        );
+      }
+      throw error;
+    }
   }
 }

@@ -275,6 +275,66 @@ describe('F1ApiAdapter', () => {
     });
   });
 
+  it('maps a non-5xx HTTP error on a list endpoint to DataSourceUnavailableError', async () => {
+    const adapter = buildAdapter(
+      routedFetch({
+        '/api/races': {
+          status: 429,
+          body: { statusCode: 429, code: 'RATE', message: 'slow down' },
+        },
+      }),
+    );
+
+    const error = await adapter.listRaces().catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(DataSourceUnavailableError);
+    expect(error).toMatchObject({ reason: 'server-error' });
+  });
+
+  it('maps a non-404 HTTP error on a race-scoped call to server-error', async () => {
+    const adapter = buildAdapter(
+      routedFetch({
+        '/api/races/race-01/weather': {
+          status: 403,
+          body: { statusCode: 403, code: 'NOPE', message: 'forbidden' },
+        },
+      }),
+    );
+
+    await expect(adapter.getWeather('race-01')).rejects.toMatchObject({
+      reason: 'server-error',
+    });
+  });
+
+  it('passes a persistent race-scoped 5xx through as DataSourceUnavailableError', async () => {
+    const adapter = buildAdapter(
+      routedFetch({
+        '/api/races/race-01/simulation-parameters': {
+          status: 503,
+          body: { statusCode: 503 },
+        },
+      }),
+    );
+
+    await expect(
+      adapter.getSimulationParameters('race-01'),
+    ).rejects.toMatchObject({ reason: 'server-error' });
+  });
+
+  it('does not cache a malformed race-scoped payload', async () => {
+    const fetchMock = routedFetch({
+      '/api/races/race-01': { body: envelope({ ...rawRace, laps: 'many' }) },
+    });
+    const adapter = buildAdapter(fetchMock);
+
+    await expect(adapter.getRaceDetail('race-01')).rejects.toMatchObject({
+      reason: 'invalid-response',
+    });
+    await expect(adapter.getRaceDetail('race-01')).rejects.toMatchObject({
+      reason: 'invalid-response',
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
   it('does not throw nor wait for the warm-up ping when the API is down', async () => {
     const fetchMock = vi.fn().mockRejectedValue(new TypeError('fetch failed'));
     const adapter = buildAdapter(fetchMock);
