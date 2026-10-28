@@ -241,6 +241,25 @@ describe('StrategyStep builder', () => {
     expect(lapsInput(3)).toHaveValue(26)
   })
 
+  it('disables add stop once every stint is a single lap', async () => {
+    const short = { ...OVERVIEW, race: { ...OVERVIEW.race, laps: 4 } }
+    vi.stubGlobal(
+      'fetch',
+      vi.fn<typeof fetch>(async () => jsonResponse(200, short)),
+    )
+    renderStep('italian-gp')
+    await screen.findByRole('button', { name: 'Simular' })
+    const addButton = () => screen.getByRole('button', { name: 'Agregar parada' })
+
+    await userEvent.setup().click(addButton())
+    expect(addButton()).toBeEnabled()
+    await userEvent.setup().click(addButton())
+
+    expect(rows()).toHaveLength(4)
+    expect(addButton()).toBeDisabled()
+    expect(addButton()).toHaveAccessibleDescription('Cada stint ya tiene 1 vuelta')
+  })
+
   it('moves a pit stop from the slider, the number field and the bar handle', async () => {
     await builderReady()
 
@@ -250,7 +269,7 @@ describe('StrategyStep builder', () => {
     expect(lapsInput(1)).toHaveValue(30)
     expect(lapsInput(2)).toHaveValue(23)
 
-    fireEvent.keyDown(screen.getByRole('button', { name: 'Mover parada 1 (vuelta 30)' }), {
+    fireEvent.keyDown(screen.getByRole('slider', { name: 'Mover parada 1' }), {
       key: 'ArrowLeft',
     })
     expect(lapsInput(1)).toHaveValue(29)
@@ -259,7 +278,7 @@ describe('StrategyStep builder', () => {
 
   it('never lets the handle cross its neighbour', async () => {
     await builderReady()
-    const handle = screen.getByRole('button', { name: 'Mover parada 1 (vuelta 27)' })
+    const handle = screen.getByRole('slider', { name: 'Mover parada 1' })
 
     for (let press = 0; press < 40; press += 1) fireEvent.keyDown(handle, { key: 'ArrowRight' })
 

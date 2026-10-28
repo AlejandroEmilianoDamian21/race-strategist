@@ -8,9 +8,15 @@ interface Options {
   errorCount?: number
   hasDriver?: boolean
   progress?: number | null
+  canAddStop?: boolean
 }
 
-function renderBar({ errorCount = 0, hasDriver = true, progress = null }: Options = {}) {
+function renderBar({
+  errorCount = 0,
+  hasDriver = true,
+  progress = null,
+  canAddStop = true,
+}: Options = {}) {
   const onSimulate = vi.fn()
   const onAddStop = vi.fn()
   render(
@@ -19,6 +25,7 @@ function renderBar({ errorCount = 0, hasDriver = true, progress = null }: Option
       hasDriver={hasDriver}
       raceLaps={70}
       progress={progress}
+      canAddStop={canAddStop}
       onAddStop={onAddStop}
       onSimulate={onSimulate}
     />,
@@ -37,6 +44,16 @@ describe('SimulateBar', () => {
     expect(onAddStop).toHaveBeenCalledTimes(1)
     expect(onSimulate).toHaveBeenCalledTimes(1)
     expect(screen.queryByText(/para simular/)).not.toBeInTheDocument()
+  })
+
+  it('disables the add-stop action with a reason when no stint can be split', async () => {
+    const { onAddStop } = renderBar({ canAddStop: false })
+    const button = screen.getByRole('button', { name: 'Agregar parada' })
+
+    expect(button).toBeDisabled()
+    expect(button).toHaveAccessibleDescription('Cada stint ya tiene 1 vuelta')
+    await userEvent.setup().click(button)
+    expect(onAddStop).not.toHaveBeenCalled()
   })
 
   it.each([
@@ -95,6 +112,7 @@ describe('SimulateBar', () => {
             hasDriver={hasDriver}
             raceLaps={70}
             progress={progress}
+            canAddStop
             onAddStop={vi.fn()}
             onSimulate={onSimulate}
           />

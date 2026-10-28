@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { GhostBar } from '@/features/strategy/ghost-bar'
 import { StintBar } from '@/features/strategy/stint-bar'
@@ -36,6 +36,18 @@ export function ResultStep({
   const { t } = useTranslation()
   const [compare, setCompare] = useState(true)
   const hasPrevious = view.kind === 'success' && view.previous !== null
+  const titleRef = useRef<HTMLHeadingElement>(null)
+  const retried = useRef(false)
+
+  useEffect(() => {
+    if (view.kind === 'success' && retried.current) titleRef.current?.focus()
+    if (view.kind !== 'loading') retried.current = false
+  }, [view.kind])
+
+  function retry() {
+    retried.current = true
+    onRetry()
+  }
 
   return (
     <section
@@ -47,6 +59,7 @@ export function ResultStep({
         step={5}
         title={t('result.title')}
         titleId="step-result-title"
+        titleRef={titleRef}
         right={
           hasPrevious ? (
             <Toggle checked={compare} onChange={setCompare}>
@@ -100,8 +113,8 @@ export function ResultStep({
           <StatusPanel
             variant="api-error"
             error={view.error}
-            onRetry={onRetry}
-            onBack={onBackToCalendar}
+            onRetry={retry}
+            onBack={view.error.kind === 'validation' ? () => onBackToStrategy() : onBackToCalendar}
           />
         ))}
       {view.kind === 'success' && overview !== undefined && (

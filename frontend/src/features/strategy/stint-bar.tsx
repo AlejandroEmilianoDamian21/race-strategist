@@ -1,4 +1,11 @@
-import { useEffect, useRef, type KeyboardEvent, type PointerEvent } from 'react'
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type PointerEvent,
+} from 'react'
 import { useTranslation } from 'react-i18next'
 import { LapAxis } from '@/features/races/lap-axis'
 import { WeatherBand } from '@/features/races/weather-band'
@@ -18,7 +25,7 @@ import { CompoundBadge } from '@/shared/ui/compound-badge'
 import { AlertIcon } from '@/shared/ui/icons'
 import { COMPOUND_BG } from './compound-colors'
 import { GhostBar } from './ghost-bar'
-import { lapAtPointer, stintEnds } from './pit-lap'
+import { handleWidths, labelsThatFit, lapAtPointer, stintEnds } from './pit-lap'
 
 const TINY_SHARE = 0.09
 const NARROW_GAP_SHARE = 0.12
@@ -26,6 +33,9 @@ const BAR_HEIGHT = 64
 const RESULT_BAR_HEIGHT = 84
 const PIN_TOP = 30
 const WEATHER_HEIGHT = 36
+const PAGE_STEP = 5
+const CHAR_WIDTH = 6.6
+const PIN_PADDING = 10
 
 interface StintBarProps {
   stints: Stint[]
@@ -48,8 +58,13 @@ function lapsOf(stint: Stint): number {
 }
 
 const SEGMENT =
-  'relative flex min-w-0 flex-col justify-center overflow-hidden px-2 py-1 text-on-tyre min-[721px]:px-3 min-[721px]:py-2 ' +
-  'not-first:pl-[calc(var(--space-3)+3px)] not-first:shadow-[inset_3px_0_0_var(--bg)]'
+  'group/segment @container relative flex min-w-0 overflow-hidden text-on-tyre ' +
+  'not-first:shadow-[inset_3px_0_0_var(--bg)]'
+
+const SEGMENT_INNER =
+  'flex min-w-0 flex-1 flex-col justify-center py-1 min-[721px]:py-2 ' +
+  '@min-[48px]:px-2 min-[721px]:@min-[48px]:px-3 ' +
+  '@min-[48px]:group-[:not(:first-child)]/segment:pl-[calc(var(--space-3)+3px)]'
 
 export function StintBar({
   stints,
@@ -67,6 +82,7 @@ export function StintBar({
   const { t } = useTranslation()
   const lap = t('raceInfo.drivers.lapShort')
   const barRef = useRef<HTMLDivElement>(null)
+  const [barWidth, setBarWidth] = useState(0)
   const stopDrag = useRef<(() => void) | null>(null)
   const ends = stintEnds(stints)
   const sum = ends.at(-1) ?? 0
@@ -79,7 +95,36 @@ export function StintBar({
 
   useEffect(() => () => stopDrag.current?.(), [])
 
-  function startDrag(index: number, event: PointerEvent<HTMLButtonElement>) {
+  useLayoutEffect(() => {
+    const bar = barRef.current
+    if (bar === null) return
+    const measure = () => setBarWidth(bar.getBoundingClientRect().width)
+    measure()
+    if (typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(measure)
+    observer.observe(bar)
+    return () => observer.disconnect()
+  }, [])
+
+  const pitCount = Math.max(stints.length - 1, 0)
+  const pitEnds = ends.slice(0, pitCount)
+  const centers = pitEnds.map((end) => (end / span) * barWidth)
+  const pinTexts = pitEnds.map((end) => {
+    const stop = result?.pitStops.find((candidate) => candidate.lap === end)
+    return stop === undefined
+      ? `${lap}${end}`
+      : `${lap}${end} ${formatSignedSeconds(stop.totalLoss)}`
+  })
+  const labelFits =
+    barWidth > 0
+      ? labelsThatFit(
+          centers,
+          pinTexts.map((text) => text.length * CHAR_WIDTH + PIN_PADDING),
+        )
+      : pitEnds.map(() => true)
+  const widths = barWidth > 0 ? handleWidths(centers) : pitEnds.map(() => 20)
+
+  function startDrag(index: number, event: PointerEvent<HTMLDivElement>) {
     if (onMovePit === undefined) return
     event.preventDefault()
     event.currentTarget.focus()
@@ -99,30 +144,52 @@ export function StintBar({
     stopDrag.current = end
   }
 
-  function onKeyDown(index: number, event: KeyboardEvent<HTMLButtonElement>) {
-    const delta = event.key === 'ArrowLeft' ? -1 : event.key === 'ArrowRight' ? 1 : 0
-    if (delta === 0) return
+  function pitBounds(index: number) {
+    const now = ends[index] ?? 0
+    const min = (ends[index - 1] ?? 0) + 1
+    const max = (ends[index + 1] ?? span + 1) - 1
+    return { min: Math.min(min, now), max: Math.max(max, now) }
+  }
+
+  function onKeyDown(index: number, event: KeyboardEvent<HTMLDivElement>) {
+    const current = ends[index] ?? 0
+    if (event.altKey || event.ctrlKey || event.shiftKey || event.metaKey) return
+    const { min, max } = pitBounds(index)
+    const target = {
+      ArrowLeft: current - 1,
+      ArrowDown: current - 1,
+      ArrowRight: current + 1,
+      ArrowUp: current + 1,
+      PageDown: current - PAGE_STEP,
+      PageUp: current + PAGE_STEP,
+      Home: min,
+      End: max,
+    }[event.key]
+    if (target === undefined) return
     event.preventDefault()
-    onMovePit?.(index, (ends[index] ?? 0) + delta)
+    onMovePit?.(index, Math.max(min, Math.min(max, target)))
   }
 
   return (
     <div>
       <div style={{ '--pl': `${pinLine}px` } as React.CSSProperties} className="relative pt-[30px]">
-        {stints.slice(0, -1).map((_, index) => {
-          const stop = result?.pitStops.find((candidate) => candidate.lap === ends[index])
+        {pitEnds.map((end, index) => {
+          const stop = result?.pitStops.find((candidate) => candidate.lap === end)
+          const labelled = labelFits[index] ?? true
           return (
             <div
               key={`pin-${index}`}
-              style={{ left: `${((ends[index] ?? 0) / span) * 100}%` }}
+              data-pin={index}
+              style={{ left: `${(end / span) * 100}%` }}
               className={cn(
-                'absolute top-1 z-[2] -translate-x-1/2 whitespace-nowrap rounded-sm border border-line-strong bg-surface-2 px-1',
+                'absolute top-1 z-[2] -translate-x-1/2 whitespace-nowrap rounded-sm',
+                labelled ? 'border border-line-strong bg-surface-2 px-1' : 'h-[22px] w-px',
                 'font-mono text-[11px] font-bold text-ink',
                 'after:absolute after:left-1/2 after:top-full after:h-[var(--pl)] after:w-px after:bg-ink after:opacity-90 after:content-[""]',
               )}
             >
-              {`${lap}${ends[index]}`}
-              {stop !== undefined && (
+              {labelled && `${lap}${end}`}
+              {labelled && stop !== undefined && (
                 <>
                   {' '}
                   <small className="text-[smaller] font-semibold text-warning">
@@ -180,31 +247,33 @@ export function StintBar({
                     'after:absolute after:right-1.5 after:top-1.5 after:size-2.5 after:bg-warning after:content-[""] after:[clip-path:polygon(50%_0,100%_100%,0_100%)]',
                 )}
               >
-                <div className="flex items-center gap-2 whitespace-nowrap font-display text-base font-extrabold uppercase leading-[22px] tracking-[0.5px]">
-                  {known && (
-                    <CompoundBadge
-                      compound={stint.compound as TyreCompound}
-                      size="sm"
-                      decorative
-                      className="bg-on-tyre"
-                    />
+                <div className={SEGMENT_INNER}>
+                  <div className="flex items-center gap-2 whitespace-nowrap font-display text-base font-extrabold uppercase leading-[22px] tracking-[0.5px]">
+                    {known && (
+                      <CompoundBadge
+                        compound={stint.compound as TyreCompound}
+                        size="sm"
+                        decorative
+                        className="bg-on-tyre @max-[19px]:hidden"
+                      />
+                    )}
+                    {!tiny && <span className="max-[720px]:hidden">{name}</span>}
+                  </div>
+                  {!tiny && (
+                    <div className="whitespace-nowrap font-mono text-xs font-semibold leading-[22px] opacity-85 max-[720px]:hidden">
+                      {t('strategy.bar.sub', {
+                        from: `${lap}${from}`,
+                        to: `${lap}${to}`,
+                        laps,
+                      })}
+                    </div>
                   )}
-                  {!tiny && <span className="max-[720px]:hidden">{name}</span>}
+                  {!tiny && stintResult !== undefined && (
+                    <div className="whitespace-nowrap font-mono text-[15px] font-bold leading-[22px] max-[720px]:text-xs">
+                      {formatStintTime(stintResult.time)}
+                    </div>
+                  )}
                 </div>
-                {!tiny && (
-                  <div className="whitespace-nowrap font-mono text-xs font-semibold leading-[22px] opacity-85 max-[720px]:hidden">
-                    {t('strategy.bar.sub', {
-                      from: `${lap}${from}`,
-                      to: `${lap}${to}`,
-                      laps,
-                    })}
-                  </div>
-                )}
-                {!tiny && stintResult !== undefined && (
-                  <div className="whitespace-nowrap font-mono text-[15px] font-bold leading-[22px] max-[720px]:text-xs">
-                    {formatStintTime(stintResult.time)}
-                  </div>
-                )}
               </div>
             )
           })}
@@ -219,38 +288,48 @@ export function StintBar({
                 'bg-[repeating-linear-gradient(135deg,var(--danger-surface)_0_8px,var(--bg)_8px_16px)]',
               )}
             >
-              <div className="flex items-center gap-2 whitespace-nowrap font-display text-base font-extrabold uppercase leading-[22px] tracking-[0.5px] [&_svg]:size-4">
-                <AlertIcon />
-                <span className="max-[720px]:hidden">
-                  {missing / span < NARROW_GAP_SHARE
-                    ? t('strategy.bar.gapShort', { count: missing })
-                    : t('strategy.bar.gapTitle', { count: missing })}
-                </span>
-              </div>
-              <div className="whitespace-nowrap font-mono text-xs font-semibold leading-[22px] opacity-85 max-[720px]:hidden">
-                {`${lap}${sum + 1}–${lap}${raceLaps}`}
+              <div className={SEGMENT_INNER}>
+                <div className="flex items-center gap-2 whitespace-nowrap font-display text-base font-extrabold uppercase leading-[22px] tracking-[0.5px] [&_svg]:size-4">
+                  <AlertIcon />
+                  <span className="max-[720px]:hidden">
+                    {missing / span < NARROW_GAP_SHARE
+                      ? t('strategy.bar.gapShort', { count: missing })
+                      : t('strategy.bar.gapTitle', { count: missing })}
+                  </span>
+                </div>
+                <div className="whitespace-nowrap font-mono text-xs font-semibold leading-[22px] opacity-85 max-[720px]:hidden">
+                  {`${lap}${sum + 1}–${lap}${raceLaps}`}
+                </div>
               </div>
             </div>
           )}
         </div>
         {onMovePit !== undefined &&
-          stints
-            .slice(0, -1)
-            .map((_, index) => (
-              <button
-                key={`handle-${index}`}
-                type="button"
-                aria-label={t('strategy.bar.handle', { number: index + 1, lap: ends[index] })}
-                onPointerDown={(event) => startDrag(index, event)}
-                onKeyDown={(event) => onKeyDown(index, event)}
-                style={{ left: `${((ends[index] ?? 0) / span) * 100}%`, top: barTop }}
-                className={cn(
-                  'group absolute bottom-0 z-[3] w-5 -translate-x-1/2 cursor-ew-resize touch-none border-0 bg-transparent p-0',
-                  'before:absolute before:inset-y-3.5 before:left-[7px] before:w-1.5 before:rounded-[3px] before:border before:border-ink before:bg-bg before:content-[""]',
-                  'hover:before:bg-ink',
-                )}
-              />
-            ))}
+          pitEnds.map((_, index) => (
+            <div
+              key={`handle-${index}`}
+              role="slider"
+              tabIndex={0}
+              aria-label={t('strategy.bar.handle', { number: index + 1 })}
+              aria-orientation="horizontal"
+              aria-valuemin={pitBounds(index).min}
+              aria-valuemax={pitBounds(index).max}
+              aria-valuenow={ends[index]}
+              aria-valuetext={t('strategy.bar.handleValue', { lap: ends[index] })}
+              onPointerDown={(event) => startDrag(index, event)}
+              onKeyDown={(event) => onKeyDown(index, event)}
+              style={{
+                left: `${((ends[index] ?? 0) / span) * 100}%`,
+                top: barTop,
+                width: widths[index],
+              }}
+              className={cn(
+                'group absolute bottom-0 z-[3] -translate-x-1/2 cursor-ew-resize touch-none border-0 bg-transparent p-0',
+                'before:absolute before:inset-y-3.5 before:left-1/2 before:w-1.5 before:-translate-x-1/2 before:rounded-[3px] before:border before:border-ink before:bg-bg before:content-[""]',
+                'hover:z-[4] focus:z-[4] hover:before:bg-ink',
+              )}
+            />
+          ))}
       </div>
       {ghost !== undefined && (
         <GhostBar

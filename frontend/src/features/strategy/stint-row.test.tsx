@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
+import { useState } from 'react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import type { Stint } from '@/shared/api/types'
@@ -42,7 +43,96 @@ function renderRow({
   return handlers
 }
 
+function EditableRow({
+  initial,
+  onLapsChange,
+}: {
+  initial: number
+  onLapsChange: (laps: number) => void
+}) {
+  const [stint, setStint] = useState<Stint>({ compound: 'MEDIUM', laps: initial })
+  return (
+    <ul>
+      <StintRow
+        index={0}
+        stint={stint}
+        end={stint.laps}
+        raceLaps={70}
+        isLast={false}
+        invalid={false}
+        canRemove
+        onCompoundChange={vi.fn()}
+        onLapsChange={(_, laps) => {
+          onLapsChange(laps)
+          setStint({ ...stint, laps })
+        }}
+        onPitChange={vi.fn()}
+        onRemove={vi.fn()}
+      />
+    </ul>
+  )
+}
+
 describe('StintRow', () => {
+  it('keeps the laps field empty while editing and types a single digit without a leading zero', async () => {
+    const onLapsChange = vi.fn()
+    render(<EditableRow initial={24} onLapsChange={onLapsChange} />)
+    const user = userEvent.setup()
+    const input = screen.getByRole('spinbutton', { name: 'Vueltas del stint 1' })
+
+    await user.clear(input)
+    expect(input).toHaveValue(null)
+    await user.type(input, '3')
+
+    expect(input).toHaveValue(3)
+    expect((input as HTMLInputElement).value).toBe('3')
+    expect(onLapsChange).toHaveBeenLastCalledWith(3)
+  })
+
+  it('clamps a laps value above the race length so it never exceeds what the race allows', async () => {
+    const onLapsChange = vi.fn()
+    render(<EditableRow initial={24} onLapsChange={onLapsChange} />)
+    const input = screen.getByRole('spinbutton', { name: 'Vueltas del stint 1' })
+
+    await userEvent.setup().clear(input)
+    await userEvent.setup().type(input, '1000000')
+
+    expect(onLapsChange).toHaveBeenLastCalledWith(70)
+    expect(input).toHaveValue(70)
+  })
+
+  it('clamps an astronomically large pasted value', () => {
+    const onLapsChange = vi.fn()
+    render(<EditableRow initial={24} onLapsChange={onLapsChange} />)
+    const input = screen.getByRole('spinbutton', { name: 'Vueltas del stint 1' })
+
+    fireEvent.change(input, { target: { value: '1e308' } })
+
+    expect(onLapsChange).toHaveBeenLastCalledWith(70)
+  })
+
+  it('strips leading zeros typed into the laps field', async () => {
+    render(<EditableRow initial={24} onLapsChange={vi.fn()} />)
+    const user = userEvent.setup()
+    const input = screen.getByRole('spinbutton', { name: 'Vueltas del stint 1' })
+
+    await user.clear(input)
+    await user.type(input, '007')
+
+    expect((input as HTMLInputElement).value).toBe('7')
+  })
+
+  it('shows the stint laps again when the field loses focus empty', async () => {
+    render(<EditableRow initial={24} onLapsChange={vi.fn()} />)
+    const user = userEvent.setup()
+    const input = screen.getByRole('spinbutton', { name: 'Vueltas del stint 1' })
+
+    await user.clear(input)
+    await user.tab()
+
+    expect((input as HTMLInputElement).value).toBe('0')
+  })
+
   it('exposes the stint index and its fields so a backend violation can focus them', () => {
     renderRow()
 
@@ -84,6 +174,81 @@ describe('StintRow', () => {
     await userEvent.setup().click(screen.getByRole('radio', { name: 'Lluvia' }))
 
     expect(onCompoundChange).toHaveBeenCalledWith(0, 'WET')
+  })
+
+  it('keeps a single tab stop on the checked compound', () => {
+    renderRow()
+
+    const radios = within(screen.getByRole('radiogroup')).getAllByRole('radio')
+    expect(radios.map((radio) => radio.getAttribute('tabindex'))).toEqual([
+      '-1',
+      '0',
+      '-1',
+      '-1',
+      '-1',
+    ])
+  })
+
+  it('makes the first compound tabbable when none is checked', () => {
+    renderRow({ stint: { compound: 'SLICK', laps: 10 } })
+
+    const radios = within(screen.getByRole('radiogroup')).getAllByRole('radio')
+    expect(radios.map((radio) => radio.getAttribute('tabindex'))).toEqual([
+      '0',
+      '-1',
+      '-1',
+      '-1',
+      '-1',
+    ])
+  })
+
+  it.each([
+    ['ArrowRight', 'HARD'],
+    ['ArrowDown', 'HARD'],
+    ['ArrowLeft', 'SOFT'],
+    ['ArrowUp', 'SOFT'],
+    ['Home', 'SOFT'],
+    ['End', 'WET'],
+  ])('selects the compound reached with %s and moves focus to it', (key, compound) => {
+    const { onCompoundChange } = renderRow()
+    const radios = within(screen.getByRole('radiogroup')).getAllByRole('radio')
+    radios[1]?.focus()
+
+    fireEvent.keyDown(radios[1] as HTMLElement, { key })
+
+    expect(onCompoundChange).toHaveBeenCalledExactlyOnceWith(0, compound)
+    const index = ['SOFT', 'MEDIUM', 'HARD', 'INTERMEDIATE', 'WET'].indexOf(compound)
+    expect(radios[index]).toHaveFocus()
+  })
+
+  it('ignores arrow keys combined with a modifier in the compound group', () => {
+    const { onCompoundChange } = renderRow()
+    const checked = screen.getByRole('radio', { checked: true })
+
+    for (const modifier of ['altKey', 'ctrlKey', 'shiftKey', 'metaKey']) {
+      const notPrevented = fireEvent.keyDown(checked, { key: 'ArrowLeft', [modifier]: true })
+      expect(notPrevented).toBe(true)
+    }
+
+    expect(onCompoundChange).not.toHaveBeenCalled()
+  })
+
+  it('wraps around at the ends of the compound group', () => {
+    const { onCompoundChange } = renderRow({ stint: { compound: 'WET', laps: 10 } })
+    const radios = within(screen.getByRole('radiogroup')).getAllByRole('radio')
+
+    fireEvent.keyDown(radios[4] as HTMLElement, { key: 'ArrowRight' })
+
+    expect(onCompoundChange).toHaveBeenCalledExactlyOnceWith(0, 'SOFT')
+  })
+
+  it('ignores other keys in the compound group', () => {
+    const { onCompoundChange } = renderRow()
+    const radios = within(screen.getByRole('radiogroup')).getAllByRole('radio')
+
+    fireEvent.keyDown(radios[1] as HTMLElement, { key: 'a' })
+
+    expect(onCompoundChange).not.toHaveBeenCalled()
   })
 
   it('edits the laps and treats an empty field as zero', () => {

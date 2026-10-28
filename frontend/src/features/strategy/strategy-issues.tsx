@@ -21,6 +21,10 @@ const TONE = {
   ok: 'text-success',
 } as const
 
+function isFractional(laps: unknown): boolean {
+  return typeof laps === 'number' && Number.isFinite(laps) && !Number.isInteger(laps)
+}
+
 const BOLD = { b: <b className="font-semibold text-ink" />, code: <code /> }
 
 function Issue({
@@ -54,7 +58,17 @@ export function StrategyIssues({ errors, warnings, stops, raceLaps }: StrategyIs
     const params = error.params
     switch (error.code) {
       case 'STINT_TOO_SHORT':
-        return <Trans i18nKey="strategy.issues.stintShort" values={params} components={BOLD} />
+        return (
+          <Trans
+            i18nKey={
+              isFractional(params.laps)
+                ? 'strategy.issues.stintWhole'
+                : 'strategy.issues.stintShort'
+            }
+            values={params}
+            components={BOLD}
+          />
+        )
       case 'UNKNOWN_COMPOUND':
         return <Trans i18nKey="strategy.issues.noCompound" values={params} components={BOLD} />
       case 'LAPS_MISMATCH': {

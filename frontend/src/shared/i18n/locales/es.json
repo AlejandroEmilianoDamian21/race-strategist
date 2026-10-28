@@ -42,13 +42,15 @@
       "title": {
         "default": "No pudimos leer los datos de F1",
         "notFound": "No encontramos esa carrera",
-        "empty": "La API no devolvió carreras"
+        "empty": "La API no devolvió carreras",
+        "validation": "El backend no aceptó la solicitud"
       },
       "body": {
         "default": "La API respondió con un error interno, o no respondió en 90 segundos.",
         "network": "No hay conexión con la API. Revisá tu red y reintentá.",
         "notFound": "La carrera que pediste ya no existe en la API. Elegí otra del calendario.",
-        "empty": "La lista de carreras llegó vacía. Puede ser un problema temporal del proveedor."
+        "empty": "La lista de carreras llegó vacía. Puede ser un problema temporal del proveedor.",
+        "validation": "La solicitud no pasó la validación del backend. Revisá la estrategia y volvé a simular."
       },
       "upstreamReason": {
         "timeout": "El proveedor tardó demasiado en responder.",
@@ -84,6 +86,7 @@
   "violations": {
     "NO_STINTS": "La estrategia necesita al menos un stint.",
     "STINT_TOO_SHORT": "El stint {{stint}} tiene {{laps}} vueltas. Cada stint necesita al menos 1 vuelta entera.",
+    "STINT_TOO_SHORT_whole": "El stint {{stint}} tiene {{laps}} vueltas. Cada stint necesita un número entero de vueltas.",
     "UNKNOWN_COMPOUND": "El stint {{stint}} usa \"{{compound}}\", que no es un compuesto válido. Opciones: {{allowed}}.",
     "LAPS_MISMATCH_missing_one": "Los stints suman {{actual}} vueltas y la carrera tiene {{expected}}. Falta {{count}} vuelta.",
     "LAPS_MISMATCH_missing_other": "Los stints suman {{actual}} vueltas y la carrera tiene {{expected}}. Faltan {{count}} vueltas.",
@@ -196,10 +199,12 @@
       "gapTitle": "Faltan {{count}}",
       "gapShort": "{{count}} v",
       "sub": "{{from}}–{{to}} · {{laps}} v",
-      "handle": "Mover parada {{number}} (vuelta {{lap}})"
+      "handle": "Mover parada {{number}}",
+      "handleValue": "Vuelta {{lap}}"
     },
     "issues": {
       "stintShort": "<b>Stint {{stint}}</b> necesita al menos 1 vuelta.",
+      "stintWhole": "<b>Stint {{stint}}</b> necesita un número entero de vueltas.",
       "noCompound": "<b>Stint {{stint}}</b> no tiene compuesto.",
       "sumMissing_one": "Los stints suman <b>{{sum}} vueltas</b> y la carrera tiene <b>{{total}}</b>. Faltan {{count}} vuelta por cubrir.",
       "sumMissing_other": "Los stints suman <b>{{sum}} vueltas</b> y la carrera tiene <b>{{total}}</b>. Faltan {{count}} vueltas por cubrir.",
@@ -234,7 +239,8 @@
       "remove": "Quitar stint {{number}}"
     },
     "actions": {
-      "add": "Agregar parada"
+      "add": "Agregar parada",
+      "addMax": "Cada stint ya tiene 1 vuelta"
     },
     "simulate": {
       "action": "Simular",

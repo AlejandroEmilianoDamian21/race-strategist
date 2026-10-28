@@ -42,13 +42,15 @@
       "title": {
         "default": "We couldn't read the F1 data",
         "notFound": "We couldn't find that race",
-        "empty": "The API returned no races"
+        "empty": "The API returned no races",
+        "validation": "The backend did not accept the request"
       },
       "body": {
         "default": "The API responded with an internal error, or did not respond within 90 seconds.",
         "network": "There is no connection to the API. Check your network and retry.",
         "notFound": "The race you asked for no longer exists in the API. Pick another one from the calendar.",
-        "empty": "The race list came back empty. It may be a temporary provider issue."
+        "empty": "The race list came back empty. It may be a temporary provider issue.",
+        "validation": "The request failed the backend validation. Review the strategy and simulate again."
       },
       "upstreamReason": {
         "timeout": "The provider took too long to respond.",
@@ -84,6 +86,7 @@
   "violations": {
     "NO_STINTS": "The strategy needs at least one stint.",
     "STINT_TOO_SHORT": "Stint {{stint}} has {{laps}} laps. Every stint needs at least 1 whole lap.",
+    "STINT_TOO_SHORT_whole": "Stint {{stint}} has {{laps}} laps. Every stint needs a whole number of laps.",
     "UNKNOWN_COMPOUND": "Stint {{stint}} uses \"{{compound}}\", which is not a valid compound. Options: {{allowed}}.",
     "LAPS_MISMATCH_missing_one": "Stints add up to {{actual}} laps but the race has {{expected}}. {{count}} lap is missing.",
     "LAPS_MISMATCH_missing_other": "Stints add up to {{actual}} laps but the race has {{expected}}. {{count}} laps are missing.",
@@ -196,10 +199,12 @@
       "gapTitle": "{{count}} missing",
       "gapShort": "{{count}} L",
       "sub": "{{from}}–{{to}} · {{laps}} L",
-      "handle": "Move pit stop {{number}} (lap {{lap}})"
+      "handle": "Move pit stop {{number}}",
+      "handleValue": "Lap {{lap}}"
     },
     "issues": {
       "stintShort": "<b>Stint {{stint}}</b> needs at least 1 lap.",
+      "stintWhole": "<b>Stint {{stint}}</b> needs a whole number of laps.",
       "noCompound": "<b>Stint {{stint}}</b> has no tyre compound.",
       "sumMissing_one": "The stints add up to <b>{{sum}} laps</b> and the race has <b>{{total}}</b>. {{count}} lap left to cover.",
       "sumMissing_other": "The stints add up to <b>{{sum}} laps</b> and the race has <b>{{total}}</b>. {{count}} laps left to cover.",
@@ -234,7 +239,8 @@
       "remove": "Remove stint {{number}}"
     },
     "actions": {
-      "add": "Add pit stop"
+      "add": "Add pit stop",
+      "addMax": "Every stint is already 1 lap"
     },
     "simulate": {
       "action": "Simulate",

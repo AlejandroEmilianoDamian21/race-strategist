@@ -84,6 +84,24 @@ describe('translateViolation', () => {
     ).toBe('El stint 3 usa "SUPERSOFT", que no es un compuesto válido. Opciones: SOFT, MEDIUM.')
   })
 
+  it('words a fractional lap count as a whole number problem', async () => {
+    const decimal: StrategyViolation = {
+      code: 'STINT_TOO_SHORT',
+      field: 'stints[0].laps',
+      params: { stint: 1, laps: 20.5 },
+      message: 'm',
+    }
+
+    expect(translateViolation(i18n.t, decimal)).toBe(
+      'El stint 1 tiene 20.5 vueltas. Cada stint necesita un número entero de vueltas.',
+    )
+    await i18n.changeLanguage('en')
+    expect(translateViolation(i18n.t, decimal)).toBe(
+      'Stint 1 has 20.5 laps. Every stint needs a whole number of laps.',
+    )
+    await i18n.changeLanguage('es')
+  })
+
   it('falls back to the backend message for unknown codes', () => {
     const unknown = {
       code: 'SOMETHING_NEW',

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Stint } from '@/shared/api/types'
-import { lapAtPointer, movePit, stintEnds } from './pit-lap'
+import { handleWidths, labelsThatFit, lapAtPointer, movePit, stintEnds } from './pit-lap'
 
 const THREE: Stint[] = [
   { compound: 'MEDIUM', laps: 26 },
@@ -80,5 +80,44 @@ describe('lapAtPointer', () => {
 
   it('returns 0 for a bar without width', () => {
     expect(lapAtPointer(300, 100, 0, 70)).toBe(0)
+  })
+})
+
+describe('labelsThatFit', () => {
+  it('keeps every label when they are far apart', () => {
+    expect(labelsThatFit([50, 150, 250], [30, 30, 30])).toEqual([true, true, true])
+  })
+
+  it('drops a label that would collide with the previous visible one', () => {
+    expect(labelsThatFit([50, 60, 120], [30, 30, 30])).toEqual([true, false, true])
+  })
+
+  it('keeps showing labels once there is room again', () => {
+    expect(labelsThatFit([10, 20, 30, 40, 100], [24, 24, 24, 24, 24])).toEqual([
+      true,
+      false,
+      false,
+      true,
+      true,
+    ])
+  })
+
+  it('returns nothing for no pins', () => {
+    expect(labelsThatFit([], [])).toEqual([])
+  })
+})
+
+describe('handleWidths', () => {
+  it('uses the full width when there is room', () => {
+    expect(handleWidths([50, 150])).toEqual([20, 20])
+  })
+
+  it('narrows handles to the gap to their nearest neighbour down to a minimum', () => {
+    expect(handleWidths([100, 112, 300])).toEqual([12, 12, 20])
+    expect(handleWidths([100, 102])).toEqual([8, 8])
+  })
+
+  it('gives a lone handle the full width', () => {
+    expect(handleWidths([100])).toEqual([20])
   })
 })

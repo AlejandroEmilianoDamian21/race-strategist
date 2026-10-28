@@ -1,4 +1,4 @@
-import { useId, type ChangeEvent } from 'react'
+import { useId, useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import type { Stint } from '@/shared/api/types'
 import { COMPOUNDS, compoundNameKey, isTyreCompound } from '@/shared/domain/compounds'
@@ -33,6 +33,10 @@ function parseLaps(raw: string): number {
   return Number.isFinite(laps) ? laps : 0
 }
 
+function stripLeadingZeros(raw: string): string {
+  return raw.replace(/^(-?)0+(?=\d)/, '$1')
+}
+
 export function StintRow({
   index,
   stint,
@@ -50,8 +54,43 @@ export function StintRow({
   const lap = t('raceInfo.drivers.lapShort')
   const lapsId = useId()
   const pitId = useId()
+  const [draft, setDraft] = useState<string | null>(null)
+  const radios = useRef<(HTMLButtonElement | null)[]>([])
+  const checkedIndex = COMPOUNDS.findIndex((compound) => compound.api === stint.compound)
+  const tabbableIndex = checkedIndex === -1 ? 0 : checkedIndex
   const number = index + 1
+  const lapsValue =
+    draft !== null && parseLaps(draft) === stint.laps
+      ? draft
+      : Number.isFinite(stint.laps)
+        ? String(stint.laps)
+        : ''
   const name = isTyreCompound(stint.compound) ? t(compoundNameKey(stint.compound)) : '—'
+
+  function onCompoundKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.altKey || event.ctrlKey || event.shiftKey || event.metaKey) return
+    const last = COMPOUNDS.length - 1
+    const from = Math.max(checkedIndex, 0)
+    const target = {
+      ArrowRight: from === last ? 0 : from + 1,
+      ArrowDown: from === last ? 0 : from + 1,
+      ArrowLeft: from === 0 ? last : from - 1,
+      ArrowUp: from === 0 ? last : from - 1,
+      Home: 0,
+      End: last,
+    }[event.key]
+    const next = target === undefined ? undefined : COMPOUNDS[target]
+    if (target === undefined || next === undefined) return
+    event.preventDefault()
+    onCompoundChange(index, next.api)
+    radios.current[target]?.focus()
+  }
+
+  function onLapsInput(event: ChangeEvent<HTMLInputElement>) {
+    const raw = stripLeadingZeros(event.target.value)
+    setDraft(raw)
+    onLapsChange(index, Math.min(parseLaps(raw), raceLaps))
+  }
 
   function onPitInput(event: ChangeEvent<HTMLInputElement>) {
     if (event.target.value === '') return
@@ -82,17 +121,22 @@ export function StintRow({
           role="radiogroup"
           data-field="compound"
           aria-label={t('strategy.rows.group', { number })}
+          onKeyDown={onCompoundKeyDown}
           className="flex gap-1"
         >
-          {COMPOUNDS.map((compound) => {
+          {COMPOUNDS.map((compound, position) => {
             const checked = stint.compound === compound.api
             const label = t(compound.nameKey)
             return (
               <button
                 key={compound.api}
+                ref={(element) => {
+                  radios.current[position] = element
+                }}
                 type="button"
                 role="radio"
                 aria-checked={checked}
+                tabIndex={position === tabbableIndex ? 0 : -1}
                 aria-label={label}
                 title={label}
                 onClick={() => onCompoundChange(index, compound.api)}
@@ -122,8 +166,9 @@ export function StintRow({
           max={raceLaps}
           aria-label={t('strategy.rows.lapsOf', { number })}
           aria-invalid={invalid || undefined}
-          value={Number.isFinite(stint.laps) ? stint.laps : ''}
-          onChange={(event) => onLapsChange(index, parseLaps(event.target.value))}
+          value={lapsValue}
+          onChange={onLapsInput}
+          onBlur={() => setDraft(null)}
           className={INPUT_CLASS}
         />
       </div>
