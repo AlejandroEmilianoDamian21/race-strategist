@@ -120,6 +120,57 @@ describe('Simulate (e2e)', () => {
     );
   });
 
+  it.each([
+    ['an empty stint list', [], 'NO_STINTS'],
+    [
+      'a stint with zero laps',
+      [
+        { compound: 'SOFT', laps: 0 },
+        { compound: 'HARD', laps: 44 },
+      ],
+      'STINT_TOO_SHORT',
+    ],
+    [
+      'a stint with negative laps',
+      [
+        { compound: 'SOFT', laps: -5 },
+        { compound: 'HARD', laps: 49 },
+      ],
+      'STINT_TOO_SHORT',
+    ],
+    [
+      'an unknown compound',
+      [
+        { compound: 'SUPERSOFT', laps: 20 },
+        { compound: 'HARD', laps: 24 },
+      ],
+      'UNKNOWN_COMPOUND',
+    ],
+    [
+      'a huge lap count',
+      [
+        { compound: 'SOFT', laps: 1_000_000_000 },
+        { compound: 'HARD', laps: 24 },
+      ],
+      'LAPS_MISMATCH',
+    ],
+  ])(
+    'answers 400 INVALID_STRATEGY for %s',
+    async (_, stints, violationCode) => {
+      const response = await post({ ...validBody, stints }).expect(400);
+
+      expect(response.body).toMatchObject({
+        statusCode: 400,
+        code: 'INVALID_STRATEGY',
+      });
+      expect(response.body.details).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ code: violationCode }),
+        ]),
+      );
+    },
+  );
+
   it('answers 404 RACE_NOT_FOUND for an unknown race', async () => {
     const response = await post({ ...validBody, raceId: 'nope' }).expect(404);
 
@@ -152,6 +203,20 @@ describe('Simulate (e2e)', () => {
       statusCode: 502,
       code: 'UPSTREAM_UNAVAILABLE',
       details: { reason: 'timeout', resource: '/api/tyres' },
+    });
+  });
+
+  it('answers 502 UPSTREAM_UNAVAILABLE when the driver references an unknown team', async () => {
+    fake.drivers = fake.drivers.map((driver) =>
+      driver.id === 'norris' ? { ...driver, teamId: 'ghost' } : driver,
+    );
+
+    const response = await post(validBody).expect(502);
+
+    expect(response.body).toMatchObject({
+      statusCode: 502,
+      code: 'UPSTREAM_UNAVAILABLE',
+      details: { reason: 'invalid-response', resource: '/api/teams' },
     });
   });
 });
