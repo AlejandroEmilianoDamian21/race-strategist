@@ -5,7 +5,7 @@ import { translateViolation } from '@/shared/i18n/translate-violation'
 import { cn } from '@/shared/lib/cn'
 import { CompoundBadge } from '@/shared/ui/compound-badge'
 import { CloseIcon, ErrorIcon } from '@/shared/ui/icons'
-import { TYRE_COMPOUNDS, isTyreCompound } from './compounds'
+import { TYRE_COMPOUNDS, compoundNameKey, isTyreCompound } from '@/shared/domain/compounds'
 
 const CONTROL =
   'h-11 rounded-sm border border-line-strong bg-surface-2 px-3 text-body text-ink focus-visible:outline-none focus-visible:shadow-focus aria-invalid:border-danger'
@@ -68,7 +68,7 @@ export function StintRow({
           )}
           {TYRE_COMPOUNDS.map((compound: TyreCompound) => (
             <option key={compound} value={compound}>
-              {t(`compounds.${compound}`)}
+              {t(compoundNameKey(compound))}
             </option>
           ))}
         </select>

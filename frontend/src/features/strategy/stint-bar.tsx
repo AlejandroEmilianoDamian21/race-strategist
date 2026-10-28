@@ -2,9 +2,8 @@ import { useTranslation } from 'react-i18next'
 import type { Stint, TyreCompound, WeatherSegment } from '@/shared/api/types'
 import { cn } from '@/shared/lib/cn'
 import { toPercent } from '@/shared/lib/to-percent'
-import { COMPOUND_LETTER } from '@/shared/ui/compound-letter'
 import { AlertIcon } from '@/shared/ui/icons'
-import { isTyreCompound } from './compounds'
+import { compoundLetter, compoundNameKey, isTyreCompound } from '@/shared/domain/compounds'
 
 const COMPOUND_BG: Record<TyreCompound, string> = {
   SOFT: 'bg-tyre-soft text-on-tyre',
@@ -69,7 +68,7 @@ export function StintBar({ stints, raceLaps, forecast, invalidStints }: StintBar
         {stints.map((stint, index) => {
           const known = isTyreCompound(stint.compound)
           const invalid = invalidStints.has(index)
-          const name = known ? t(`compounds.${stint.compound as TyreCompound}`) : stint.compound
+          const name = known ? t(compoundNameKey(stint.compound as TyreCompound)) : stint.compound
           return (
             <li
               key={index}
@@ -83,7 +82,7 @@ export function StintBar({ stints, raceLaps, forecast, invalidStints }: StintBar
             >
               {invalid && <AlertIcon className="size-3.5 flex-none" />}
               <span aria-hidden="true">
-                {known ? COMPOUND_LETTER[stint.compound as TyreCompound] : '?'}
+                {known ? compoundLetter(stint.compound as TyreCompound) : '?'}
               </span>
               <span className="font-mono text-caption tabular-nums">{stint.laps}</span>
               <span className="sr-only">

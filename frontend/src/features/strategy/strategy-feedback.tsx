@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { rainLevel } from '@/features/races/format'
 import type { StrategyViolation } from '@/shared/api/types'
+import { compoundNameKey } from '@/shared/domain/compounds'
 import { translateViolation } from '@/shared/i18n/translate-violation'
 import { AlertIcon, ErrorIcon } from '@/shared/ui/icons'
 import type { RainWarning } from './rain-warnings'
@@ -45,7 +46,7 @@ export function StrategyFeedback({ errors, warnings }: StrategyFeedbackProps) {
               <span>
                 {t('strategy.warning.message', {
                   stint: warning.stintIndex + 1,
-                  compound: t(`compounds.${warning.compound}`),
+                  compound: t(compoundNameKey(warning.compound)),
                   lap,
                   from: warning.fromLap,
                   to: warning.toLap,
@@ -54,7 +55,7 @@ export function StrategyFeedback({ errors, warnings }: StrategyFeedbackProps) {
                   loss: warning.lossPerLap.toFixed(1),
                 })}
                 {warning.idealCompound !== null &&
-                  ` ${t('strategy.warning.ideal', { compound: t(`compounds.${warning.idealCompound}`) })}`}
+                  ` ${t('strategy.warning.ideal', { compound: t(compoundNameKey(warning.idealCompound)) })}`}
               </span>
             </li>
           ))}

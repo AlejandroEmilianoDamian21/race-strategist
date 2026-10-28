@@ -1,5 +1,5 @@
 import type { Stint, Tyre, TyreCompound, WeatherSegment } from '@/shared/api/types'
-import { TYRE_COMPOUNDS, isTyreCompound } from './compounds'
+import { TYRE_COMPOUNDS, isTyreCompound } from '@/shared/domain/compounds'
 
 export interface RainWarning {
   stintIndex: number

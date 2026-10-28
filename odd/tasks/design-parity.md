@@ -19,7 +19,7 @@ The frontend works but diverges visually from the design (missing components, co
 
 ## Tasks
 - [x] D1 Base: tokens.css as single source, Google fonts weights, globals (bg, focus ring), stroke icons from bundle.js, reduced motion, Playwright shots script.
-- [ ] D2 Data layer: AppError statusCode + code + technical line; compound letters mapping (backend stays as is).
+- [x] D2 Data layer: AppError statusCode + code + technical line; compound letters mapping (backend stays as is).
 - [ ] D3 Atoms: Button, CompoundBadge, Stepper.
 - [ ] D4 Step 1: RacePicker + skeleton + wake/api-error.
 - [ ] D5 Step 2: CircuitCard, TyreCompounds, WeatherTimeline, DriverGrid.
@@ -34,5 +34,8 @@ The frontend works but diverges visually from the design (missing components, co
 ## Progress
 - D1 implemented (delegated writer). tokens.css copied verbatim to src/shared/design and mapped via `@theme inline` (utilities resolve to var(--token)); fonts with exact weights; globals (bg, :focus-visible shadow-focus, .num, .skeleton shimmer + reduced motion); 10 icons ported from bundle.js; Playwright 1.64.1 (cached chromium 1248, no download) + `npm run shots`. RED icons 10/25 failing -> GREEN; FE 233; lint/typecheck/build/prettier clean; design folder ignored by oxlint. Shots compared: base colors, surfaces, brand bar and header match; reference PNGs were rendered with fallback fonts (no Barlow), so font shapes differ by design of the capture, not ours. Decision: type styles come from tokens.css classes (.heading-1, .eyebrow, .data...) used directly by components in D3+; the duplicated --text-* in @theme get removed as components migrate. Spacing uses Tailwind's 4px scale (numerically equal to --space-*). HANDOFF: reduced-motion item checked.
 
+- D1 review (reliability): approved; R3 warning accepted -> tokens.css imported with layer(components), .num/.skeleton in @layer components (verified in built CSS: now inside components layer, before utilities), Skeleton contract tests, shots script checks the dev server and waits for fonts. Commit dca60d1.
+- D2 implemented (delegated writer). AppError carries method, path, statusCode, backend code + message; request() fills them for HTTP, network, timeout and non-JSON errors; technicalLine() = `GET /api/races → 502 · UPSTREAM_UNAVAILABLE · <message>` (reference format), `→ network` / `→ timeout` (no reference string exists), emptyListLine() `GET /api/races → 200 · races = [] (0 elementos)` (used in D4); api-error panel uses technicalLine. Compounds unified in shared/domain/compounds.ts (order, S/M/H/I/W, i18n name key). RED 5 files/7 tests -> GREEN FE 244; lint/typecheck/build/prettier clean. No visual change in this phase (shots unchanged). HANDOFF "Errores mapeados" items stay open until the StatusPanel is verified visually in D4.
+
 ## Next step
-User reviews D1; then D2 data layer.
+User reviews D2; then D3 atoms (Button, CompoundBadge, Stepper).

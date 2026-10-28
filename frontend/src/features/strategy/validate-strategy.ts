@@ -1,5 +1,5 @@
 import type { Stint, StrategyViolation, Tyre, WeatherSegment } from '@/shared/api/types'
-import { TYRE_COMPOUNDS, isTyreCompound } from './compounds'
+import { TYRE_COMPOUNDS, isTyreCompound } from '@/shared/domain/compounds'
 import { rainWarnings, type RainWarning } from './rain-warnings'
 
 export interface StrategyRules {
