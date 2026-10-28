@@ -46,6 +46,20 @@ describe('StintBar', () => {
     expect(items[1]?.style.flex).toBe('30 1 0px')
   })
 
+  it('lets every segment shrink below its padding so many stints never overflow the bar', () => {
+    const stints = Array.from({ length: 53 }, () => ({ compound: 'MEDIUM', laps: 1 }))
+    const { items } = renderBar({ stints })
+
+    expect(items).toHaveLength(53)
+    for (const item of items) {
+      expect(item).toHaveClass('@container', 'min-w-0', 'overflow-hidden')
+      expect(item.className).not.toMatch(/(^|\s)(px-\d|pl-)/)
+      const inner = item.firstElementChild as HTMLElement
+      expect(inner.className).not.toMatch(/(^|\s)px-\d/)
+      expect(inner.className).toContain('@min-[48px]:px-2')
+    }
+  })
+
   it('puts the weather band above the bar and a lap axis below', () => {
     renderBar()
 

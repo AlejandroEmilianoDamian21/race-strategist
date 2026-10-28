@@ -48,8 +48,13 @@ function lapsOf(stint: Stint): number {
 }
 
 const SEGMENT =
-  'relative flex min-w-0 flex-col justify-center overflow-hidden px-2 py-1 text-on-tyre min-[721px]:px-3 min-[721px]:py-2 ' +
-  'not-first:pl-[calc(var(--space-3)+3px)] not-first:shadow-[inset_3px_0_0_var(--bg)]'
+  'group/segment @container relative flex min-w-0 overflow-hidden text-on-tyre ' +
+  'not-first:shadow-[inset_3px_0_0_var(--bg)]'
+
+const SEGMENT_INNER =
+  'flex min-w-0 flex-1 flex-col justify-center py-1 min-[721px]:py-2 ' +
+  '@min-[48px]:px-2 min-[721px]:@min-[48px]:px-3 ' +
+  '@min-[48px]:group-[:not(:first-child)]/segment:pl-[calc(var(--space-3)+3px)]'
 
 export function StintBar({
   stints,
@@ -180,31 +185,33 @@ export function StintBar({
                     'after:absolute after:right-1.5 after:top-1.5 after:size-2.5 after:bg-warning after:content-[""] after:[clip-path:polygon(50%_0,100%_100%,0_100%)]',
                 )}
               >
-                <div className="flex items-center gap-2 whitespace-nowrap font-display text-base font-extrabold uppercase leading-[22px] tracking-[0.5px]">
-                  {known && (
-                    <CompoundBadge
-                      compound={stint.compound as TyreCompound}
-                      size="sm"
-                      decorative
-                      className="bg-on-tyre"
-                    />
+                <div className={SEGMENT_INNER}>
+                  <div className="flex items-center gap-2 whitespace-nowrap font-display text-base font-extrabold uppercase leading-[22px] tracking-[0.5px]">
+                    {known && (
+                      <CompoundBadge
+                        compound={stint.compound as TyreCompound}
+                        size="sm"
+                        decorative
+                        className="bg-on-tyre @max-[19px]:hidden"
+                      />
+                    )}
+                    {!tiny && <span className="max-[720px]:hidden">{name}</span>}
+                  </div>
+                  {!tiny && (
+                    <div className="whitespace-nowrap font-mono text-xs font-semibold leading-[22px] opacity-85 max-[720px]:hidden">
+                      {t('strategy.bar.sub', {
+                        from: `${lap}${from}`,
+                        to: `${lap}${to}`,
+                        laps,
+                      })}
+                    </div>
                   )}
-                  {!tiny && <span className="max-[720px]:hidden">{name}</span>}
+                  {!tiny && stintResult !== undefined && (
+                    <div className="whitespace-nowrap font-mono text-[15px] font-bold leading-[22px] max-[720px]:text-xs">
+                      {formatStintTime(stintResult.time)}
+                    </div>
+                  )}
                 </div>
-                {!tiny && (
-                  <div className="whitespace-nowrap font-mono text-xs font-semibold leading-[22px] opacity-85 max-[720px]:hidden">
-                    {t('strategy.bar.sub', {
-                      from: `${lap}${from}`,
-                      to: `${lap}${to}`,
-                      laps,
-                    })}
-                  </div>
-                )}
-                {!tiny && stintResult !== undefined && (
-                  <div className="whitespace-nowrap font-mono text-[15px] font-bold leading-[22px] max-[720px]:text-xs">
-                    {formatStintTime(stintResult.time)}
-                  </div>
-                )}
               </div>
             )
           })}
@@ -219,16 +226,18 @@ export function StintBar({
                 'bg-[repeating-linear-gradient(135deg,var(--danger-surface)_0_8px,var(--bg)_8px_16px)]',
               )}
             >
-              <div className="flex items-center gap-2 whitespace-nowrap font-display text-base font-extrabold uppercase leading-[22px] tracking-[0.5px] [&_svg]:size-4">
-                <AlertIcon />
-                <span className="max-[720px]:hidden">
-                  {missing / span < NARROW_GAP_SHARE
-                    ? t('strategy.bar.gapShort', { count: missing })
-                    : t('strategy.bar.gapTitle', { count: missing })}
-                </span>
-              </div>
-              <div className="whitespace-nowrap font-mono text-xs font-semibold leading-[22px] opacity-85 max-[720px]:hidden">
-                {`${lap}${sum + 1}–${lap}${raceLaps}`}
+              <div className={SEGMENT_INNER}>
+                <div className="flex items-center gap-2 whitespace-nowrap font-display text-base font-extrabold uppercase leading-[22px] tracking-[0.5px] [&_svg]:size-4">
+                  <AlertIcon />
+                  <span className="max-[720px]:hidden">
+                    {missing / span < NARROW_GAP_SHARE
+                      ? t('strategy.bar.gapShort', { count: missing })
+                      : t('strategy.bar.gapTitle', { count: missing })}
+                  </span>
+                </div>
+                <div className="whitespace-nowrap font-mono text-xs font-semibold leading-[22px] opacity-85 max-[720px]:hidden">
+                  {`${lap}${sum + 1}–${lap}${raceLaps}`}
+                </div>
               </div>
             </div>
           )}
