@@ -132,6 +132,57 @@ describe('ResultStep', () => {
     expect(onRetry).toHaveBeenCalledOnce()
   })
 
+  it('moves focus to the result heading once a retry succeeds', async () => {
+    const error = new AppError('upstream', {
+      method: 'POST',
+      path: '/api/simulate',
+      status: 502,
+      code: 'UPSTREAM_UNAVAILABLE',
+      backendMessage: 'down',
+    })
+    const failed: SimulationView = {
+      kind: 'error',
+      error,
+      request: { raceId: 'italian-gp', driverId: 'leclerc', stints: STINTS },
+    }
+    const { rerender, onRetry } = renderStep(failed)
+    const props = {
+      overview: OVERVIEW,
+      builderStints: STINTS,
+      lap: null,
+      onRetry,
+      onBackToStrategy: vi.fn(),
+      onBackToCalendar: vi.fn(),
+    }
+
+    const retry = screen.getByRole('button', { name: 'Reintentar' })
+    retry.focus()
+    await userEvent.setup().click(retry)
+    rerender(<ResultStep view={success()} {...props} />)
+
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'Resultado de la simulación' }),
+    ).toHaveFocus()
+  })
+
+  it('does not steal focus when a result arrives without a retry', () => {
+    const { rerender, onRetry } = renderStep({ kind: 'idle' })
+
+    rerender(
+      <ResultStep
+        view={success()}
+        overview={OVERVIEW}
+        builderStints={STINTS}
+        lap={null}
+        onRetry={onRetry}
+        onBackToStrategy={vi.fn()}
+        onBackToCalendar={vi.fn()}
+      />,
+    )
+
+    expect(document.body).toHaveFocus()
+  })
+
   it('shows a validation message without retry and goes back to the strategy', async () => {
     const error = new AppError('validation', {
       method: 'POST',

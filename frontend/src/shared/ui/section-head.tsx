@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ReactNode, Ref } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { STEP_KEYS } from '@/shared/layout/steps'
 
@@ -6,10 +6,11 @@ interface SectionHeadProps {
   step: 1 | 2 | 3 | 4 | 5
   title: string
   titleId?: string
+  titleRef?: Ref<HTMLHeadingElement>
   right?: ReactNode
 }
 
-export function SectionHead({ step, title, titleId, right }: SectionHeadProps) {
+export function SectionHead({ step, title, titleId, titleRef, right }: SectionHeadProps) {
   const { t } = useTranslation()
   const key = STEP_KEYS[step - 1]
 
@@ -25,6 +26,8 @@ export function SectionHead({ step, title, titleId, right }: SectionHeadProps) {
         </p>
         <h2
           id={titleId}
+          ref={titleRef}
+          tabIndex={titleRef === undefined ? undefined : -1}
           className="mt-1 heading-1 max-[720px]:text-[26px] max-[720px]:leading-[30px]"
         >
           {title}
