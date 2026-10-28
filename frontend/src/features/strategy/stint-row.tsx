@@ -68,6 +68,7 @@ export function StintRow({
   const name = isTyreCompound(stint.compound) ? t(compoundNameKey(stint.compound)) : '—'
 
   function onCompoundKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.altKey || event.ctrlKey || event.shiftKey || event.metaKey) return
     const last = COMPOUNDS.length - 1
     const from = Math.max(checkedIndex, 0)
     const target = {

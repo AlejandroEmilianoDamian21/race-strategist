@@ -221,6 +221,18 @@ describe('StintRow', () => {
     expect(radios[index]).toHaveFocus()
   })
 
+  it('ignores arrow keys combined with a modifier in the compound group', () => {
+    const { onCompoundChange } = renderRow()
+    const checked = screen.getByRole('radio', { checked: true })
+
+    for (const modifier of ['altKey', 'ctrlKey', 'shiftKey', 'metaKey']) {
+      const notPrevented = fireEvent.keyDown(checked, { key: 'ArrowLeft', [modifier]: true })
+      expect(notPrevented).toBe(true)
+    }
+
+    expect(onCompoundChange).not.toHaveBeenCalled()
+  })
+
   it('wraps around at the ends of the compound group', () => {
     const { onCompoundChange } = renderRow({ stint: { compound: 'WET', laps: 10 } })
     const radios = within(screen.getByRole('radiogroup')).getAllByRole('radio')
