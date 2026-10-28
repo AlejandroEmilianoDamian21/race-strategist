@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import type { Tyre } from '@/shared/api/types'
 import { Card, CardTitle } from '@/shared/ui/card'
-import { CompoundBadge } from '@/shared/ui/compound-badge'
+import { TyreChip } from '@/shared/ui/compound-badge'
 import { formatSignedSeconds } from './format'
 
 interface TyreCompoundsProps {
@@ -19,7 +19,7 @@ export function TyreCompounds({ tyres, tyreWear }: TyreCompoundsProps) {
         {tyres.map((tyre) => (
           <li key={tyre.compound} className="grid gap-2">
             <div className="flex items-center justify-between gap-2">
-              <CompoundBadge compound={tyre.compound} showName />
+              <TyreChip compound={tyre.compound} />
               <span className="font-mono text-data tabular-nums">
                 {formatSignedSeconds(tyre.pace)}
               </span>

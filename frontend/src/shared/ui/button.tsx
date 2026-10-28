@@ -1,6 +1,6 @@
 import { useId, type ButtonHTMLAttributes, type ReactNode } from 'react'
 import { cn } from '@/shared/lib/cn'
-import { ClockIcon } from './icons'
+import { ClockIcon, ErrorIcon } from './icons'
 
 type Variant = 'primary' | 'secondary' | 'ghost'
 type Size = 'md' | 'lg'
@@ -20,12 +20,17 @@ type ButtonProps = CommonProps &
 const VARIANTS: Record<Variant, string> = {
   primary: 'bg-accent text-on-accent hover:bg-accent-hover',
   secondary: 'bg-transparent text-ink border-line-strong hover:bg-surface-2',
-  ghost: 'bg-transparent text-ink-muted px-3 hover:text-ink hover:bg-surface-2',
+  ghost: 'bg-transparent text-ink-muted hover:text-ink hover:bg-surface-2',
 }
 
 const SIZES: Record<Size, string> = {
-  md: 'h-11 px-6 text-[17px]',
-  lg: 'h-13 px-8 text-[20px]',
+  md: 'h-11',
+  lg: 'h-13',
+}
+
+const PADDING: Record<Size, string> = {
+  md: 'px-6',
+  lg: 'px-8',
 }
 
 export function Button({
@@ -57,12 +62,13 @@ export function Button({
       onClick={inactive ? undefined : onClick}
       className={cn(
         'relative inline-flex items-center justify-center gap-2 overflow-hidden whitespace-nowrap',
-        'border border-transparent rounded-sm font-display font-bold uppercase tracking-wider',
+        'border border-transparent rounded-sm body uppercase tracking-[1px]',
         'transition-colors cursor-pointer focus-visible:outline-none focus-visible:shadow-focus',
         'disabled:bg-surface-2 disabled:text-ink-faint disabled:border-line disabled:cursor-not-allowed',
         '[&_svg]:size-[18px] [&_svg]:flex-none',
         VARIANTS[variant],
         SIZES[size],
+        variant === 'ghost' ? 'px-3' : PADDING[size],
         loading && 'bg-accent text-on-accent cursor-progress hover:bg-accent',
         className,
       )}
@@ -85,7 +91,8 @@ export function Button({
   return (
     <div className="flex flex-wrap items-center gap-3">
       {button}
-      <span id={hintId} className="text-label text-ink-muted">
+      <span id={hintId} className="flex items-center gap-1 text-[13px] text-ink-muted">
+        <ErrorIcon className="size-4 flex-none text-danger" />
         {hint}
       </span>
     </div>

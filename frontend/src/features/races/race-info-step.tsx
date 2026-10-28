@@ -20,7 +20,7 @@ export function RaceInfoStep({ raceId, driverId, onSelectDriver }: RaceInfoStepP
   const { t } = useTranslation()
 
   return (
-    <section aria-labelledby="step-info-title" className="scroll-mt-24">
+    <section id="step-info" aria-labelledby="step-info-title" className="scroll-mt-24">
       <SectionHead step={2} title={t('raceInfo.title')} titleId="step-info-title" />
       {raceId === null ? (
         <p className="rounded-md border border-dashed border-line-strong p-4 text-body text-ink-muted min-[720px]:p-6">

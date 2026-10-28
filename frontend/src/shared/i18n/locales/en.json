@@ -16,6 +16,7 @@
     "label": "Steps",
     "eyebrow": "Step {{number}} · {{name}}",
     "compact": "Step {{current}} of {{total}} · {{name}}",
+    "compactRich": "Step <b>{{current}}</b> of {{total}} · <b>{{name}}</b>",
     "steps": {
       "race": "Race",
       "info": "Info",
