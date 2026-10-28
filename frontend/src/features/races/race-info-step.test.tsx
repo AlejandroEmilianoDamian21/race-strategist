@@ -27,18 +27,17 @@ afterEach(() => {
 })
 
 describe('RaceInfoStep', () => {
-  it('shows the empty text and fires no request without a selected race', () => {
+  it('shows the empty panel and a generic title without a selected race, and fires no request', () => {
     const fetchMock = vi.fn()
     vi.stubGlobal('fetch', fetchMock)
     renderStep(null)
 
-    expect(
-      screen.getByText('Elegí una carrera para ver el circuito, el clima y quién corre.'),
-    ).toBeVisible()
+    expect(screen.getByRole('heading', { level: 2, name: 'La carrera' })).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'Elegí una carrera' })).toBeVisible()
     expect(fetchMock).not.toHaveBeenCalled()
   })
 
-  it('shows skeleton cards while the overview loads', () => {
+  it('shows one skeleton per card with the final layout while the overview loads', () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(() => new Promise<Response>(() => undefined)),
@@ -48,6 +47,7 @@ describe('RaceInfoStep', () => {
     expect(
       screen.getByRole('status', { name: 'Cargando información de la carrera…' }),
     ).toHaveAttribute('aria-busy', 'true')
+    expect(screen.getByRole('heading', { level: 2, name: 'La carrera' })).toBeVisible()
   })
 
   it('renders the four cards once the overview arrives and forwards driver selection', async () => {
@@ -56,9 +56,14 @@ describe('RaceInfoStep', () => {
     const onSelectDriver = renderStep('italian-gp')
 
     expect(await screen.findByRole('heading', { name: 'Autodromo Nazionale Monza' })).toBeVisible()
+    expect(screen.getByRole('heading', { level: 2, name: 'Italian Grand Prix' })).toBeVisible()
+    expect(screen.getByText('Ronda 3 · 06 SEP 2026 · 28°C')).toBeVisible()
     expect(screen.getByRole('heading', { name: 'Neumáticos' })).toBeVisible()
-    expect(screen.getByRole('heading', { name: 'Clima por tramos' })).toBeVisible()
+    expect(screen.getByText('3 compuestos')).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'Clima durante la carrera' })).toBeVisible()
+    expect(screen.getByText('Probabilidad de lluvia 10%')).toBeVisible()
     expect(screen.getByRole('heading', { name: 'Parrilla' })).toBeVisible()
+    expect(screen.getByText('3 pilotos · 2 equipos · tocá uno para simular con él')).toBeVisible()
     await userEvent.setup().click(screen.getByRole('button', { name: /Charles Leclerc/ }))
     expect(onSelectDriver).toHaveBeenCalledWith('leclerc')
     expect(String(fetchMock.mock.calls[0]?.[0])).toContain('/api/races/italian-gp/overview')

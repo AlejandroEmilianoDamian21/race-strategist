@@ -25,7 +25,7 @@ export function SectionHead({ step, title, titleId, right }: SectionHeadProps) {
         </p>
         <h2
           id={titleId}
-          className="mt-1 font-display text-heading-1 font-extrabold uppercase tracking-[0.5px]"
+          className="mt-1 font-display text-heading-1 font-extrabold uppercase tracking-[0.5px] max-[720px]:text-[26px] max-[720px]:leading-[30px]"
         >
           {title}
         </h2>

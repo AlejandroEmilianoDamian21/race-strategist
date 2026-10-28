@@ -52,7 +52,7 @@ describe('StrategyFeedback', () => {
     expect(screen.getByRole('list', { name: 'Avisos' })).not.toHaveTextContent('Ideal')
   })
 
-  it('names a dry track for below-band warnings', () => {
+  it('names a dry stretch for below-band warnings', () => {
     render(
       <StrategyFeedback
         errors={[]}
@@ -63,7 +63,19 @@ describe('StrategyFeedback', () => {
     )
 
     expect(screen.getByRole('list', { name: 'Avisos' })).toHaveTextContent(
-      'Stint 1 · Lluvia corre V1–V30 con pista seca (0).',
+      'Stint 1 · Lluvia corre V1–V30 con seco (0).',
+    )
+  })
+
+  it.each([
+    [0.1, 'llovizna'],
+    [0.35, 'lluvia moderada'],
+    [0.7, 'lluvia fuerte'],
+  ])('words a rain intensity of %s as "%s"', (rainIntensity, word) => {
+    render(<StrategyFeedback errors={[]} warnings={[{ ...WARNING, rainIntensity }]} />)
+
+    expect(screen.getByRole('list', { name: 'Avisos' })).toHaveTextContent(
+      `con ${word} (${rainIntensity})`,
     )
   })
 

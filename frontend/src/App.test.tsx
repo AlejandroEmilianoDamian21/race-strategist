@@ -88,7 +88,7 @@ describe('App', () => {
     const user = userEvent.setup()
 
     expect(
-      await screen.findByText('Elegí una carrera para ver el circuito, el clima y quién corre.'),
+      await screen.findByText(/Cuando elijas una del calendario, acá aparecen el circuito/),
     ).toBeVisible()
     expect(screen.getByRole('progressbar', { name: 'Paso 1 de 5 · Carrera' })).toBeVisible()
 

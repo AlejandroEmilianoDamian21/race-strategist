@@ -111,8 +111,8 @@
     "WET": "Lluvia"
   },
   "raceInfo": {
-    "title": "Circuito, clima y parrilla",
-    "empty": "Elegí una carrera para ver el circuito, el clima y quién corre.",
+    "title": "La carrera",
+    "headCaption": "Ronda {{round}} · {{date}} · {{temperature}}°C",
     "loading": "Cargando información de la carrera…",
     "circuit": {
       "eyebrow": "Circuito · {{country}} · {{type}}",
@@ -122,29 +122,52 @@
       "baseLap": "Vuelta base",
       "tyreWear": "Desgaste de neumáticos",
       "tyreWearNote": "1.0 es neutro",
+      "pitCost": "Costo de una parada",
+      "pitCostNote": "{{pitStopLoss}}s pit lane + {{tyreChangeTime}}s cambio",
       "overtaking": "Dificultad para adelantar",
       "overtakingNote": "0 fácil · 1 imposible",
       "safetyCar": "Probabilidad de safety car",
-      "safetyCarNote": "No entra en la simulación"
+      "safetyCarNote": "No entra en la simulación",
+      "reading": {
+        "title": "Lectura de estrategia",
+        "highWear": "Desgaste alto (×{{value}}): los blandos duran poco, conviene parar más o usar duros.",
+        "lowWear": "Desgaste bajo (×{{value}}): los neumáticos aguantan, una parada suele alcanzar.",
+        "hardOvertaking": "Adelantar es casi imposible ({{value}}): la posición en pista vale más que neumáticos frescos.",
+        "rain": "Probabilidad de lluvia del {{value}}: mirá el pronóstico por tramos antes de elegir compuestos.",
+        "safetyCar": "Safety car muy probable ({{value}}).",
+        "balanced": "Circuito equilibrado: desgaste y pérdida en boxes cerca de la media."
+      }
     },
     "tyres": {
       "title": "Neumáticos",
+      "count_one": "{{count}} compuesto",
+      "count_other": "{{count}} compuestos",
       "degradation": "Degradación aquí",
       "optimalRain": "Lluvia óptima",
-      "note": "Ritmo vs. vuelta base (negativo = más rápido). Degradación multiplicada por el desgaste de este circuito."
+      "optimalRange": "Lluvia óptima {{min}}–{{max}}",
+      "mark": "Lluvia {{value}} en esta carrera",
+      "noteRich": "Ritmo vs. <code>baseLapTime</code> (negativo = más rápido). Degradación × <code>tyreWear</code> {{wear}} de este circuito. Las marcas ▏ son las intensidades de lluvia de esta carrera; atenuados, los compuestos que no encajan en ningún tramo."
     },
     "weather": {
-      "title": "Clima por tramos",
-      "intensity": "Intensidad {{value}}",
+      "title": "Clima durante la carrera",
+      "caption": "Probabilidad de lluvia {{percent}}",
+      "segments": "Tramos de la carrera · ideal por banda de lluvia",
+      "band": "Clima por tramos",
+      "segmentLabel": "{{from}}–{{to}}: {{level}} ({{value}}), {{temperature}}°C.{{ideal}}",
+      "idealLabel": " Ideal: {{compounds}}",
       "dry": "Seco",
-      "light": "Lluvia ligera",
+      "drizzle": "Llovizna",
       "moderate": "Lluvia moderada",
-      "heavy": "Lluvia intensa"
+      "heavy": "Lluvia fuerte",
+      "dryShort": "seco",
+      "detail": "{{temperature}}°C · intensidad {{value}}",
+      "idealDetail": " · ideal {{compounds}}"
     },
     "drivers": {
       "title": "Parrilla",
+      "caption": "{{drivers}} pilotos · {{teams}} equipos · tocá uno para simular con él",
       "carPerformance": "Rendimiento del auto",
-      "pace": "Ritmo",
+      "paceTitle": "Ritmo {{pace}} · consistencia {{consistency}}",
       "lapShort": "V"
     }
   },
@@ -180,10 +203,10 @@
     },
     "warning": {
       "rain": {
-        "dry": "pista seca",
-        "light": "lluvia ligera",
+        "dry": "seco",
+        "drizzle": "llovizna",
         "moderate": "lluvia moderada",
-        "heavy": "lluvia intensa"
+        "heavy": "lluvia fuerte"
       },
       "message": "Stint {{stint}} · {{compound}} corre {{lap}}{{from}}–{{lap}}{{to}} con {{rain}} ({{intensity}}). Perdés ≈{{loss}}s por vuelta.",
       "ideal": "Ideal: {{compound}}."

@@ -30,11 +30,12 @@ describe('rainLevel', () => {
   it.each([
     [0, 'dry'],
     [-0.1, 'dry'],
-    [0.01, 'light'],
-    [0.2, 'light'],
-    [0.21, 'moderate'],
-    [0.5, 'moderate'],
-    [0.51, 'heavy'],
+    [0.01, 'drizzle'],
+    [0.14, 'drizzle'],
+    [0.15, 'moderate'],
+    [0.35, 'moderate'],
+    [0.54, 'moderate'],
+    [0.55, 'heavy'],
     [1, 'heavy'],
   ])('maps a rain intensity of %s to "%s"', (intensity, level) => {
     expect(rainLevel(intensity)).toBe(level)
