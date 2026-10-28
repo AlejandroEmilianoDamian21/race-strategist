@@ -27,6 +27,11 @@ function optionsFor(violation: StrategyViolation): Record<string, unknown> | nul
       count: Math.abs(difference),
     }
   }
+  if (code === 'STINT_TOO_SHORT') {
+    const laps = finite(params.laps)
+    const fractional = laps !== undefined && !Number.isInteger(laps)
+    return fractional ? { ...params, context: 'whole' } : { ...params }
+  }
   if (code === 'NOT_ENOUGH_PIT_STOPS') {
     return { ...params, count: Number(params.required) }
   }

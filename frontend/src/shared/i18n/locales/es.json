@@ -86,6 +86,7 @@
   "violations": {
     "NO_STINTS": "La estrategia necesita al menos un stint.",
     "STINT_TOO_SHORT": "El stint {{stint}} tiene {{laps}} vueltas. Cada stint necesita al menos 1 vuelta entera.",
+    "STINT_TOO_SHORT_whole": "El stint {{stint}} tiene {{laps}} vueltas. Cada stint necesita un número entero de vueltas.",
     "UNKNOWN_COMPOUND": "El stint {{stint}} usa \"{{compound}}\", que no es un compuesto válido. Opciones: {{allowed}}.",
     "LAPS_MISMATCH_missing_one": "Los stints suman {{actual}} vueltas y la carrera tiene {{expected}}. Falta {{count}} vuelta.",
     "LAPS_MISMATCH_missing_other": "Los stints suman {{actual}} vueltas y la carrera tiene {{expected}}. Faltan {{count}} vueltas.",
@@ -202,6 +203,7 @@
     },
     "issues": {
       "stintShort": "<b>Stint {{stint}}</b> necesita al menos 1 vuelta.",
+      "stintWhole": "<b>Stint {{stint}}</b> necesita un número entero de vueltas.",
       "noCompound": "<b>Stint {{stint}}</b> no tiene compuesto.",
       "sumMissing_one": "Los stints suman <b>{{sum}} vueltas</b> y la carrera tiene <b>{{total}}</b>. Faltan {{count}} vuelta por cubrir.",
       "sumMissing_other": "Los stints suman <b>{{sum}} vueltas</b> y la carrera tiene <b>{{total}}</b>. Faltan {{count}} vueltas por cubrir.",
@@ -236,7 +238,8 @@
       "remove": "Quitar stint {{number}}"
     },
     "actions": {
-      "add": "Agregar parada"
+      "add": "Agregar parada",
+      "addMax": "Cada stint ya tiene 1 vuelta"
     },
     "simulate": {
       "action": "Simular",

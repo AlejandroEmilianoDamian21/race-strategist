@@ -10,6 +10,7 @@ import { Skeleton } from '@/shared/ui/skeleton'
 import { StatusPanel } from '@/shared/ui/status-panel/status-panel'
 import { DriverSelect } from './driver-select'
 import { stintEnds } from './pit-lap'
+import { canSplitStint } from './stop-edits'
 import { SimulateBar } from './simulate-bar'
 import { errorScopes } from './stint-scope'
 import { StintBar } from './stint-bar'
@@ -189,6 +190,7 @@ function StrategyBuilder({
         hasDriver={driver !== null}
         raceLaps={raceLaps}
         progress={simulationProgress}
+        canAddStop={canSplitStint(stints)}
         onAddStop={addStop}
         onSimulate={simulate}
       />

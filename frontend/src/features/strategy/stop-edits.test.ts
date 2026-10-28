@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Stint, Tyre, WeatherSegment } from '@/shared/api/types'
-import { removeStint, splitLongestStint } from './stop-edits'
+import { canSplitStint, removeStint, splitLongestStint } from './stop-edits'
 
 function tyre(compound: Tyre['compound'], min: number, max: number): Tyre {
   return {
@@ -139,5 +139,34 @@ describe('removeStint', () => {
         1,
       ),
     ).toEqual([{ compound: 'MEDIUM', laps: 20 }])
+  })
+})
+
+describe('canSplitStint', () => {
+  it('is true while some stint has two laps or more', () => {
+    expect(
+      canSplitStint([
+        { compound: 'SOFT', laps: 1 },
+        { compound: 'HARD', laps: 2 },
+      ]),
+    ).toBe(true)
+  })
+
+  it('is false when every stint is a single lap', () => {
+    expect(
+      canSplitStint([
+        { compound: 'SOFT', laps: 1 },
+        { compound: 'HARD', laps: 1 },
+      ]),
+    ).toBe(false)
+  })
+
+  it('ignores invalid lap counts', () => {
+    expect(
+      canSplitStint([
+        { compound: 'SOFT', laps: 0 },
+        { compound: 'HARD', laps: Number.NaN },
+      ]),
+    ).toBe(false)
   })
 })

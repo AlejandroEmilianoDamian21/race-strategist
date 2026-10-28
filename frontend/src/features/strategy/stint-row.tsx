@@ -1,4 +1,4 @@
-import { useId, type ChangeEvent } from 'react'
+import { useId, useState, type ChangeEvent } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import type { Stint } from '@/shared/api/types'
 import { COMPOUNDS, compoundNameKey, isTyreCompound } from '@/shared/domain/compounds'
@@ -33,6 +33,10 @@ function parseLaps(raw: string): number {
   return Number.isFinite(laps) ? laps : 0
 }
 
+function stripLeadingZeros(raw: string): string {
+  return raw.replace(/^(-?)0+(?=\d)/, '$1')
+}
+
 export function StintRow({
   index,
   stint,
@@ -50,8 +54,21 @@ export function StintRow({
   const lap = t('raceInfo.drivers.lapShort')
   const lapsId = useId()
   const pitId = useId()
+  const [draft, setDraft] = useState<string | null>(null)
   const number = index + 1
+  const lapsValue =
+    draft !== null && parseLaps(draft) === stint.laps
+      ? draft
+      : Number.isFinite(stint.laps)
+        ? String(stint.laps)
+        : ''
   const name = isTyreCompound(stint.compound) ? t(compoundNameKey(stint.compound)) : '—'
+
+  function onLapsInput(event: ChangeEvent<HTMLInputElement>) {
+    const raw = stripLeadingZeros(event.target.value)
+    setDraft(raw)
+    onLapsChange(index, parseLaps(raw))
+  }
 
   function onPitInput(event: ChangeEvent<HTMLInputElement>) {
     if (event.target.value === '') return
@@ -122,8 +139,9 @@ export function StintRow({
           max={raceLaps}
           aria-label={t('strategy.rows.lapsOf', { number })}
           aria-invalid={invalid || undefined}
-          value={Number.isFinite(stint.laps) ? stint.laps : ''}
-          onChange={(event) => onLapsChange(index, parseLaps(event.target.value))}
+          value={lapsValue}
+          onChange={onLapsInput}
+          onBlur={() => setDraft(null)}
           className={INPUT_CLASS}
         />
       </div>
