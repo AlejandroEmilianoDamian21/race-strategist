@@ -90,6 +90,64 @@
     "title": "Elegí una carrera",
     "loading": "Cargando carreras…",
     "loaded_one": "{{count}} carrera en el calendario",
-    "loaded_other": "{{count}} carreras en el calendario"
+    "loaded_other": "{{count}} carreras en el calendario",
+    "lapsShort": "{{count}} v",
+    "rain": "{{percent}} lluvia",
+    "selected": "Seleccionada",
+    "empty": {
+      "title": "No hay carreras en el calendario",
+      "body": "La API no devolvió carreras. Reintentá en un rato."
+    }
+  },
+  "circuitTypes": {
+    "permanent": "Permanente",
+    "street": "Callejero",
+    "semi-street": "Semi-callejero",
+    "high-speed": "Alta velocidad"
+  },
+  "compounds": {
+    "SOFT": "Blando",
+    "MEDIUM": "Medio",
+    "HARD": "Duro",
+    "INTERMEDIATE": "Intermedio",
+    "WET": "Lluvia"
+  },
+  "raceInfo": {
+    "title": "Circuito, clima y parrilla",
+    "empty": "Elegí una carrera para ver el circuito, el clima y quién corre.",
+    "loading": "Cargando información de la carrera…",
+    "circuit": {
+      "eyebrow": "Circuito · {{country}} · {{type}}",
+      "laps": "Vueltas",
+      "kmPerLap": "Km / vuelta",
+      "totalKm": "Km totales",
+      "baseLap": "Vuelta base",
+      "tyreWear": "Desgaste de neumáticos",
+      "tyreWearNote": "1.0 es neutro",
+      "overtaking": "Dificultad para adelantar",
+      "overtakingNote": "0 fácil · 1 imposible",
+      "safetyCar": "Probabilidad de safety car",
+      "safetyCarNote": "No entra en la simulación"
+    },
+    "tyres": {
+      "title": "Neumáticos",
+      "degradation": "Degradación aquí",
+      "optimalRain": "Lluvia óptima",
+      "note": "Ritmo vs. vuelta base (negativo = más rápido). Degradación multiplicada por el desgaste de este circuito."
+    },
+    "weather": {
+      "title": "Clima por tramos",
+      "intensity": "Intensidad {{value}}",
+      "dry": "Seco",
+      "light": "Lluvia ligera",
+      "moderate": "Lluvia moderada",
+      "heavy": "Lluvia intensa"
+    },
+    "drivers": {
+      "title": "Parrilla",
+      "carPerformance": "Rendimiento del auto",
+      "pace": "Ritmo",
+      "lapShort": "V"
+    }
   }
 }

@@ -29,7 +29,7 @@ export function Stepper({ activeStep }: StepperProps) {
               key={key}
               aria-current={active ? 'step' : undefined}
               className={cn(
-                'flex-1 min-w-0 truncate border-t-[3px] pt-3 pb-2 px-3',
+                'flex-1 min-w-0 border-t-[3px] pt-3 pb-2 px-3',
                 'font-display text-[14px] font-bold uppercase tracking-wider',
                 active && 'border-accent text-ink',
                 done && 'border-ink-muted text-ink-muted',
@@ -37,7 +37,9 @@ export function Stepper({ activeStep }: StepperProps) {
               )}
             >
               <span className="mr-2 font-mono text-caption">{String(number).padStart(2, '0')}</span>
-              {t(`stepper.steps.${key}`)}
+              <span data-step-label className={cn(!active && 'max-[1099px]:sr-only')}>
+                {t(`stepper.steps.${key}`)}
+              </span>
               {done && (
                 <>
                   <CheckIcon className="ml-2 inline size-3.5 align-[-1px]" />

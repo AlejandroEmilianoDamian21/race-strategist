@@ -25,7 +25,7 @@ export function useQueryStatus<TData>(
 
   const retry = useCallback(() => {
     setAttempt((current) => current + 1)
-    void queryClient.cancelQueries({ queryKey }).then(() => refetch())
+    void queryClient.cancelQueries({ queryKey, exact: true }).then(() => refetch())
   }, [queryClient, queryKey, refetch])
 
   return { status: select(query, inFlight, wake), retry }

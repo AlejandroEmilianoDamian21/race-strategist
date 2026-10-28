@@ -1,7 +1,8 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { RacesStepPlaceholder } from './races-step-placeholder'
+import { MONACO, MONZA } from './race-fixtures'
+import { RacesStep } from './races-step'
 
 interface Deferred {
   resolve: (response: Response) => void
@@ -20,18 +21,18 @@ function deferred(): Deferred {
 }
 
 function racesResponse(count: number): Response {
-  const races = Array.from({ length: count }, (_, index) => ({ id: `race-${index}` }))
+  const races = [MONZA, MONACO].slice(0, count)
   return new Response(JSON.stringify({ races }), {
     status: 200,
     headers: { 'Content-Type': 'application/json' },
   })
 }
 
-function renderStep() {
+function renderStep(selectedId: string | null = null, onSelect: (id: string) => void = vi.fn()) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
     <QueryClientProvider client={client}>
-      <RacesStepPlaceholder />
+      <RacesStep selectedId={selectedId} onSelect={onSelect} />
     </QueryClientProvider>,
   )
 }
@@ -73,7 +74,7 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-describe('RacesStepPlaceholder retry behavior', () => {
+describe('RacesStep retry behavior', () => {
   it('leaves the error state on retry, shows waking after 3s and then the data', async () => {
     renderStep()
     pending[0].reject(new TypeError('Failed to fetch'))
@@ -87,7 +88,7 @@ describe('RacesStepPlaceholder retry behavior', () => {
 
     expect(pending).toHaveLength(2)
     expect(errorHeading()).toBeNull()
-    expect(screen.getByText('Cargando carreras…')).toBeVisible()
+    expect(screen.getByRole('status', { name: 'Cargando carreras…' })).toBeVisible()
 
     await advance(3000)
     expect(wakeHeading()).toBeVisible()
@@ -113,9 +114,10 @@ describe('RacesStepPlaceholder retry behavior', () => {
 
     expect(pending).toHaveLength(2)
     expect(signals[0]?.aborted).toBe(true)
+    expect((signals[0]?.reason as Error | undefined)?.name).not.toBe('TimeoutError')
     expect(signals[1]?.aborted).toBe(false)
     expect(errorHeading()).toBeNull()
-    expect(screen.getByText('Cargando carreras…')).toBeVisible()
+    expect(screen.getByRole('status', { name: 'Cargando carreras…' })).toBeVisible()
 
     await advance(3000)
     expect(wakeHeading()).toBeVisible()
@@ -124,5 +126,39 @@ describe('RacesStepPlaceholder retry behavior', () => {
     pending[1].resolve(racesResponse(1))
     await advance(0)
     expect(screen.getByText('1 carrera en el calendario')).toBeVisible()
+  })
+})
+
+describe('RacesStep states', () => {
+  it('shows the skeleton while the first request is pending', () => {
+    renderStep()
+
+    expect(screen.getByRole('status', { name: 'Cargando carreras…' })).toHaveAttribute(
+      'aria-busy',
+      'true',
+    )
+  })
+
+  it('renders the race cards and forwards the selection', async () => {
+    const onSelect = vi.fn()
+    renderStep('monaco-gp', onSelect)
+    pending[0].resolve(racesResponse(2))
+    await advance(0)
+
+    expect(screen.getByText('2 carreras en el calendario')).toBeVisible()
+    expect(screen.getByRole('button', { name: /Monaco Grand Prix/ })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+    fireEvent.click(screen.getByRole('button', { name: /Italian Grand Prix/ }))
+    expect(onSelect).toHaveBeenCalledWith('italian-gp')
+  })
+
+  it('shows an empty message when the calendar has no races', async () => {
+    renderStep()
+    pending[0].resolve(racesResponse(0))
+    await advance(0)
+
+    expect(screen.getByRole('heading', { name: 'No hay carreras en el calendario' })).toBeVisible()
   })
 })

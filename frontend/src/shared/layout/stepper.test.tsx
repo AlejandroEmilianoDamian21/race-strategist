@@ -27,4 +27,16 @@ describe('Stepper', () => {
       '3',
     )
   })
+
+  it('keeps labels readable at mid widths by collapsing only the inactive ones', () => {
+    render(<Stepper activeStep={2} />)
+
+    const items = Array.from(screen.getByRole('list').querySelectorAll('li'))
+    items.forEach((item) => expect(item.className).not.toMatch(/\btruncate\b/))
+    const labels = items.map((item) => item.querySelector('[data-step-label]'))
+    expect(labels[1]?.className).not.toContain('sr-only')
+    expect(labels[0]?.className).toContain('max-[1099px]:sr-only')
+    expect(labels[2]?.className).toContain('max-[1099px]:sr-only')
+    expect(labels[0]).toHaveTextContent('Carrera')
+  })
 })
