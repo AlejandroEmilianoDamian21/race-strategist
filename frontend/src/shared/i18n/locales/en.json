@@ -42,13 +42,15 @@
       "title": {
         "default": "We couldn't read the F1 data",
         "notFound": "We couldn't find that race",
-        "empty": "The API returned no races"
+        "empty": "The API returned no races",
+        "validation": "The backend did not accept the request"
       },
       "body": {
         "default": "The API responded with an internal error, or did not respond within 90 seconds.",
         "network": "There is no connection to the API. Check your network and retry.",
         "notFound": "The race you asked for no longer exists in the API. Pick another one from the calendar.",
-        "empty": "The race list came back empty. It may be a temporary provider issue."
+        "empty": "The race list came back empty. It may be a temporary provider issue.",
+        "validation": "The request failed the backend validation. Review the strategy and simulate again."
       },
       "upstreamReason": {
         "timeout": "The provider took too long to respond.",

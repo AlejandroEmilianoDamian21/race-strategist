@@ -101,7 +101,7 @@ export function ResultStep({
             variant="api-error"
             error={view.error}
             onRetry={onRetry}
-            onBack={onBackToCalendar}
+            onBack={view.error.kind === 'validation' ? () => onBackToStrategy() : onBackToCalendar}
           />
         ))}
       {view.kind === 'success' && overview !== undefined && (

@@ -35,7 +35,9 @@ afterEach(() => {
 
 describe('useSimulation', () => {
   it('starts idle', () => {
-    const { result } = renderHook(() => useSimulation('italian-gp'), { wrapper: wrapper() })
+    const { result } = renderHook(() => useSimulation('italian-gp', 'leclerc'), {
+      wrapper: wrapper(),
+    })
     expect(result.current.view).toEqual({ kind: 'idle' })
   })
 
@@ -45,7 +47,9 @@ describe('useSimulation', () => {
       () => new Promise<Response>((resolve) => (release = resolve)),
     )
     vi.stubGlobal('fetch', fetchMock)
-    const { result } = renderHook(() => useSimulation('italian-gp'), { wrapper: wrapper() })
+    const { result } = renderHook(() => useSimulation('italian-gp', 'leclerc'), {
+      wrapper: wrapper(),
+    })
 
     act(() => result.current.run(REQUEST))
     await waitFor(() => expect(result.current.view.kind).toBe('loading'))
@@ -75,7 +79,9 @@ describe('useSimulation', () => {
         .mockResolvedValueOnce(jsonResponse(200, first))
         .mockResolvedValueOnce(jsonResponse(200, second)),
     )
-    const { result } = renderHook(() => useSimulation('italian-gp'), { wrapper: wrapper() })
+    const { result } = renderHook(() => useSimulation('italian-gp', 'leclerc'), {
+      wrapper: wrapper(),
+    })
 
     act(() => result.current.run(REQUEST))
     await waitFor(() => expect(result.current.view.kind).toBe('success'))
@@ -107,7 +113,9 @@ describe('useSimulation', () => {
         }),
       ),
     )
-    const { result } = renderHook(() => useSimulation('italian-gp'), { wrapper: wrapper() })
+    const { result } = renderHook(() => useSimulation('italian-gp', 'leclerc'), {
+      wrapper: wrapper(),
+    })
 
     act(() => result.current.run(REQUEST))
     await waitFor(() => expect(result.current.view.kind).toBe('error'))
@@ -123,7 +131,9 @@ describe('useSimulation', () => {
       .mockRejectedValueOnce(new TypeError('Failed to fetch'))
       .mockResolvedValueOnce(jsonResponse(200, buildResult(TWO_STOPS)))
     vi.stubGlobal('fetch', fetchMock)
-    const { result } = renderHook(() => useSimulation('italian-gp'), { wrapper: wrapper() })
+    const { result } = renderHook(() => useSimulation('italian-gp', 'leclerc'), {
+      wrapper: wrapper(),
+    })
 
     act(() => result.current.run(REQUEST))
     await waitFor(() => expect(result.current.view.kind).toBe('error'))
@@ -137,7 +147,7 @@ describe('useSimulation', () => {
       'fetch',
       vi.fn<typeof fetch>(async () => jsonResponse(200, buildResult(TWO_STOPS))),
     )
-    const { result, rerender } = renderHook(({ raceId }) => useSimulation(raceId), {
+    const { result, rerender } = renderHook(({ raceId }) => useSimulation(raceId, 'leclerc'), {
       wrapper: wrapper(),
       initialProps: { raceId: 'italian-gp' as string | null },
     })
@@ -148,5 +158,105 @@ describe('useSimulation', () => {
     expect(result.current.view).toEqual({ kind: 'idle' })
     rerender({ raceId: 'italian-gp' })
     expect(result.current.view).toEqual({ kind: 'idle' })
+  })
+
+  it('drops the result when the driver changes', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn<typeof fetch>(async () => jsonResponse(200, buildResult(TWO_STOPS))),
+    )
+    const { result, rerender } = renderHook(
+      ({ driverId }) => useSimulation('italian-gp', driverId),
+      { wrapper: wrapper(), initialProps: { driverId: 'leclerc' as string | null } },
+    )
+
+    act(() => result.current.run(REQUEST))
+    await waitFor(() => expect(result.current.view.kind).toBe('success'))
+    rerender({ driverId: 'norris' })
+    expect(result.current.view).toEqual({ kind: 'idle' })
+    rerender({ driverId: 'leclerc' })
+    expect(result.current.view).toEqual({ kind: 'idle' })
+  })
+
+  it('ignores a response that arrives after the driver changed', async () => {
+    let release: (response: Response) => void = () => undefined
+    vi.stubGlobal(
+      'fetch',
+      vi.fn<typeof fetch>(() => new Promise<Response>((resolve) => (release = resolve))),
+    )
+    const { result, rerender } = renderHook(
+      ({ driverId }) => useSimulation('italian-gp', driverId),
+      { wrapper: wrapper(), initialProps: { driverId: 'leclerc' as string | null } },
+    )
+
+    act(() => result.current.run(REQUEST))
+    await waitFor(() => expect(result.current.view.kind).toBe('loading'))
+    rerender({ driverId: 'norris' })
+    await act(async () => release(jsonResponse(200, buildResult(TWO_STOPS))))
+    expect(result.current.view).toEqual({ kind: 'idle' })
+  })
+
+  it('sends a single request when run is called twice synchronously', async () => {
+    const fetchMock = vi.fn<typeof fetch>(async () => jsonResponse(200, buildResult(TWO_STOPS)))
+    vi.stubGlobal('fetch', fetchMock)
+    const { result } = renderHook(() => useSimulation('italian-gp', 'leclerc'), {
+      wrapper: wrapper(),
+    })
+
+    act(() => {
+      result.current.run(REQUEST)
+      result.current.run(REQUEST)
+    })
+    await waitFor(() => expect(result.current.view.kind).toBe('success'))
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(result.current.view).toMatchObject({ kind: 'success', previous: null })
+  })
+
+  it('accepts a new run once the previous one settled', async () => {
+    const fetchMock = vi.fn<typeof fetch>(async () => jsonResponse(200, buildResult(TWO_STOPS)))
+    vi.stubGlobal('fetch', fetchMock)
+    const { result } = renderHook(() => useSimulation('italian-gp', 'leclerc'), {
+      wrapper: wrapper(),
+    })
+
+    act(() => result.current.run(REQUEST))
+    await waitFor(() => expect(result.current.view.kind).toBe('success'))
+    act(() => result.current.run(REQUEST))
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2))
+    await waitFor(() => expect(result.current.view).toMatchObject({ kind: 'success' }))
+    expect(result.current.view).toMatchObject({ previous: expect.anything() })
+  })
+
+  it('accepts a new run after an error', async () => {
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockRejectedValueOnce(new TypeError('Failed to fetch'))
+      .mockResolvedValueOnce(jsonResponse(200, buildResult(TWO_STOPS)))
+    vi.stubGlobal('fetch', fetchMock)
+    const { result } = renderHook(() => useSimulation('italian-gp', 'leclerc'), {
+      wrapper: wrapper(),
+    })
+
+    act(() => result.current.run(REQUEST))
+    await waitFor(() => expect(result.current.view.kind).toBe('error'))
+    act(() => result.current.run(REQUEST))
+    await waitFor(() => expect(result.current.view.kind).toBe('success'))
+  })
+
+  it('turns a malformed 200 body into an error view', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn<typeof fetch>(async () => jsonResponse(200, { foo: 1 })),
+    )
+    const { result } = renderHook(() => useSimulation('italian-gp', 'leclerc'), {
+      wrapper: wrapper(),
+    })
+
+    act(() => result.current.run(REQUEST))
+    await waitFor(() => expect(result.current.view.kind).toBe('error'))
+    const view = result.current.view
+    if (view.kind !== 'error') throw new Error('expected error')
+    expect(view.error.kind).toBe('unknown')
   })
 })
