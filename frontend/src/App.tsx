@@ -1,16 +1,22 @@
-import { useTranslation } from 'react-i18next'
+import { QueryClientProvider, type QueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
+import { RacesStepPlaceholder } from '@/features/races/races-step-placeholder'
+import { createQueryClient } from '@/shared/api/query-client'
+import { AppShell } from '@/shared/layout/app-shell'
 
-function App() {
-  const { t } = useTranslation()
+interface AppProps {
+  client?: QueryClient
+}
+
+function App({ client }: AppProps) {
+  const [defaultClient] = useState(createQueryClient)
 
   return (
-    <div className="min-h-screen bg-bg text-ink">
-      <div className="h-1 bg-accent" />
-      <header className="px-6 py-8">
-        <h1 className="font-display text-heading-1 font-extrabold uppercase">{t('app.title')}</h1>
-        <p className="text-body text-ink-muted">{t('app.tagline')}</p>
-      </header>
-    </div>
+    <QueryClientProvider client={client ?? defaultClient}>
+      <AppShell activeStep={1}>
+        <RacesStepPlaceholder />
+      </AppShell>
+    </QueryClientProvider>
   )
 }
 
