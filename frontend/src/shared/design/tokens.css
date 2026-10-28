@@ -1,0 +1,58 @@
+/* Race Strategist — generado desde tokens.json. No editar a mano. */
+:root {
+  --bg: #0b0b0f;
+  --surface-1: #15151c;
+  --surface-2: #1f1f29;
+  --surface-3: #2a2a36;
+  --line: #2c2c38;
+  --line-strong: #4a4a5a;
+  --ink: #ffffff;
+  --ink-muted: #a3a3b2;
+  --ink-faint: #8a8a99;
+  --accent: #e10600;
+  --accent-hover: #ff1a0d;
+  --accent-text: #ff4436;
+  --on-accent: #ffffff;
+  --tyre-soft: #ff5a5f;
+  --tyre-medium: #ffd12e;
+  --tyre-hard: #f2f2f2;
+  --tyre-inter: #3fbf5a;
+  --tyre-wet: #3d8bff;
+  --on-tyre: #0b0b0f;
+  --success: #2fd67b;
+  --warning: #ffb020;
+  --danger: #ff6e61;
+  --danger-surface: #2a1414;
+  --warning-surface: #2a2112;
+  --rain: #4aa3ff;
+  --series-current: #ffffff;
+  --series-previous: #7c93ff;
+  --shadow-focus: 0 0 0 2px #0b0b0f, 0 0 0 4px #ffffff;
+  --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --radius-0: 0px;
+  --radius-sm: 2px;
+  --radius-md: 6px;
+  --radius-full: 999px;
+  --font-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-sans: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+.display-xl { font-family: var(--font-display); font-size: 56px; line-height: 56px; font-weight: 800; letter-spacing: 0px; text-transform: uppercase; }
+.heading-1 { font-family: var(--font-display); font-size: 32px; line-height: 36px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; }
+.heading-2 { font-family: var(--font-display); font-size: 22px; line-height: 26px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+.eyebrow { font-family: var(--font-display); font-size: 13px; line-height: 16px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+.body-lg { font-family: var(--font-sans); font-size: 18px; line-height: 26px; font-weight: 500; }
+.body { font-family: var(--font-sans); font-size: 15px; line-height: 22px; font-weight: 400; }
+.label { font-family: var(--font-sans); font-size: 13px; line-height: 18px; font-weight: 600; }
+.caption { font-family: var(--font-sans); font-size: 12px; line-height: 16px; font-weight: 500; }
+.time-hero { font-family: var(--font-mono); font-size: 64px; line-height: 64px; font-weight: 700; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+.time-md { font-family: var(--font-mono); font-size: 20px; line-height: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.data { font-family: var(--font-mono); font-size: 14px; line-height: 20px; font-weight: 500; font-variant-numeric: tabular-nums; }

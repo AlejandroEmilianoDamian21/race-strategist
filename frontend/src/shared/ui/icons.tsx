@@ -135,3 +135,88 @@ export function DotIcon(props: IconProps) {
     </BaseIcon>
   )
 }
+
+export function OkIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <circle cx="10" cy="10" r="7.5" />
+      <path d="m6.5 10.2 2.3 2.3 4.7-4.8" />
+    </BaseIcon>
+  )
+}
+
+export function SunIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <circle cx="10" cy="10" r="3.5" />
+      <path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.3 4.3l1.4 1.4M14.3 14.3l1.4 1.4M4.3 15.7l1.4-1.4M14.3 5.7l1.4-1.4" />
+    </BaseIcon>
+  )
+}
+
+export function TempIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M8 11.5V4a2 2 0 1 1 4 0v7.5a3.5 3.5 0 1 1-4 0z" />
+      <path d="M10 8v5" />
+    </BaseIcon>
+  )
+}
+
+export function TrashIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M4 6h12M8 6V4h4v2M5.5 6l.8 10h7.4l.8-10" />
+    </BaseIcon>
+  )
+}
+
+export function UpIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M10 16V4M5 9l5-5 5 5" />
+    </BaseIcon>
+  )
+}
+
+export function DownIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M10 4v12M5 11l5 5 5-5" />
+    </BaseIcon>
+  )
+}
+
+export function ArrowIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M3 10h14M12 5l5 5-5 5" />
+    </BaseIcon>
+  )
+}
+
+export function InfoIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <circle cx="10" cy="10" r="7.5" />
+      <path d="M10 9v5M10 6.2v.01" />
+    </BaseIcon>
+  )
+}
+
+export function CarIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M3 13h14l-1.5-4.5h-11zM5 13v2M15 13v2M7 8.5 8 6h4l1 2.5" />
+    </BaseIcon>
+  )
+}
+
+export function FlagEndIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M4 18V3h12v8H4" />
+      <path d="M4 7h12M8 3v8M12 3v8" />
+    </BaseIcon>
+  )
+}
