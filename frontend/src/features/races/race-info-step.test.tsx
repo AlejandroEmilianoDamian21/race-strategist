@@ -79,4 +79,31 @@ describe('RaceInfoStep', () => {
 
     expect(await screen.findByRole('heading', { name: 'Autodromo Nazionale Monza' })).toBeVisible()
   })
+
+  it('shows the not-found panel for a missing race and sends the user back to the calendar', async () => {
+    const fetchMock = vi.fn<typeof fetch>(async () =>
+      jsonResponse(404, {
+        statusCode: 404,
+        code: 'RACE4040',
+        message: 'Race not found',
+      }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+    const scrollIntoView = vi.fn()
+    const calendar = document.createElement('section')
+    calendar.id = 'step-race'
+    calendar.scrollIntoView = scrollIntoView
+    document.body.append(calendar)
+    renderStep('race-999')
+
+    expect(await screen.findByRole('heading', { name: 'No encontramos esa carrera' })).toBeVisible()
+    expect(
+      screen.getByText('GET /api/races/race-999/overview → 404 · RACE4040 · Race not found'),
+    ).toBeVisible()
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Volver al calendario' }))
+
+    expect(scrollIntoView).toHaveBeenCalledOnce()
+    expect(fetchMock).toHaveBeenCalledOnce()
+    calendar.remove()
+  })
 })

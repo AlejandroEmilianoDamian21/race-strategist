@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import { STEP_KEYS } from '@/shared/layout/steps'
 
 interface SectionHeadProps {
@@ -17,10 +17,11 @@ export function SectionHead({ step, title, titleId, right }: SectionHeadProps) {
     <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div>
         <p className="font-display text-eyebrow font-bold uppercase tracking-[1.5px] text-ink-muted">
-          {t('stepper.eyebrow', {
-            number: String(step).padStart(2, '0'),
-            name: t(`stepper.steps.${key}`),
-          })}
+          <Trans
+            i18nKey="stepper.eyebrowRich"
+            values={{ number: String(step).padStart(2, '0'), name: t(`stepper.steps.${key}`) }}
+            components={{ b: <b className="font-bold text-accent-text" /> }}
+          />
         </p>
         <h2
           id={titleId}

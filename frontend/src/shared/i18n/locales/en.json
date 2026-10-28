@@ -14,7 +14,7 @@
   "stepper": {
     "done": "done",
     "label": "Steps",
-    "eyebrow": "Step {{number}} · {{name}}",
+    "eyebrowRich": "<b>Step {{number}}</b> · {{name}}",
     "compact": "Step {{current}} of {{total}} · {{name}}",
     "compactRich": "Step <b>{{current}}</b> of {{total}} · <b>{{name}}</b>",
     "steps": {
@@ -28,26 +28,27 @@
   "status": {
     "wake": {
       "title": "Waking up the server",
-      "body": "The free API goes to sleep when idle. The first request can take up to a minute; after that it is fast.",
+      "body": "The free API goes to sleep when idle. The first time it can take <b>up to a minute</b>; after that it is fast. No need to reload.",
       "progressLabel": "Wait time",
-      "elapsed": "{{elapsed}} of ~1:00",
+      "elapsed": "{{elapsed}} elapsed",
+      "expected": "~1:00",
       "steps": {
-        "connecting": "Connecting…",
-        "races": "Loading races…",
+        "connecting": "Waking the API · GET /api/__health/liveness",
+        "races": "Loading races · GET /api/races",
         "details": "Loading circuits and tyres"
       }
     },
     "apiError": {
       "title": {
         "default": "We couldn't read the F1 data",
-        "notFound": "We couldn't find that race"
+        "notFound": "We couldn't find that race",
+        "empty": "The API returned no races"
       },
       "body": {
+        "default": "The API responded with an internal error, or did not respond within 90 seconds.",
         "network": "There is no connection to the API. Check your network and retry.",
-        "timeout": "The API did not respond within 90 seconds.",
-        "upstream": "The F1 data provider is unavailable right now.",
         "notFound": "The race you asked for no longer exists in the API. Pick another one from the calendar.",
-        "unknown": "The API responded with an unexpected error."
+        "empty": "The race list came back empty. It may be a temporary provider issue."
       },
       "upstreamReason": {
         "timeout": "The provider took too long to respond.",
@@ -90,15 +91,11 @@
   "races": {
     "title": "Pick a race",
     "loading": "Loading races…",
-    "loaded_one": "{{count}} race on the calendar",
-    "loaded_other": "{{count}} races on the calendar",
+    "season_one": "Season {{year}} · {{count}} race",
+    "season_other": "Season {{year}} · {{count}} races",
     "lapsShort": "{{count}} laps",
     "rain": "{{percent}} rain",
-    "selected": "Selected",
-    "empty": {
-      "title": "No races on the calendar",
-      "body": "The API returned no races. Try again in a moment."
-    }
+    "selected": "Selected"
   },
   "circuitTypes": {
     "permanent": "Permanent",

@@ -11,7 +11,7 @@ describe('RacePicker', () => {
     const monza = screen.getByRole('button', { name: /Italian Grand Prix/ })
     expect(within(monza).getByText('R03')).toBeVisible()
     expect(within(monza).getByText('Italian Grand Prix')).toBeVisible()
-    expect(within(monza).getByText(/6 (de )?sep/i)).toBeVisible()
+    expect(within(monza).getByText('06 SEP 2026')).toBeVisible()
     expect(within(monza).getByText('Italy · permanente · 53 v')).toBeVisible()
     expect(within(monza).getByText('28°C')).toBeVisible()
     expect(within(monza).getByText('10% lluvia')).toBeVisible()
@@ -48,10 +48,12 @@ describe('RacePicker', () => {
     expect(screen.getByText('Italy · oval · 53 v')).toBeVisible()
   })
 
-  it('renders eight skeleton cards while loading', () => {
+  it('renders seven skeleton cards with the reference shape while loading', () => {
     const { container } = render(<RacePickerSkeleton />)
 
-    expect(container.querySelectorAll('[data-skeleton-card]')).toHaveLength(8)
+    const cards = container.querySelectorAll('[data-skeleton-card]')
+    expect(cards).toHaveLength(7)
+    expect(cards[0].querySelectorAll('.skeleton')).toHaveLength(3)
     expect(container.firstChild).toHaveAttribute('aria-busy', 'true')
   })
 })

@@ -6,11 +6,19 @@ interface ProgressBarProps {
   max: number
   label: string
   tone?: 'warning' | 'accent'
+  maxPercent?: number
   className?: string
 }
 
-export function ProgressBar({ value, max, label, tone = 'warning', className }: ProgressBarProps) {
-  const percent = toPercent(value, max)
+export function ProgressBar({
+  value,
+  max,
+  label,
+  tone = 'warning',
+  maxPercent = 100,
+  className,
+}: ProgressBarProps) {
+  const percent = Math.min(maxPercent, toPercent(value, max))
 
   return (
     <div

@@ -31,7 +31,7 @@ describe('App', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Race Strategist' })).toBeVisible()
     expect(screen.getByRole('navigation', { name: 'Pasos' })).toBeVisible()
     expect(
-      await screen.findByRole('heading', { name: 'No hay carreras en el calendario' }),
+      await screen.findByRole('heading', { name: 'La API no devolvió carreras' }),
     ).toBeVisible()
   })
 
@@ -42,7 +42,7 @@ describe('App', () => {
     )
     render(<App client={createClient()} />)
 
-    expect(await screen.findByText('2 carreras en el calendario')).toBeVisible()
+    expect(await screen.findByText('Temporada 2026 · 2 carreras')).toBeVisible()
   })
 
   it('shows the api error and recovers on retry', async () => {
@@ -61,7 +61,7 @@ describe('App', () => {
 
     await userEvent.setup().click(screen.getByRole('button', { name: 'Reintentar' }))
 
-    expect(await screen.findByText('1 carrera en el calendario')).toBeVisible()
+    expect(await screen.findByText('Temporada 2026 · 1 carrera')).toBeVisible()
     expect(fetchMock).toHaveBeenCalledTimes(2)
   })
 
